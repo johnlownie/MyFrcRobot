@@ -34,6 +34,7 @@ public class TwoPieceBalance extends SequentialCommandGroup {
                 armSubsystem.addAction(Action.GRAB);
                 armSubsystem.addAction(Action.MOVE_TO_MID_NODE);
                 armSubsystem.addAction(Action.RELEASE);
+                armSubsystem.addAction(Action.PAUSE);
                 armSubsystem.addAction(Action.MOVE_TO_GROUND);
             }),
             new WaitUntilCommand(armSubsystem::isReleased),

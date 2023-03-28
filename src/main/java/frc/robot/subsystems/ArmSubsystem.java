@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.util.StateMachine;
 import frc.lib.util.StateMetadata;
+import frc.lib.util.Timer;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.modules.arm.ArmModule;
 
@@ -14,7 +15,7 @@ import frc.robot.modules.arm.ArmModule;
  */
 public class ArmSubsystem extends SubsystemBase {
     public static enum Action {
-        IDLE, GRAB, MOVE, MOVE_TO_DRAWER, MOVE_TO_GROUND, MOVE_TO_LOW_NODE, MOVE_TO_MID_NODE, RELEASE, STOP
+        IDLE, GRAB, MOVE, MOVE_TO_DRAWER, MOVE_TO_GROUND, MOVE_TO_LOW_NODE, MOVE_TO_MID_NODE, PAUSE, RELEASE, STOP
     }
 
     private final StateMachine<Action> stateMachine;
@@ -24,6 +25,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     private boolean is_released;
     private boolean notify_on_release;
+    private Timer timer;
 
     /**
      * 
@@ -41,12 +43,14 @@ public class ArmSubsystem extends SubsystemBase {
         this.stateMachine.addState(Action.MOVE_TO_GROUND, this::handleMoveToGround);
         this.stateMachine.addState(Action.MOVE_TO_LOW_NODE, this::handleMoveToLowNode);
         this.stateMachine.addState(Action.MOVE_TO_MID_NODE, this::handleMoveToMidNode);
+        this.stateMachine.addState(Action.PAUSE, this::handlePause);
         this.stateMachine.addState(Action.RELEASE, this::handleRelease);
 
         this.actionQueue = new LinkedList<Action>();
 
         this.is_released = false;
         this.notify_on_release = false;
+        this.timer = new Timer();
     }
 
     /**
@@ -137,6 +141,21 @@ public class ArmSubsystem extends SubsystemBase {
     /**
      * 
      */
+    private void handlePause(StateMetadata<Action> stateMetadata) {
+        if (stateMetadata.isFirstRun()) {
+            this.timer.reset();
+            this.timer.start();
+        }
+
+        if (this.timer.hasElapsed(2)) {
+            timer.stop();
+            this.stateMachine.setState(Action.IDLE);
+        }
+    }
+    
+    /**
+     * 
+     */
     private void handleRelease(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
             this.armModule.open();
@@ -156,7 +175,7 @@ public class ArmSubsystem extends SubsystemBase {
      * 
      */
     private boolean isActionComplete() {
-        return this.armModule.atAngle() || this.stateMachine.getCurrentState() == Action.IDLE;
+        return (this.armModule.atAngle() || this.stateMachine.getCurrentState() == Action.IDLE) && !this.timer.isRunning();
     }
 
     /**

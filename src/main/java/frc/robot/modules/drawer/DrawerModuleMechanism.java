@@ -11,40 +11,40 @@ import frc.robot.Constants.MechanismConstants;
  * 
  */
 public class DrawerModuleMechanism {
-    private final MechanismRoot2d drawerPivot;
-    private final MechanismLigament2d drawerArm;
-    private final MechanismLigament2d drawerBottom;
+    private final MechanismRoot2d pivot;
+    private final MechanismLigament2d arm;
+    private final MechanismLigament2d bottom;
 
-    private final double DRAWER_ARM_RETRACTED_LENGTH_METERS = Units.inchesToMeters(10);
-    private final double DRAWER_ARM_EXTENDED_LENGTH_METERS = Units.inchesToMeters(20);
-    private final double DRAWER_BOTTOM_LENGTH_METERS = Units.inchesToMeters(5);
-    private final double DRAWER_SIDE_LENGTH_METERS = Units.inchesToMeters(3);
+    private final double ARM_RETRACTED_LENGTH_METERS = Units.inchesToMeters(2);
+    private final double ARM_EXTENDED_LENGTH_METERS = Units.inchesToMeters(16);
+    private final double BOTTOM_LENGTH_METERS = Units.inchesToMeters(7);
+    private final double SIDE_LENGTH_METERS = Units.inchesToMeters(8);
 
     /**
      * 
      */
     public DrawerModuleMechanism() {
-        this.drawerPivot = MechanismConstants.CANVAS.getRoot("DRAWER PIVOT", MechanismConstants.CANVAS_SIZE_METERS / 2, MechanismConstants.CANVAS_SIZE_METERS / 12);
-        this.drawerArm = new MechanismLigament2d("DRAWER ARM", DRAWER_ARM_RETRACTED_LENGTH_METERS, 0, 6, new Color8Bit(Color.kRed));
-        this.drawerBottom = new MechanismLigament2d("DRAWER BOTTOM", DRAWER_BOTTOM_LENGTH_METERS, 0, 6, new Color8Bit(Color.kBlue));
+        this.pivot = MechanismConstants.CANVAS.getRoot("DRAWER PIVOT", MechanismConstants.CANVAS_SIZE_METERS / 2, Units.inchesToMeters(6));
+        this.arm = new MechanismLigament2d("DRAWER ARM", ARM_RETRACTED_LENGTH_METERS, 0, 6, new Color8Bit(Color.kRed));
+        this.bottom = new MechanismLigament2d("DRAWER BOTTOM", BOTTOM_LENGTH_METERS, 0, 6, new Color8Bit(Color.kBlue));
 
-        this.drawerPivot.append(this.drawerArm);
-        this.drawerArm.append(this.drawerBottom);
-        this.drawerArm.append(new MechanismLigament2d("DRAWER SIDE", DRAWER_SIDE_LENGTH_METERS, 125, 6, new Color8Bit(Color.kGreen)));
-        this.drawerBottom.append(new MechanismLigament2d("DRAWER SIDE", DRAWER_SIDE_LENGTH_METERS, 45, 6, new Color8Bit(Color.kGreen)));
+        this.pivot.append(this.arm);
+        this.arm.append(this.bottom);
+        this.arm.append(new MechanismLigament2d("DRAWER SIDE 1", BOTTOM_LENGTH_METERS, 90, 6, new Color8Bit(Color.kBlue)));
+        this.bottom.append(new MechanismLigament2d("DRAWER SIDE 2", SIDE_LENGTH_METERS, 50, 6, new Color8Bit(Color.kBlue)));
     }
 
     /**
      * 
      */
     public void extend() {
-        this.drawerArm.setLength(DRAWER_ARM_EXTENDED_LENGTH_METERS);
+        this.arm.setLength(ARM_EXTENDED_LENGTH_METERS);
     }
     
     /**
      * 
      */
     public void retract() {
-        this.drawerArm.setLength(DRAWER_ARM_RETRACTED_LENGTH_METERS);
+        this.arm.setLength(ARM_RETRACTED_LENGTH_METERS);
     }
 }
