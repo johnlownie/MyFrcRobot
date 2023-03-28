@@ -248,7 +248,7 @@ public class SimVisionSystem {
                             Math.atan2((tgtHeightAboveGround - camHeightAboveGround), distAlongGround))
                             - camPitchDegrees;
 
-                    if (camCanSeeTarget(distMeters, yawDegrees, pitchDegrees, area_px)) {
+                    if (camCanSeeTarget(tgt.targetID, distMeters, yawDegrees, pitchDegrees, area_px)) {
                         // TODO simulate target corners
                         visibleTgtList.add(
                                 new PhotonTrackedTarget(
@@ -278,7 +278,7 @@ public class SimVisionSystem {
         return widthMPerPx * heightMPerPx;
     }
 
-    boolean camCanSeeTarget(double distMeters, double yaw, double pitch, double area) {
+    boolean camCanSeeTarget(int target_id, double distMeters, double yaw, double pitch, double area) {
         boolean inRange = (distMeters < this.maxLEDRangeMeters);
         boolean inHorizAngle = Math.abs(yaw) < (this.camHorizFOVDegrees / 2);
         boolean inVertAngle = Math.abs(pitch) < (this.camVertFOVDegrees / 2);

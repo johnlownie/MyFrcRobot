@@ -16,11 +16,13 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.MechanismConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.containers.ChargedUpContainer;
 import frc.robot.containers.RobotContainer;
 import frc.robot.containers.SimulatorContainer;
 import frc.robot.utils.Alert;
+import frc.robot.utils.BatteryTracker;
 import frc.robot.utils.Alert.AlertType;
 
 /**
@@ -60,6 +62,9 @@ public class Robot extends LoggedRobot {
         Logger logger = Logger.getInstance();
 
         // Log build stats
+        logger.recordMetadata("Robot", RobotConstants.getRobot().toString());
+        logger.recordMetadata("BatteryName", BatteryTracker.scanBattery(1.0));
+        logger.recordMetadata("TuningMode", Boolean.toString(RobotConstants.TUNING_MODE));
         logger.recordMetadata("RuntimeType", getRuntimeType().toString());
         logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -143,6 +148,8 @@ public class Robot extends LoggedRobot {
         CommandScheduler.getInstance().run();
 
         logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
+
+        Logger.getInstance().recordOutput("Mechanisms/Visualization", MechanismConstants.CANVAS);
     }
 
     /**
@@ -191,6 +198,7 @@ public class Robot extends LoggedRobot {
         }
 
         checkDriverStationUpdate();
+        this.robotContainer.enable();
     }
 
     /** This function is called periodically during operator control. */
@@ -201,6 +209,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {
+        this.robotContainer.disable();
     }
 
     /** This function is called periodically when disabled. */

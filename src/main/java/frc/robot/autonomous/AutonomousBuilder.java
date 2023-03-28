@@ -19,12 +19,12 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.PoseEstimator;
-import frc.robot.subsystems.SwerveDrive;
+import frc.robot.subsystems.PoseEstimatorSubsystem;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public class AutonomousBuilder {
-    private final SwerveDrive swerveDrive;
-    private final PoseEstimator poseEstimator;
+    private final SwerveDriveSubsystem swerveDrive;
+    private final PoseEstimatorSubsystem poseEstimator;
 
     private final SendableChooser<Command> autoChooser;
     private final SwerveAutoBuilder swerveAutoBuilder;
@@ -33,7 +33,7 @@ public class AutonomousBuilder {
     /**
      * 
      */
-    public AutonomousBuilder(SwerveDrive swerveDrive, PoseEstimator poseEstimator) {
+    public AutonomousBuilder(SwerveDriveSubsystem swerveDrive, PoseEstimatorSubsystem poseEstimator) {
         this.swerveDrive = swerveDrive;
         this.poseEstimator = poseEstimator;
         this.eventMap = getEventMap();
@@ -69,7 +69,8 @@ public class AutonomousBuilder {
     private HashMap<String, Command> getEventMap() {
         HashMap<String, Command> eventMap = new HashMap<String, Command>();
 
-        eventMap.put("MyEvent", Commands.print("My Event Started").withTimeout(3.0));
+        eventMap.put("CloseGripper", Commands.print("Grabbing Cube").withTimeout(3.0));
+        eventMap.put("OpenGripper", Commands.print("Placing Cube").withTimeout(3.0));
         
         return eventMap;
     }

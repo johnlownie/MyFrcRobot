@@ -1,19 +1,19 @@
 package frc.robot.containers;
 
 import edu.wpi.first.apriltag.AprilTagFields;
+import frc.robot.Constants.DriveTrainConstants;
+import frc.robot.modules.arm.ArmModuleTalonSRX;
 import frc.robot.modules.gyro.GyroModuleNavx;
 import frc.robot.modules.swerve.SwerveModuleTalonFX;
 import frc.robot.modules.vision.VisionModulePhotonVision;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.PoseEstimatorSubsystem;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 
 /**
  * 
  */
 public class ChargedUpContainer extends RobotContainer {
-    /* Modules */
-    private final SwerveModuleTalonFX[] swerveModules;
-    private final GyroModuleNavx gyro;
-    private final VisionModulePhotonVision visionModule;
-
     /**
      * 
      */
@@ -26,12 +26,26 @@ public class ChargedUpContainer extends RobotContainer {
         SwerveModuleTalonFX rearRightModule = new SwerveModuleTalonFX(0, 0, 0, 0, 0);
 
         this.swerveModules = new SwerveModuleTalonFX[] { frontLeftModule, frontRightModule, rearLeftModule, rearRightModule};
-        this.gyro = new GyroModuleNavx();
+        this.gyroModule = new GyroModuleNavx();
         this.visionModule = new VisionModulePhotonVision(AprilTagFields.k2023ChargedUp);
+        
+        this.swerveDrive = new SwerveDriveSubsystem(this.swerveModules, DriveTrainConstants.SWERVE_DRIVE_KINEMATICS, this.gyroModule);
+        this.poseEstimator = new PoseEstimatorSubsystem(this.swerveDrive::getModulePositions, this.swerveDrive::getRotation, this.visionModule);
+        this.armSubsystem = new ArmSubsystem(new ArmModuleTalonSRX(this.pneumaticSubsystem));
 
         setCommands();
 
         configureButtonBindings();
         configureDashboard();
+    }
+
+    @Override
+    public void disable() {
+
+    }
+
+    @Override
+    public void enable() {
+        
     }
 }

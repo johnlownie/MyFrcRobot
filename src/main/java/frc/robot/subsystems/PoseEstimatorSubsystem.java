@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -27,7 +26,7 @@ import frc.robot.modules.vision.VisionModule;
 /**
  * 
  */
-public class PoseEstimator extends SubsystemBase {
+public class PoseEstimatorSubsystem extends SubsystemBase {
     private final Supplier<SwerveModulePosition[]> modulePositionSupplier;
     private final Supplier<Rotation2d> rotationSupplier;
     private final VisionModule visionModule;
@@ -56,7 +55,7 @@ public class PoseEstimator extends SubsystemBase {
     /**
      * 
      */
-    public PoseEstimator(Supplier<SwerveModulePosition[]> modulePositionSupplier, Supplier<Rotation2d> rotationSupplier, VisionModule visionModule) {
+    public PoseEstimatorSubsystem(Supplier<SwerveModulePosition[]> modulePositionSupplier, Supplier<Rotation2d> rotationSupplier, VisionModule visionModule) {
         this.modulePositionSupplier = modulePositionSupplier;
         this.rotationSupplier = rotationSupplier;
         this.visionModule = visionModule;
@@ -132,10 +131,11 @@ public class PoseEstimator extends SubsystemBase {
         EstimatedRobotPose visionPose = this.visionModule.grabLatestEstimatedPose();
         if (visionPose != null) {
             Pose2d pose2d = visionPose.estimatedPose.toPose2d();
-
+            
             this.swerveDrivePoseEstimator.addVisionMeasurement(pose2d, visionPose.timestampSeconds);
+            Logger.getInstance().recordOutput("PoseEstimator/VisionPose", pose2d);
         }
-    
+        
         // log poses, 3D geometry, and swerve module states, gyro offset
         Logger.getInstance().recordOutput("PoseEstimator/Robot", getCurrentPose());
         Logger.getInstance().recordOutput("PoseEstimator/RobotNoGyro", this.estimatedPoseWithoutGyro);

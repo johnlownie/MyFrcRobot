@@ -1,5 +1,7 @@
 package frc.robot.modules.vision;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -25,8 +27,6 @@ public class VisionModuleSimulator extends VisionModule {
     private final PhotonPoseEstimator photonPoseEstimator;
     private final AtomicReference<EstimatedRobotPose> atomicEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
 
-    private int counter = 0;
-
     /**
      * 
      */
@@ -36,7 +36,7 @@ public class VisionModuleSimulator extends VisionModule {
         setCamera(new PhotonCamera(VisionConstants.REAR_CAMERA_NAME));
         
         this.simVisionSystem = new SimVisionSystem(VisionConstants.REAR_CAMERA_NAME, VisionConstants.DIAGONAL_FOV, VisionConstants.ROBOT_TO_REAR_CAMERA, 9000, 1280, 1024, 0);
-        this.photonPoseEstimator = new PhotonPoseEstimator(this.aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP, getCamera(), VisionConstants.ROBOT_TO_REAR_CAMERA);
+        this.photonPoseEstimator = new PhotonPoseEstimator(this.aprilTagFieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, getCamera(), VisionConstants.ROBOT_TO_REAR_CAMERA);
 
         setTargets();
     }
@@ -63,10 +63,18 @@ public class VisionModuleSimulator extends VisionModule {
         }
 
         PhotonPipelineResult results = this.simVisionSystem.cam.getLatestResult();
+        Logger.getInstance().recordOutput("Vision/hasTargets", results.hasTargets());
+        Logger.getInstance().recordOutput("Vision/TargetCount", results.hasTargets() ? results.getTargets().size() : 0);
         if (!results.hasTargets() || (results.targets.size() > 1 && results.targets.get(0).getPoseAmbiguity() > VisionConstants.APRILTAG_AMBIGUITY_THRESHOLD)) {
             return;
         }
-        
+
+        List<String> targetIds = new ArrayList<String>();
+        for (PhotonTrackedTarget target : results.getTargets()) {
+            targetIds.add("" + target.getFiducialId());
+        }
+        Logger.getInstance().recordOutput("Vision/Target Ids", targetIds.toString());
+
         this.photonPoseEstimator.update(results).ifPresent(estimatedRobotPose -> {
             var estimatedPose = estimatedRobotPose.estimatedPose;
 
@@ -75,21 +83,16 @@ public class VisionModuleSimulator extends VisionModule {
                 && estimatedPose.getY() > 0.0 && estimatedPose.getY() <= FieldConstants.WIDTH_METERS) {
               atomicEstimatedRobotPose.set(estimatedRobotPose);
             }
+
+            EstimatedRobotPose pose = grabLatestEstimatedPose();
+            Logger.getInstance().recordOutput("Vision/Pose", pose != null ? pose.estimatedPose : new Pose3d());
         });
 
-        Logger.getInstance().recordOutput("Vision/hasTargets", results.hasTargets());
         if (results.hasTargets()) {
             PhotonTrackedTarget target = results.getBestTarget();
             
-            counter ++;
-            if (counter == 50) {
-                System.out.println("Best target: " + target.getFiducialId());
-                counter = 0;
-            }
-
-            Logger.getInstance().recordOutput("Vision/FiducialId", String.format("%d", target.getFiducialId()));
+            Logger.getInstance().recordOutput("Vision/Last Targe Id", String.format("%d", target.getFiducialId()));
             Logger.getInstance().recordOutput("Vision/Yaw", target.getYaw());
-            Logger.getInstance().recordOutput("Vision/Pose", grabLatestEstimatedPose() != null ? grabLatestEstimatedPose().estimatedPose : new Pose3d());
         }
         else {
             System.out.println("No targets");

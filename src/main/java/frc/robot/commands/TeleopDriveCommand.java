@@ -12,7 +12,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.TeleopConstants;
-import frc.robot.subsystems.SwerveDrive;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 
 /**
  * Command for teleop driving where translation is field oriented and rotation velocity is controlled by the driver.
@@ -21,7 +21,7 @@ import frc.robot.subsystems.SwerveDrive;
  * is positive. The X-axis runs down field toward the opposing alliance wall, away from the alliance wall is positive.
  */
 public class TeleopDriveCommand extends CommandBase {
-    private final SwerveDrive swerveDrive;
+    private final SwerveDriveSubsystem swerveDrive;
     private Supplier<Rotation2d> robotAngleSupplier;
     private final DoubleSupplier translationXSupplier;
     private final DoubleSupplier translationYSupplier;
@@ -39,7 +39,7 @@ public class TeleopDriveCommand extends CommandBase {
      * @param translationYSupplier supplier for translation Y component, in meters per second
      * @param rotationSupplier supplier for rotation component, in radians per second
      */
-    public TeleopDriveCommand(SwerveDrive swerveDrive, Supplier<Rotation2d> robotAngleSupplier, DoubleSupplier translationXSupplier, DoubleSupplier translationYSupplier, DoubleSupplier rotationSupplier) {
+    public TeleopDriveCommand(SwerveDriveSubsystem swerveDrive, Supplier<Rotation2d> robotAngleSupplier, DoubleSupplier translationXSupplier, DoubleSupplier translationYSupplier, DoubleSupplier rotationSupplier) {
         this.swerveDrive = swerveDrive;
         this.robotAngleSupplier = robotAngleSupplier;
         this.translationXSupplier = translationXSupplier;

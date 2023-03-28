@@ -18,10 +18,10 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.subsystems.SwerveDrive;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public class DriveToTagCommand extends CommandBase {
-    private final SwerveDrive swerveDrive;
+    private final SwerveDriveSubsystem swerveDrive;
     private final PhotonCamera photonCamera;
     private final Supplier<Pose2d> poseProvider;
 
@@ -35,7 +35,7 @@ public class DriveToTagCommand extends CommandBase {
     /**
      * 
      */
-    public DriveToTagCommand(SwerveDrive swerveDrive, PhotonCamera photonCamera, Supplier<Pose2d> poseProvider) {
+    public DriveToTagCommand(SwerveDriveSubsystem swerveDrive, PhotonCamera photonCamera, Supplier<Pose2d> poseProvider) {
         this.swerveDrive = swerveDrive;
         this.photonCamera = photonCamera;
         this.poseProvider = poseProvider;
@@ -45,7 +45,7 @@ public class DriveToTagCommand extends CommandBase {
         this.omegaController.setTolerance(Units.degreesToRadians(3));
         this.omegaController.enableContinuousInput(-Math.PI, Math.PI);
 
-        this.FIELD_TO_TAG = new Transform3d(new Translation3d(0.85, 0.0, 0.0), new Rotation3d(0.0, 0.0, Math.PI));
+        this.FIELD_TO_TAG = new Transform3d(new Translation3d(0.76, 0.0, 0.0), new Rotation3d(0.0, 0.0, 0.0));
    
         addRequirements(this.swerveDrive);
     }

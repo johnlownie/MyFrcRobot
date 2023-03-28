@@ -177,6 +177,10 @@ public class SimPhotonCamera {
     }
 
     public PhotonPipelineResult getLatestResult() {
+
+        // Set the timestamp of the result.
+        // getLatestChange returns in microseconds so we divide by 1e6 to convert to seconds.
+        latestResult.setTimestampSeconds(System.currentTimeMillis() - latestResult.getLatencyMillis() / 1e3);
         return latestResult;
     }
 }

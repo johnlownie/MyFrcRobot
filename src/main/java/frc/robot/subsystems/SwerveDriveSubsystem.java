@@ -20,7 +20,7 @@ import frc.robot.modules.swerve.SwerveModule;
 /**
  * 
  */
-public class SwerveDrive extends SubsystemBase {
+public class SwerveDriveSubsystem extends SubsystemBase {
     private SwerveModule[] swerveModules;
     private SwerveDriveKinematics swerveDriveKinematics;
     private GyroModule gyro;
@@ -34,7 +34,7 @@ public class SwerveDrive extends SubsystemBase {
     /**
      * 
      */
-    public SwerveDrive(SwerveModule[] swerveModules, SwerveDriveKinematics swerveDriveKinematics, GyroModule gyro) {
+    public SwerveDriveSubsystem(SwerveModule[] swerveModules, SwerveDriveKinematics swerveDriveKinematics, GyroModule gyro) {
         this.swerveModules = swerveModules;
         this.swerveDriveKinematics = swerveDriveKinematics;
 

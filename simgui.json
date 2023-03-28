@@ -1,6 +1,7 @@
 {
   "NTProvider": {
     "types": {
+      "/AdvantageKit/RealOutputs/Mechanisms/Arm": "Mechanism2d",
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/Driver/Autonomous": "String Chooser",
       "/SmartDashboard/REAR_CAMERA Sim Field": "Field2d"

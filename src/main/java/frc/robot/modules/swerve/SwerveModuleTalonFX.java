@@ -1,5 +1,6 @@
 package frc.robot.modules.swerve;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
@@ -10,10 +11,11 @@ import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import frc.robot.Constants.SwerveModuleConstants.MK4I_L2;
 import frc.robot.utils.CtreUtils;
-import frc.robot.utils.TunableNumber;
+import frc.robot.utils.LoggedTunableNumber;
 
 /**
  * 
@@ -39,13 +41,13 @@ public class SwerveModuleTalonFX extends SwerveModule {
     private final double MOTION_MAGIC_ACCELERATION = .0625;
 
     /* Tunable PID */
-    private final TunableNumber driveKp = new TunableNumber("Drive/DriveKp", DRIVE_KP);
-    private final TunableNumber driveKi = new TunableNumber("Drive/DriveKi", DRIVE_KI);
-    private final TunableNumber driveKd = new TunableNumber("Drive/DriveKd", DRIVE_KD);
+    private final LoggedTunableNumber driveKp = new LoggedTunableNumber("Drive/DriveKp", DRIVE_KP);
+    private final LoggedTunableNumber driveKi = new LoggedTunableNumber("Drive/DriveKi", DRIVE_KI);
+    private final LoggedTunableNumber driveKd = new LoggedTunableNumber("Drive/DriveKd", DRIVE_KD);
 
-    private final TunableNumber turnKp = new TunableNumber("Drive/TurnKp", TURN_KP);
-    private final TunableNumber turnKi = new TunableNumber("Drive/TurnKi", TURN_KI);
-    private final TunableNumber turnKd = new TunableNumber("Drive/TurnKd", TURN_KD);
+    private final LoggedTunableNumber turnKp = new LoggedTunableNumber("Drive/TurnKp", TURN_KP);
+    private final LoggedTunableNumber turnKi = new LoggedTunableNumber("Drive/TurnKi", TURN_KI);
+    private final LoggedTunableNumber turnKd = new LoggedTunableNumber("Drive/TurnKd", TURN_KD);
 
     /* Motors */
     private final WPI_TalonFX driveMotor;
@@ -58,7 +60,7 @@ public class SwerveModuleTalonFX extends SwerveModule {
     private final double turnEncoderVelocityCoefficient;
     private final CANCoder encoder;
 
-    private final SimpleMotorFeedforward feedforward;
+    private final SimpleMotorFeedforward feedForward;
 
     /**
      * 
@@ -76,7 +78,7 @@ public class SwerveModuleTalonFX extends SwerveModule {
         
         this.encoder = getEncoder(can_coder_id, angle_offset_degrees);
 
-        this.feedforward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
+        this.feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
     }
 
     /**
@@ -186,11 +188,20 @@ public class SwerveModuleTalonFX extends SwerveModule {
 
     @Override
     protected void setDrivePercentage(double percentage) {
-
+        // this.driveController.reset();
+        this.driveAppliedVolts = MathUtil.clamp(percentage * 12.0, -12.0, 12.0);
+        this.driveMotor.set(ControlMode.PercentOutput, driveAppliedVolts);
     }
 
     @Override
     protected void setDriveVelocity(double velocity) {
+        double velocityRadiansPerSecond = velocity * (2.0 * Math.PI) / (MK4I_L2.WHEEL_CIRCUMFERENCE);
+        // double driveAppliedVolts = this.feedForward.calculate(velocityRadiansPerSecond) + this.driveController.calculate(this.driveVelocityMetersPerSecond, velocityRadiansPerSecond);
+        double driveAppliedVolts = 0.0;
+        driveAppliedVolts = MathUtil.clamp(driveAppliedVolts, -12.0, 12.0);
+
+        this.driveAppliedVolts = driveAppliedVolts;
+        this.driveMotor.set(ControlMode.PercentOutput, driveAppliedVolts);
     }
 
     @Override

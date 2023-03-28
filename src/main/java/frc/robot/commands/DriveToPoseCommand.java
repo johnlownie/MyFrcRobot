@@ -13,16 +13,15 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.TeleopConstants;
-import frc.robot.subsystems.SwerveDrive;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 
 /**
  * Command to drive to a pose.
  */
 public class DriveToPoseCommand extends CommandBase {
-    private final SwerveDrive swerveDrive;
+    private final SwerveDriveSubsystem swerveDrive;
     private final Supplier<Pose2d> poseProvider;
     private final Pose2d goalPose;
-    private final boolean useAllianceColor;
 
     private final ProfiledPIDController xController = TeleopConstants.xController;
     private final ProfiledPIDController yController = TeleopConstants.yController;
@@ -33,11 +32,10 @@ public class DriveToPoseCommand extends CommandBase {
     /**
      * 
      */
-    public DriveToPoseCommand(SwerveDrive swerveDrive, Supplier<Pose2d> poseProvider, Pose2d goalPose, boolean useAllianceColor) {
+    public DriveToPoseCommand(SwerveDriveSubsystem swerveDrive, Supplier<Pose2d> poseProvider, Pose2d goalPose) {
         this.swerveDrive = swerveDrive;
         this.poseProvider = poseProvider;
         this.goalPose = goalPose;
-        this.useAllianceColor = useAllianceColor;
 
         addRequirements(this.swerveDrive);
     }
@@ -45,11 +43,10 @@ public class DriveToPoseCommand extends CommandBase {
     /**
      * Drive to x, y, z delta from current position
      */
-    public DriveToPoseCommand(SwerveDrive swerveDrive, Supplier<Pose2d> poseProvider, double xDelta, double yDelta, double zDelta) {
+    public DriveToPoseCommand(SwerveDriveSubsystem swerveDrive, Supplier<Pose2d> poseProvider, double xDelta, double yDelta, double zDelta) {
         this.swerveDrive = swerveDrive;
         this.poseProvider = poseProvider;
         this.goalPose = null;
-        this.useAllianceColor = false;
         this.xDelta = xDelta;
         this.yDelta = yDelta;
         this.zDelta = zDelta;
@@ -89,13 +86,6 @@ public class DriveToPoseCommand extends CommandBase {
         if (pose == null) {
             Pose2d currentPose = this.poseProvider.get();
             pose = new Pose2d(currentPose.getX() + xDelta, currentPose.getY() + yDelta, new Rotation2d(currentPose.getRotation().getRadians() + zDelta));
-        }
-        else {
-            if (useAllianceColor && DriverStation.getAlliance() == DriverStation.Alliance.Red) {
-                Translation2d transformedTranslation = new Translation2d(pose.getX(), FieldConstants.WIDTH_METERS - pose.getY());
-                Rotation2d transformedHeading = pose.getRotation().times(-1);
-                pose = new Pose2d(transformedTranslation, transformedHeading);
-            }
         }
 
         this.xController.setGoal(pose.getX());

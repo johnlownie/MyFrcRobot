@@ -21,6 +21,7 @@ public class GyroModuleNavx extends GyroModule {
     @Override
     public void update() {
         setIsConnected(this.gyro.isConnected());
+        setPitchDeg(this.gyro.getPitch());
         setPositionDeg(this.gyro.getYaw());
         setVelocityDegPerSec(this.gyro.getGyroFullScaleRangeDPS());
     }

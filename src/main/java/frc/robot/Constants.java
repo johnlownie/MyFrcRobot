@@ -11,6 +11,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
 
@@ -19,8 +22,9 @@ public final class Constants {
      * 
      */
     public static final class RobotConstants {
+        public static final double ROBOT_LENGTH = Units.inchesToMeters(30);
         public static final double LOOP_PERIOD_SECS = 0.02;
-        public static final boolean TUNING_MODE = false;
+        public static final boolean TUNING_MODE = true;
         
         // FIXME: update for various robots
         public enum Mode { REAL, REPLAY, SIM }
@@ -79,23 +83,65 @@ public final class Constants {
 
     public static class FieldConstants {
         // Page 4 & 5 of Layout & Marking Diagram manual (https://firstfrc.blob.core.windows.net/frc2023/FieldAssets/2023LayoutMarkingDiagram.pdf) 
-        public static final double LENGTH_METERS = Units.inchesToMeters(651.27);
-        public static final double WIDTH_METERS = Units.inchesToMeters(315.1);
+        public static final double LENGTH_METERS = Units.inchesToMeters(651.25);
+        public static final double WIDTH_METERS = Units.inchesToMeters(315.5);
 
-        public static final Pose2d[][] ALLIANCE_POSES = new Pose2d[][]{
-            // Blue Alliance
-            new Pose2d[]{
-                new Pose2d(1.8, 4.43, Rotation2d.fromDegrees(0)),
-                new Pose2d(1.8, 2.75, Rotation2d.fromDegrees(0)),
-                new Pose2d(1.8, 0.51, Rotation2d.fromDegrees(0))
+        public static final double POSE_X = Units.inchesToMeters(54.73) + (RobotConstants.ROBOT_LENGTH / 2);
+        public static final double[] POSE_Y = { Units.inchesToMeters(174.19), Units.inchesToMeters(108.19), Units.inchesToMeters(42.19) };
+        public static final double STRAFE_DISTANCE = Units.inchesToMeters(22.0);
+
+        public static final Pose2d[] ALLIANCE_POSES = new Pose2d[] {
+            new Pose2d(POSE_X, POSE_Y[0], Rotation2d.fromDegrees(0)),
+            new Pose2d(POSE_X, POSE_Y[1], Rotation2d.fromDegrees(0)),
+            new Pose2d(POSE_X, POSE_Y[2], Rotation2d.fromDegrees(0))
+        };
+
+        public static final Pose2d[][] POLE_POSES = new Pose2d[][] {
+            new Pose2d[] {
+                new Pose2d(POSE_X, POSE_Y[0] + STRAFE_DISTANCE, Rotation2d.fromDegrees(0)),
+                new Pose2d(POSE_X, POSE_Y[0] - STRAFE_DISTANCE, Rotation2d.fromDegrees(0))
             },
-            // Red Alliance
-            new Pose2d[]{
-                new Pose2d(14.68, 5.0, Rotation2d.fromDegrees(180)),
-                new Pose2d(14.68, 6.0, Rotation2d.fromDegrees(180)),
-                new Pose2d(14.68, 7.0, Rotation2d.fromDegrees(180))
+            new Pose2d[] {
+                new Pose2d(POSE_X, POSE_Y[1] + STRAFE_DISTANCE, Rotation2d.fromDegrees(0)),
+                new Pose2d(POSE_X, POSE_Y[1] - STRAFE_DISTANCE, Rotation2d.fromDegrees(0))
+            },
+            new Pose2d[] {
+                new Pose2d(POSE_X, POSE_Y[2] + STRAFE_DISTANCE, Rotation2d.fromDegrees(0)),
+                new Pose2d(POSE_X, POSE_Y[2] - STRAFE_DISTANCE, Rotation2d.fromDegrees(0))
             }
         };
+
+        public static final Pose2d[] GAME_PIECE_POSES = new Pose2d[] {
+            new Pose2d(POSE_X + Units.inchesToMeters(200.0 - RobotConstants.ROBOT_LENGTH), POSE_Y[0], Rotation2d.fromDegrees(180)),
+            new Pose2d(POSE_X + Units.inchesToMeters(200.0 - RobotConstants.ROBOT_LENGTH), POSE_Y[0] - Units.inchesToMeters(48), Rotation2d.fromDegrees(180)),
+            new Pose2d(POSE_X + Units.inchesToMeters(200.0 - RobotConstants.ROBOT_LENGTH), POSE_Y[0] - Units.inchesToMeters(96), Rotation2d.fromDegrees(0))
+        };
+
+        public static final Pose2d CHARGE_STATION_EDGE = new Pose2d(POSE_X + Units.inchesToMeters(119.25), POSE_Y[1] + STRAFE_DISTANCE, Rotation2d.fromDegrees(0));
+    }
+
+    /**
+     * 
+     */
+    public static final class MechanismConstants {
+        public static final double CANVAS_SIZE_METERS = Units.inchesToMeters(60);
+        public static final Mechanism2d CANVAS = new Mechanism2d(CANVAS_SIZE_METERS, CANVAS_SIZE_METERS, new Color8Bit(Color.kLightGray));
+
+    }
+
+    /**
+     * 
+     */
+    public static final class PneumaticConstants {
+        public static final int HUB_ID = 50;
+
+        public static final int DRAWER_OPEN_ID = 12;
+        public static final int DRAWER_CLOSE_ID = 13;
+
+        public static final int GRIPPER_OPEN_ID = 14;
+        public static final int GRIPPER_CLOSE_ID = 15;
+        
+        public static final int[] IN_USE_CHANNELS = { 12, 13, 14, 15 };
     }
 
     /**
@@ -147,11 +193,14 @@ public final class Constants {
         public static final ProfiledPIDController omegaController = new ProfiledPIDController(1.5, 0, 0, OMEGA_CONSTRAINTS);
     }
 
+    /**
+     * 
+     */
     public static class VisionConstants {
         public static final String REAR_CAMERA_NAME = "REAR_CAMERA";
            public static final Transform3d REAR_CAMERA_TO_ROBOT = new Transform3d(
-                new Translation3d(0.0, 0.0, 0.5), // cam mounted center of robot, half meter up
-                new Rotation3d(0, 0, 0));
+                new Translation3d(0.0, 0.0, -0.5), // cam mounted center of robot, half meter up
+                new Rotation3d(0, 0, Math.PI));
         public static final Transform3d ROBOT_TO_REAR_CAMERA = REAR_CAMERA_TO_ROBOT.inverse();
 
         /** Minimum target ambiguity. Targets with higher ambiguity will be discarded */
@@ -159,7 +208,21 @@ public final class Constants {
 
         // for simulation only
         public static final double DIAGONAL_FOV = 70;
-        public static final int IMG_WIDTH = 1280;
-        public static final int IMG_HEIGHT = 720;
+        public static final int IMG_WIDTH = 640;
+        public static final int IMG_HEIGHT = 480;
     }
-}
+
+    /**
+     * 
+     */
+    public static class ArmConstants {
+        public static final int ANGLE_DRAWER_PICKUP = -75;
+        public static final int ANGLE_DEPLOY_MID = 180;
+        public static final int ANGLE_DEPLOY_LOW = 225;
+        public static final int ANGLE_GROUND_PICKUP = 255;
+
+        public static final int midArmPosition = -2500;
+        public static final int hybridArmPosition = -3240;
+        public static final int shelfPosition = -755;
+    }
+ }

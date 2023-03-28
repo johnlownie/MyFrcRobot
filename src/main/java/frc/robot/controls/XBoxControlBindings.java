@@ -14,59 +14,90 @@ import frc.robot.Constants.TeleopConstants;
 
 public class XBoxControlBindings implements ControlBindings {
     private final CommandXboxController driverController = new CommandXboxController(0);;
+    private final CommandXboxController operatorController = new CommandXboxController(1);;
+ 
+    /**
+     * Driver Controls
+     */
 
     @Override
     public Optional<Trigger> driveToCube() {
-        return Optional.of(driverController.povCenter());
+        return Optional.of(this.driverController.povCenter());
     }
 
     @Override
     public Optional<Trigger> driveToPoleLeft() {
-        return Optional.of(driverController.leftBumper());
+        return Optional.of(this.driverController.leftBumper());
     }
 
     @Override
     public Optional<Trigger> driveToPoleRight() {
-        return Optional.of(driverController.rightBumper());
+        return Optional.of(this.driverController.rightBumper());
     }
 
     @Override
     public Optional<Trigger> driveTeleop() {
-        return Optional.of(driverController.povDown());
+        return Optional.of(this.driverController.povDown());
     }
 
     @Override
     public Optional<Trigger> driveType() {
-        return Optional.of(driverController.povUp());
+        return Optional.of(this.driverController.povUp());
     }
 
     @Override
     public Optional<Trigger> reseedSteerMotors() {
-        return Optional.of(driverController.start());
+        return Optional.of(this.driverController.start());
     }
   
     @Override
     public Optional<Trigger> resetPose() {
-        return Optional.of(driverController.back());
+        return Optional.of(this.driverController.back());
     }
   
     @Override
     public Optional<Trigger> xStance() {
-        return Optional.of(driverController.x());
+        return Optional.of(this.driverController.x());
     }
-    
+ 
+    /**
+     * Operator Controls
+     */
+     @Override
+     public Optional<Trigger> closeGripper() {
+         return Optional.of(this.operatorController.a());
+     }
+
+     @Override
+     public Optional<Trigger> extendDrawer() {
+         return Optional.of(this.operatorController.x());
+     }
+  
+     @Override
+     public Optional<Trigger> openGripper() {
+         return Optional.of(this.operatorController.y());
+     }
+
+     @Override
+     public Optional<Trigger> retractDrawer() {
+         return Optional.of(this.operatorController.b());
+     }
+ 
+     /**
+      * 
+      */
     @Override
     public DoubleSupplier translationX() {
-        return () ->-modifyAxis(driverController.getLeftY()) * SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
+        return () ->-modifyAxis(this.driverController.getLeftY()) * SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
     }
     @Override
     public DoubleSupplier translationY() {
-        return () -> -modifyAxis(driverController.getLeftX()) * SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
+        return () -> -modifyAxis(this.driverController.getLeftX()) * SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
     }
     
     @Override
     public DoubleSupplier omega() {
-        return () -> -modifyAxis(driverController.getRightX()) * SwerveModuleConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 2;
+        return () -> -modifyAxis(this.driverController.getRightX()) * SwerveModuleConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 2;
     }
   
     @Override
