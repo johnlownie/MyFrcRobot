@@ -15,8 +15,8 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.autonomous.AutonomousBuilder;
 import frc.robot.autonomous.TwoPieceBalance;
 import frc.robot.commands.DeployGamePieceMidCommand;
-import frc.robot.commands.DriveToPoseCommand;
-import frc.robot.commands.DriveToTagCommand;
+import frc.robot.commands.DriveFromPoseCommand;
+import frc.robot.commands.DriveToBestTagCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.controls.XBoxControlBindings;
 import frc.robot.modules.drawer.DrawerModule;
@@ -36,11 +36,11 @@ abstract public class RobotContainer {
 
     /* Commands */
     protected TeleopDriveCommand teleopDriveCommand;
-    private DriveToTagCommand driveToTagLeftCommand;
-    private DriveToTagCommand driveToTagRightCommand;
+    private DriveToBestTagCommand driveToTagLeftCommand;
+    private DriveToBestTagCommand driveToTagRightCommand;
     
-    private DriveToPoseCommand driveToPoleLeftCommand;
-    private DriveToPoseCommand driveToPoleRightCommand;
+    private DriveFromPoseCommand driveToPoleLeftCommand;
+    private DriveFromPoseCommand driveToPoleRightCommand;
 
     /* Controllers */
     protected final XBoxControlBindings driverController;
@@ -177,7 +177,7 @@ abstract public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // return this.autonomousBuilder.getAutonomousCommand();
-        return new TwoPieceBalance(this.swerveDrive, this.poseEstimator, this.armSubsystem);
+        return new TwoPieceBalance(this.swerveDrive, this.poseEstimator, this.armSubsystem, this.autonomousBuilder);
     }
         
     /**
@@ -205,10 +205,10 @@ abstract public class RobotContainer {
         
         this.swerveDrive.setDefaultCommand(this.teleopDriveCommand);
         
-        this.driveToTagLeftCommand = new DriveToTagCommand(this.swerveDrive, this.visionModule.getCamera(), this.poseEstimator::getCurrentPose);
-        this.driveToPoleLeftCommand = new DriveToPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, -FieldConstants.STRAFE_DISTANCE, 0.0);
+        this.driveToTagLeftCommand = new DriveToBestTagCommand(this.swerveDrive, this.visionModule.getCamera(), this.poseEstimator::getCurrentPose);
+        this.driveToPoleLeftCommand = new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, -FieldConstants.STRAFE_DISTANCE, 0.0);
 
-        this.driveToTagRightCommand = new DriveToTagCommand(this.swerveDrive, this.visionModule.getCamera(), this.poseEstimator::getCurrentPose);
-        this.driveToPoleRightCommand = new DriveToPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, FieldConstants.STRAFE_DISTANCE, 0.0);
+        this.driveToTagRightCommand = new DriveToBestTagCommand(this.swerveDrive, this.visionModule.getCamera(), this.poseEstimator::getCurrentPose);
+        this.driveToPoleRightCommand = new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, FieldConstants.STRAFE_DISTANCE, 0.0);
     }
 }

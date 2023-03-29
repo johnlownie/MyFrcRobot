@@ -22,7 +22,7 @@ public final class Constants {
      * 
      */
     public static final class RobotConstants {
-        public static final double ROBOT_LENGTH = Units.inchesToMeters(30);
+        public static final double ROBOT_LENGTH = Units.inchesToMeters(34.50);
         public static final double LOOP_PERIOD_SECS = 0.02;
         public static final boolean TUNING_MODE = true;
         
@@ -112,11 +112,12 @@ public final class Constants {
         };
 
         public static final Pose2d[] GAME_PIECE_POSES = new Pose2d[] {
-            new Pose2d(POSE_X + Units.inchesToMeters(200.0 - RobotConstants.ROBOT_LENGTH), POSE_Y[0], Rotation2d.fromDegrees(180)),
-            new Pose2d(POSE_X + Units.inchesToMeters(200.0 - RobotConstants.ROBOT_LENGTH), POSE_Y[0] - Units.inchesToMeters(48), Rotation2d.fromDegrees(180)),
-            new Pose2d(POSE_X + Units.inchesToMeters(200.0 - RobotConstants.ROBOT_LENGTH), POSE_Y[0] - Units.inchesToMeters(96), Rotation2d.fromDegrees(0))
+            new Pose2d(Units.inchesToMeters(261.0), Units.inchesToMeters(180.19), Rotation2d.fromDegrees(180)),
+            new Pose2d(Units.inchesToMeters(261.0), Units.inchesToMeters(132.19), Rotation2d.fromDegrees(180)),
+            new Pose2d(Units.inchesToMeters(261.0), Units.inchesToMeters( 84.19), Rotation2d.fromDegrees(0)),
+            new Pose2d(Units.inchesToMeters(261.0), Units.inchesToMeters( 36.19), Rotation2d.fromDegrees(0))
         };
-
+        
         public static final Pose2d CHARGE_STATION_EDGE = new Pose2d(POSE_X + Units.inchesToMeters(119.25), POSE_Y[1] + STRAFE_DISTANCE, Rotation2d.fromDegrees(0));
     }
 

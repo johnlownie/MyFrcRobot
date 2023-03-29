@@ -1,7 +1,7 @@
 package frc.robot.autonomous;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -21,12 +21,11 @@ public class TwoPieceBalance extends SequentialCommandGroup {
     /**
      * 
      */
-    public TwoPieceBalance(SwerveDriveSubsystem swerveDriveSubsystem, PoseEstimatorSubsystem poseEstimatorSubsystem, ArmSubsystem armSubsystem) {
+    public TwoPieceBalance(SwerveDriveSubsystem swerveDriveSubsystem, PoseEstimatorSubsystem poseEstimatorSubsystem, ArmSubsystem armSubsystem, AutonomousBuilder autonomousBuilder) {
         Pose2d deployPose = AllianceFlipUtil.apply(FieldConstants.POLE_POSES[0][0]);
         Pose2d firstPiecePose = AllianceFlipUtil.apply(FieldConstants.GAME_PIECE_POSES[0]);
-        Pose2d avoidStationPose = AllianceFlipUtil.apply(new Pose2d(firstPiecePose.getX() * 0.8, firstPiecePose.getY(), Rotation2d.fromDegrees(180)));
-        Pose2d secondPiecePose = AllianceFlipUtil.apply(FieldConstants.GAME_PIECE_POSES[1]);
         Pose2d stationEdge = AllianceFlipUtil.apply(FieldConstants.CHARGE_STATION_EDGE);
+        Command drivePoleToPiece = autonomousBuilder.getCommand("PoleToPiece");
 
         addCommands(
             new InstantCommand(() -> {
@@ -41,15 +40,16 @@ public class TwoPieceBalance extends SequentialCommandGroup {
             new DriveToPoseCommand(swerveDriveSubsystem, poseEstimatorSubsystem::getCurrentPose, firstPiecePose),
             new InstantCommand(() -> {
                 armSubsystem.addAction(Action.GRAB);
+                armSubsystem.addAction(Action.MOVE_TO_MID_NODE);
             }),
             new DriveToPoseCommand(swerveDriveSubsystem, poseEstimatorSubsystem::getCurrentPose, deployPose),
             new InstantCommand(() -> {
-                armSubsystem.addAction(Action.MOVE_TO_LOW_NODE);
                 armSubsystem.addAction(Action.RELEASE);
+                armSubsystem.addAction(Action.PAUSE);
+                armSubsystem.addAction(Action.MOVE_TO_GROUND);
             }),
             new WaitUntilCommand(armSubsystem::isReleased),
-            new DriveToPoseCommand(swerveDriveSubsystem, poseEstimatorSubsystem::getCurrentPose, avoidStationPose),
-            new DriveToPoseCommand(swerveDriveSubsystem, poseEstimatorSubsystem::getCurrentPose, secondPiecePose),
+            drivePoleToPiece,
             new InstantCommand(() -> {
                 armSubsystem.addAction(Action.GRAB);
                 armSubsystem.addAction(Action.MOVE_TO_DRAWER);

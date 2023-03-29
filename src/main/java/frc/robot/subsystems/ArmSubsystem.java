@@ -147,7 +147,7 @@ public class ArmSubsystem extends SubsystemBase {
             this.timer.start();
         }
 
-        if (this.timer.hasElapsed(2)) {
+        if (this.timer.hasElapsed(1)) {
             timer.stop();
             this.stateMachine.setState(Action.IDLE);
         }

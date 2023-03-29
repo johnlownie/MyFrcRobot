@@ -15,22 +15,25 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 /**
  * Command to drive to a pose.
  */
-public class DriveToPoseCommand extends CommandBase {
+public class DriveFromPoseCommand extends CommandBase {
     private final SwerveDriveSubsystem swerveDrive;
     private final Supplier<Pose2d> poseProvider;
-    private final Pose2d goalPose;
 
     private final ProfiledPIDController xController = TeleopConstants.xController;
     private final ProfiledPIDController yController = TeleopConstants.yController;
     private final ProfiledPIDController omegaController = TeleopConstants.omegaController;
 
+    private double xDeltaInMeters, yDeltaInMeters, zDeltaInRadians;
+
     /**
-     * 
+     * Drive to x, y, z delta from current position
      */
-    public DriveToPoseCommand(SwerveDriveSubsystem swerveDrive, Supplier<Pose2d> poseProvider, Pose2d goalPose) {
+    public DriveFromPoseCommand(SwerveDriveSubsystem swerveDrive, Supplier<Pose2d> poseProvider, double xDeltaInMeters, double yDeltaInMeters, double zDeltaInRadians) {
         this.swerveDrive = swerveDrive;
         this.poseProvider = poseProvider;
-        this.goalPose = goalPose;
+        this.xDeltaInMeters = xDeltaInMeters;
+        this.yDeltaInMeters = yDeltaInMeters;
+        this.zDeltaInRadians = zDeltaInRadians;
 
         addRequirements(this.swerveDrive);
     }
@@ -39,7 +42,7 @@ public class DriveToPoseCommand extends CommandBase {
     public void end(boolean interrupted) {
         this.swerveDrive.stop();
             
-        Logger.getInstance().recordOutput("ActiveCommands/DriveToPoseCommand", false);
+        Logger.getInstance().recordOutput("ActiveCommands/DriveFromPoseCommand", false);
     }
 
     @Override
@@ -61,11 +64,18 @@ public class DriveToPoseCommand extends CommandBase {
     public void initialize() {
         resetPIDControllers();
 
-        this.xController.setGoal(this.goalPose.getX());
-        this.yController.setGoal(this.goalPose.getY());
-        this.omegaController.setGoal(this.goalPose.getRotation().getRadians());
-            
-        Logger.getInstance().recordOutput("ActiveCommands/DriveToPoseCommand", true);
+        Pose2d currentPose = this.poseProvider.get();
+        Pose2d goalPose = new Pose2d(
+            currentPose.getX() + this.xDeltaInMeters, 
+            currentPose.getY() + this.yDeltaInMeters, 
+            new Rotation2d(currentPose.getRotation().getRadians() + this.zDeltaInRadians)
+        );
+
+        this.xController.reset(goalPose.getX());
+        this.yController.reset(goalPose.getY());
+        this.omegaController.reset(goalPose.getRotation().getRadians());
+
+        Logger.getInstance().recordOutput("ActiveCommands/DriveFromPoseCommand", true);
     }
 
     /**
@@ -84,7 +94,7 @@ public class DriveToPoseCommand extends CommandBase {
      * 
      */
     private void resetPIDControllers() {
-        Pose2d robotPose = poseProvider.get();
+        Pose2d robotPose = this.poseProvider.get();
 
         this.xController.reset(robotPose.getX());
         this.yController.reset(robotPose.getY());

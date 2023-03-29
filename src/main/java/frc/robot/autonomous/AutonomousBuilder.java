@@ -28,7 +28,9 @@ public class AutonomousBuilder {
 
     private final SendableChooser<Command> autoChooser;
     private final SwerveAutoBuilder swerveAutoBuilder;
-    private HashMap<String, Command> eventMap;
+    private final HashMap<String, Command> commandMap;
+    private final HashMap<String, Command> eventMap;
+    
 
     /**
      * 
@@ -36,6 +38,7 @@ public class AutonomousBuilder {
     public AutonomousBuilder(SwerveDriveSubsystem swerveDrive, PoseEstimatorSubsystem poseEstimator) {
         this.swerveDrive = swerveDrive;
         this.poseEstimator = poseEstimator;
+        this.commandMap = new HashMap<String, Command>();
         this.eventMap = getEventMap();
 
         this.swerveAutoBuilder = new AutoBuilder(this.poseEstimator::getCurrentPose, this.poseEstimator::setCurrentPose, this.swerveDrive.getKinematics(),
@@ -90,6 +93,13 @@ public class AutonomousBuilder {
     /**
      * 
      */
+    public Command getCommand(String name) {
+        return this.commandMap.get(name);
+    }
+    
+    /**
+     * 
+     */
     private void setPaths() {
         try {
             Stream<Path> files = Files.list(Paths.get(Filesystem.getDeployDirectory().getAbsolutePath(), "pathplanner"));
@@ -100,7 +110,11 @@ public class AutonomousBuilder {
                 .filter(fileName -> fileName.endsWith(".path"))
                 .sorted()
                 .map(pathName -> pathName.substring(0, pathName.lastIndexOf(".")))
-                .forEach(pathName -> this.autoChooser.addOption(pathName, getAutoBuildForPathGroup(pathName)));
+                .forEach(pathName -> {
+                    Command command = getAutoBuildForPathGroup(pathName);
+                    this.commandMap.put(pathName, command);
+                    this.autoChooser.addOption(pathName, command);
+                });
         } catch (IOException e) {
             System.out.println("*** Failed to load paths ***");
         }

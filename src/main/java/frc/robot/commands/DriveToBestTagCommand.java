@@ -20,7 +20,7 @@ import frc.robot.Constants.TeleopConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
-public class DriveToTagCommand extends CommandBase {
+public class DriveToBestTagCommand extends CommandBase {
     private final SwerveDriveSubsystem swerveDrive;
     private final PhotonCamera photonCamera;
     private final Supplier<Pose2d> poseProvider;
@@ -35,7 +35,7 @@ public class DriveToTagCommand extends CommandBase {
     /**
      * 
      */
-    public DriveToTagCommand(SwerveDriveSubsystem swerveDrive, PhotonCamera photonCamera, Supplier<Pose2d> poseProvider) {
+    public DriveToBestTagCommand(SwerveDriveSubsystem swerveDrive, PhotonCamera photonCamera, Supplier<Pose2d> poseProvider) {
         this.swerveDrive = swerveDrive;
         this.photonCamera = photonCamera;
         this.poseProvider = poseProvider;
@@ -62,7 +62,7 @@ public class DriveToTagCommand extends CommandBase {
         Pose2d robotPose2d = this.poseProvider.get();
         Pose3d robotPose = new Pose3d( robotPose2d.getX(), robotPose2d.getY(), 0.0, new Rotation3d(0.0, 0.0, robotPose2d.getRotation().getRadians()));
         
-        PhotonPipelineResult results = photonCamera.getLatestResult();
+        PhotonPipelineResult results = this.photonCamera.getLatestResult();
         if (results.hasTargets()) {
             // This is new target data, so recalculate the goal
             PhotonTrackedTarget target = results.getBestTarget();
@@ -89,14 +89,13 @@ public class DriveToTagCommand extends CommandBase {
             this.swerveDrive.stop();
         } else {
             // Drive to the target
-            double xSpeed = xController.calculate(robotPose.getX());
-            if (xController.atGoal()) xSpeed = 0;
+            double xSpeed = this.xController.calculate(robotPose.getX());
+            double ySpeed = this.yController.calculate(robotPose.getY());
+            double omegaSpeed = this.omegaController.calculate(robotPose2d.getRotation().getRadians());
 
-            double ySpeed = yController.calculate(robotPose.getY());
-            if (yController.atGoal()) ySpeed = 0;
-
-            double omegaSpeed = omegaController.calculate(robotPose2d.getRotation().getRadians());
-            if (omegaController.atGoal()) omegaSpeed = 0;
+            if (this.xController.atGoal()) xSpeed = 0;
+            if (this.yController.atGoal()) ySpeed = 0;
+            if (this.omegaController.atGoal()) omegaSpeed = 0;
 
             this.swerveDrive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose2d.getRotation()));
         }
@@ -127,9 +126,10 @@ public class DriveToTagCommand extends CommandBase {
      * 
      */
     private void resetPIDControllers() {
-        Pose2d robotPose = poseProvider.get();
-        omegaController.reset(robotPose.getRotation().getRadians());
-        xController.reset(robotPose.getX());
-        yController.reset(robotPose.getY());
+        Pose2d robotPose = this.poseProvider.get();
+
+        this.xController.reset(robotPose.getX());
+        this.yController.reset(robotPose.getY());
+        this.omegaController.reset(robotPose.getRotation().getRadians());
     }
 }
