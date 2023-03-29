@@ -15,10 +15,8 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 public class AutoLevelCommand extends CommandBase {
     private final SwerveDriveSubsystem swerveDriveSubsystem;
 
-    PIDController pid = new PIDController(0.04, 0, 0.0);
-
-    Timer timer = new Timer();
-    boolean timerRunning;
+    private final PIDController pid = new PIDController(0.04, 0, 0.0);
+    private final Timer timer = new Timer();
 
     /**
      * 
@@ -32,10 +30,7 @@ public class AutoLevelCommand extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        if (!this.timerRunning) {
-            this.timer.start();
-            this.timerRunning = true;
-        }
+        this.timer.start();
     }
 
     // Returns true when the command should end.
@@ -57,5 +52,7 @@ public class AutoLevelCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         this.swerveDriveSubsystem.stop();
+        this.timer.stop();
+        this.timer.reset();
     }
 }

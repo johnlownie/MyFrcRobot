@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.lib.util.Timer;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.Action;
 
@@ -45,5 +45,7 @@ public class DeployGamePieceMidCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         this.armSubsystem.addAction(Action.MOVE_TO_DRAWER);
+        this.timer.stop();
+        this.timer.reset();
     }
 }
