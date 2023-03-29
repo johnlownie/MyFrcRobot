@@ -1,7 +1,17 @@
 {
+  "HALProvider": {
+    "Other Devices": {
+      "Ultrasonic[4]": {
+        "header": {
+          "open": true
+        }
+      }
+    }
+  },
   "NTProvider": {
     "types": {
       "/AdvantageKit/RealOutputs/Mechanisms/Arm": "Mechanism2d",
+      "/AdvantageKit/RealOutputs/Mechanisms/Visualization": "Mechanism2d",
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/Driver/Autonomous": "String Chooser",
       "/SmartDashboard/REAR_CAMERA Sim Field": "Field2d"

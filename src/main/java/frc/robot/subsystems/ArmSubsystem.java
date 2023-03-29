@@ -188,8 +188,8 @@ public class ArmSubsystem extends SubsystemBase {
     /**
      * 
      */
-    private void moveArm(boolean notify_on_finish) {
-        this.notify_on_release = notify_on_finish;
+    private void moveArm(boolean notify_on_release) {
+        this.notify_on_release = notify_on_release;
         this.stateMachine.setState(Action.MOVE);
     }
     
