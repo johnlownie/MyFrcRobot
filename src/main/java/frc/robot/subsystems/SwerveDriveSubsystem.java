@@ -56,9 +56,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public void drive(ChassisSpeeds chassisSpeeds) {
         this.desiredChassisSpeeds = chassisSpeeds;
 
-        Logger.getInstance().recordOutput("SwerveDrive/chassisSpeedVx", chassisSpeeds.vxMetersPerSecond);
-        Logger.getInstance().recordOutput("SwerveDrive/chassisSpeedVy", chassisSpeeds.vyMetersPerSecond);
-        Logger.getInstance().recordOutput("SwerveDrive/chassisSpeedVo", chassisSpeeds.omegaRadiansPerSecond);
+        Logger.getInstance().recordOutput("SwerveDrive/Chassis Speeds", chassisSpeeds.toString());
     }
 
     /**
@@ -156,11 +154,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             this.gyroOffset = expectedYaw - this.gyro.getPositionDeg();
         } else {
             this.gyroOffset = 0;
-            // this.estimatedPoseWithoutGyro =
-            //     new Pose2d(
-            //         estimatedPoseWithoutGyro.getX(),
-            //         estimatedPoseWithoutGyro.getY(),
-            //         Rotation2d.fromDegrees(expectedYaw));
         }
     }
 

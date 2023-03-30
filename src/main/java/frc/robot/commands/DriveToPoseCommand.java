@@ -6,8 +6,8 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -31,6 +31,11 @@ public class DriveToPoseCommand extends CommandBase {
         this.swerveDrive = swerveDrive;
         this.poseProvider = poseProvider;
         this.goalPose = goalPose;
+
+        this.xController.setTolerance(0.2);
+        this.yController.setTolerance(0.2);
+        this.omegaController.setTolerance(Units.degreesToRadians(3));
+        this.omegaController.enableContinuousInput(-Math.PI, Math.PI);
 
         addRequirements(this.swerveDrive);
     }

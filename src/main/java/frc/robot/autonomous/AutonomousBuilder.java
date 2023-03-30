@@ -28,7 +28,6 @@ public class AutonomousBuilder {
 
     private final SendableChooser<Command> autoChooser;
     private final SwerveAutoBuilder swerveAutoBuilder;
-    private final HashMap<String, Command> commandMap;
     private final HashMap<String, Command> eventMap;
     
 
@@ -38,12 +37,13 @@ public class AutonomousBuilder {
     public AutonomousBuilder(SwerveDriveSubsystem swerveDrive, PoseEstimatorSubsystem poseEstimator) {
         this.swerveDrive = swerveDrive;
         this.poseEstimator = poseEstimator;
-        this.commandMap = new HashMap<String, Command>();
         this.eventMap = getEventMap();
 
-        this.swerveAutoBuilder = new AutoBuilder(this.poseEstimator::getCurrentPose, this.poseEstimator::setCurrentPose, this.swerveDrive.getKinematics(),
-        new PIDConstants(5.0, 0, 0), new PIDConstants(2.6, 0.001, 0), this.swerveDrive::setModuleStates,
-        this.eventMap, true, new Command[] {}, this.swerveDrive);
+        this.swerveAutoBuilder = new AutoBuilder(
+            this.poseEstimator::getCurrentPose, this.poseEstimator::setCurrentPose, this.swerveDrive.getKinematics(),
+            new PIDConstants(5.0, 0, 0), new PIDConstants(2.6, 0.001, 0), this.swerveDrive::setModuleStates,
+            this.eventMap, true, new Command[] {}, this.swerveDrive
+        );
         
         this.autoChooser = new SendableChooser<>();
         this.autoChooser.setDefaultOption("None", Commands.none());
@@ -94,7 +94,7 @@ public class AutonomousBuilder {
      * 
      */
     public Command getCommand(String name) {
-        return this.commandMap.get(name);
+        return getAutoBuildForPathGroup(name);
     }
     
     /**
@@ -112,7 +112,6 @@ public class AutonomousBuilder {
                 .map(pathName -> pathName.substring(0, pathName.lastIndexOf(".")))
                 .forEach(pathName -> {
                     Command command = getAutoBuildForPathGroup(pathName);
-                    this.commandMap.put(pathName, command);
                     this.autoChooser.addOption(pathName, command);
                 });
         } catch (IOException e) {

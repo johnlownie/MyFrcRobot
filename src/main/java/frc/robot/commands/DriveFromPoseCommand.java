@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -34,6 +35,11 @@ public class DriveFromPoseCommand extends CommandBase {
         this.xDeltaInMeters = xDeltaInMeters;
         this.yDeltaInMeters = yDeltaInMeters;
         this.zDeltaInRadians = zDeltaInRadians;
+
+        this.xController.setTolerance(0.2);
+        this.yController.setTolerance(0.2);
+        this.omegaController.setTolerance(Units.degreesToRadians(3));
+        this.omegaController.enableContinuousInput(-Math.PI, Math.PI);
 
         addRequirements(this.swerveDrive);
     }
@@ -71,9 +77,9 @@ public class DriveFromPoseCommand extends CommandBase {
             new Rotation2d(currentPose.getRotation().getRadians() + this.zDeltaInRadians)
         );
 
-        this.xController.reset(goalPose.getX());
-        this.yController.reset(goalPose.getY());
-        this.omegaController.reset(goalPose.getRotation().getRadians());
+        this.xController.setGoal(goalPose.getX());
+        this.yController.setGoal(goalPose.getY());
+        this.omegaController.setGoal(goalPose.getRotation().getRadians());
 
         Logger.getInstance().recordOutput("ActiveCommands/DriveFromPoseCommand", true);
     }

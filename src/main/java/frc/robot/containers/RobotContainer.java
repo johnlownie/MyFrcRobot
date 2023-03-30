@@ -17,6 +17,7 @@ import frc.robot.autonomous.TwoPieceBalance;
 import frc.robot.commands.DeployGamePieceMidCommand;
 import frc.robot.commands.DriveFromPoseCommand;
 import frc.robot.commands.DriveToBestTagCommand;
+import frc.robot.commands.DriveToPoseCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.controls.XBoxControlBindings;
 import frc.robot.modules.drawer.DrawerModule;
@@ -36,11 +37,6 @@ abstract public class RobotContainer {
 
     /* Commands */
     protected TeleopDriveCommand teleopDriveCommand;
-    private DriveToBestTagCommand driveToTagLeftCommand;
-    private DriveToBestTagCommand driveToTagRightCommand;
-    
-    private DriveFromPoseCommand driveToPoleLeftCommand;
-    private DriveFromPoseCommand driveToPoleRightCommand;
 
     /* Controllers */
     protected final XBoxControlBindings driverController;
@@ -91,30 +87,30 @@ abstract public class RobotContainer {
         // drive to tag and strafe
         this.driverController.driveToPoleLeft().ifPresent(
             trigger -> trigger.onTrue(
-                this.driveToTagLeftCommand
+                new DriveToBestTagCommand(this.swerveDrive, this.visionModule.getCamera(), this.poseEstimator::getCurrentPose)
+                .andThen(
+                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, -FieldConstants.STRAFE_DISTANCE, 0.0)
                     .andThen(
-                        this.driveToPoleLeftCommand
-                        .andThen(
-                            new DeployGamePieceMidCommand(this.armSubsystem)
-                        )
-                        .until(this.driverController.driverWantsControl())
+                        new DeployGamePieceMidCommand(this.armSubsystem)
                     )
                     .until(this.driverController.driverWantsControl())
+                )
+                .until(this.driverController.driverWantsControl())
             )
         );
 
         // drive to tag and strafe
         this.driverController.driveToPoleRight().ifPresent(
             trigger -> trigger.onTrue(
-                this.driveToTagRightCommand
+                new DriveToBestTagCommand(this.swerveDrive, this.visionModule.getCamera(), this.poseEstimator::getCurrentPose)
+                .andThen(
+                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, FieldConstants.STRAFE_DISTANCE, 0.0)
                     .andThen(
-                        this.driveToPoleRightCommand
-                        .andThen(
-                            new DeployGamePieceMidCommand(this.armSubsystem)
-                        )
-                        .until(this.driverController.driverWantsControl())
+                        new DeployGamePieceMidCommand(this.armSubsystem)
                     )
                     .until(this.driverController.driverWantsControl())
+                )
+                .until(this.driverController.driverWantsControl())
             )
         );
 
@@ -204,11 +200,5 @@ abstract public class RobotContainer {
         );
         
         this.swerveDrive.setDefaultCommand(this.teleopDriveCommand);
-        
-        this.driveToTagLeftCommand = new DriveToBestTagCommand(this.swerveDrive, this.visionModule.getCamera(), this.poseEstimator::getCurrentPose);
-        this.driveToPoleLeftCommand = new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, -FieldConstants.STRAFE_DISTANCE, 0.0);
-
-        this.driveToTagRightCommand = new DriveToBestTagCommand(this.swerveDrive, this.visionModule.getCamera(), this.poseEstimator::getCurrentPose);
-        this.driveToPoleRightCommand = new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, FieldConstants.STRAFE_DISTANCE, 0.0);
     }
 }

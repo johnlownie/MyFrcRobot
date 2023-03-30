@@ -5,11 +5,8 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -74,14 +71,5 @@ public class TeleopDriveCommand extends CommandBase {
     @Override
     public void initialize() {
         Logger.getInstance().recordOutput("ActiveCommands/TeleopDriveCommand", true);
-        // Calculate field relative speeds
-        // ChassisSpeeds chassisSpeeds = this.swerveDrive.getChassisSpeeds();
-        // Translation2d fieldSpeeds = new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond).rotateBy(robotAngle);
-        // ChassisSpeeds robotSpeeds = new ChassisSpeeds(fieldSpeeds.getX(), fieldSpeeds.getY(), chassisSpeeds.omegaRadiansPerSecond);
-        
-        // Reset the slew rate limiters, in case the robot is already moving
-        // this.translateXRateLimiter.reset(robotSpeeds.vxMetersPerSecond);
-        // this.translateYRateLimiter.reset(robotSpeeds.vyMetersPerSecond);
-        // this.rotationRateLimiter.reset(robotSpeeds.omegaRadiansPerSecond);
     }
 }
