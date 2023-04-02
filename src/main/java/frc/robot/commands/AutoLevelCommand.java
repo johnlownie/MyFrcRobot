@@ -45,7 +45,7 @@ public class AutoLevelCommand extends CommandBase {
         double pidOutput = -pid.calculate(this.swerveDriveSubsystem.getGyro().getPitchDeg());
         ChassisSpeeds chassisSpeeds  = new ChassisSpeeds(pidOutput, 0, 0);
 
-        this.swerveDriveSubsystem.drive(chassisSpeeds);
+        this.swerveDriveSubsystem.drive(chassisSpeeds, false);
     }
 
     // Called once the command ends or is interrupted.

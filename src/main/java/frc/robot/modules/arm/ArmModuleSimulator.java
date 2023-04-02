@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.utils.LoggedTunableNumber;
 
 /**
@@ -115,13 +116,11 @@ public class ArmModuleSimulator extends ArmModule {
 
     @Override
     public void update() {
-        if (kp.hasChanged(hashCode()) || ki.hasChanged(hashCode()) || kp.hasChanged(hashCode())) {
-            this.pidController.setP(kp.get());
-            this.pidController.setI(ki.get());
-            this.pidController.setD(kd.get());
+        if (RobotConstants.TUNING_MODE && (kp.hasChanged(hashCode()) || ki.hasChanged(hashCode()) || kp.hasChanged(hashCode()))) {
+            this.pidController.setPID(kp.get(), ki.get(), kd.get());
         }
 
-        double pidOutput = super.isEnabled() ?this.pidController.calculate(this.encoderSim.getDistance(), Units.degreesToRadians(getDesiredAngle())) : 0.0;
+        double pidOutput = super.isEnabled() ? this.pidController.calculate(this.encoderSim.getDistance(), Units.degreesToRadians(getDesiredAngle())) : 0.0;
         this.motor.setVoltage(pidOutput);
 
         this.singleJointedArmSim.setInput(MathUtil.clamp(this.motor.get() * 12.0, -12.0, 12.0));

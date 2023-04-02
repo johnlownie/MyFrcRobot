@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import java.util.Arrays;
-import java.util.stream.IntStream;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -26,10 +25,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private GyroModule gyro;
 
     private ChassisSpeeds desiredChassisSpeeds;
-
-    // variable for field oriented drive
-    private boolean isFieldOriented;
     private double gyroOffset;
+    private boolean isFieldOriented;
+    private boolean isOpenLoop;
 
     /**
      * 
@@ -42,6 +40,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         zeroGyroscope();
         
         this.isFieldOriented = false;
+        this.isOpenLoop = false;
     }
     
     /**
@@ -53,10 +52,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     /**
      * 
      */
-    public void drive(ChassisSpeeds chassisSpeeds) {
+    public void drive(ChassisSpeeds chassisSpeeds, boolean isOpenLoop) {
         this.desiredChassisSpeeds = chassisSpeeds;
-
-        Logger.getInstance().recordOutput("SwerveDrive/Chassis Speeds", chassisSpeeds.toString());
+        this.isOpenLoop = isOpenLoop;
     }
 
     /**
@@ -71,7 +69,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             chassisSpeeds = new ChassisSpeeds(xVelocity, yVelocity, rVelocity);
         }
 
-        drive(chassisSpeeds);
+        drive(chassisSpeeds, isOpenLoop);
     }
 
     /**
@@ -94,7 +92,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      * Gets the current drivetrain state (velocity, and angle), as reported by the modules themselves.
      * @return current drivetrain state. Array orders are frontLeft, frontRight, backLeft, backRight
      */
-    private SwerveModuleState[] getModuleStates() {
+    public SwerveModuleState[] getModuleStates() {
         return Arrays.stream(this.swerveModules).map(module -> module.getState()).toArray(SwerveModuleState[]::new);
     }
 
@@ -110,12 +108,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         // Set the swerve module states
         if (this.desiredChassisSpeeds != null) {
             SwerveModuleState[] desiredStates = this.swerveDriveKinematics.toSwerveModuleStates(desiredChassisSpeeds);
-            SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND);
-            setModuleStates(desiredStates);
+            setModuleStates(desiredStates, this.isOpenLoop, false);
         }
-
-        // Always reset desiredChassisSpeeds to null to prevent latching to the last state (aka motor safety)!!
-        this.desiredChassisSpeeds = null;
 
         // update and log the swerve module position
         for (SwerveModule swerveModule : this.swerveModules) {
@@ -130,6 +124,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         Logger.getInstance().recordOutput("Gyro/gyroOffset", this.gyroOffset);
         Logger.getInstance().recordOutput("Field Relative", this.isFieldOriented);
         Logger.getInstance().recordOutput("SwerveModuleStates", getModuleStates());
+        Logger.getInstance().recordOutput("SwerveDrive/Desired xSpeed", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.vxMetersPerSecond : 0);
+        Logger.getInstance().recordOutput("SwerveDrive/Actual xSpeed", getChassisSpeeds().vxMetersPerSecond);
+
+        // Always reset desiredChassisSpeeds to null to prevent latching to the last state (aka motor safety)!!
+        this.desiredChassisSpeeds = null;
     }
 
     /**
@@ -158,15 +157,32 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     /**
+     * Sets each of the swerve modules based on the specified corresponding swerve module state.
+     * Incorporates the configured feedforward when setting each swerve module. The order of the
+     * states in the array must be front left, front right, back left, back right.
+     *
+     * <p>This method is invoked by the DrivePathCommand autonomous command.
+     *
+     * @param states the specified swerve module state for each swerve module
+     */
+    public void setModuleStates(SwerveModuleState[] states) {
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND);
+
+        for (SwerveModule swerveModule : this.swerveModules) {
+            swerveModule.setDesiredState(states[swerveModule.getModuleId()], false, false);
+        }
+    }
+
+    /**
      * Sets the states of the modules.
      * @param states array of states. Must be ordered frontLeft, frontRight, backLeft, backRight
      */
-    public void setModuleStates(SwerveModuleState[] states) {
-        IntStream.range(0, this.swerveModules.length).forEach(i -> {
-            SwerveModule swerveModule = this.swerveModules[i];
-            SwerveModuleState desiredState = SwerveModuleState.optimize(states[i], swerveModule.getStateRotation());
-            swerveModule.setDesiredState(desiredState, false, false);
-        });
+    public void setModuleStates(SwerveModuleState[] states, boolean isOpenLoop, boolean forceAngle) {
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND);
+
+        for (SwerveModule swerveModule : this.swerveModules) {
+            swerveModule.setDesiredState(states[swerveModule.getModuleId()], isOpenLoop, forceAngle);
+        }
     }
 
     /**
@@ -181,17 +197,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         states[1].angle = new Rotation2d(Math.PI / 2 + Math.atan(DriveTrainConstants.TRACK_WIDTH_METERS / DriveTrainConstants.WHEEL_BASE_METERS));
         states[2].angle = new Rotation2d(Math.PI / 2 + Math.atan(DriveTrainConstants.TRACK_WIDTH_METERS / DriveTrainConstants.WHEEL_BASE_METERS));
         states[3].angle = new Rotation2d(3.0 / 2.0 * Math.PI - Math.atan(DriveTrainConstants.TRACK_WIDTH_METERS / DriveTrainConstants.WHEEL_BASE_METERS));
-        
-        for (SwerveModule swerveModule : this.swerveModules) {
-            swerveModule.setDesiredState(states[swerveModule.getModuleId()], true, true);
-        }
+
+        setModuleStates(states, true, true);
     }
 
     /**
      * 
      */
     public void stop() {
-        drive(new ChassisSpeeds());
+        drive(new ChassisSpeeds(), false);
     }
 
     /**

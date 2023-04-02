@@ -7,7 +7,6 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -16,6 +15,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.lib.util.ProfiledPIDController;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -57,7 +57,7 @@ public class DriveToBestTagCommand extends CommandBase {
 
     @Override
     public void execute() {
-        Pose2d robotPose = poseProvider.get();
+        Pose2d robotPose = this.poseProvider.get();
 
         double xSpeed = this.xController.calculate(robotPose.getX());
         double ySpeed = this.yController.calculate(robotPose.getY());
@@ -67,7 +67,7 @@ public class DriveToBestTagCommand extends CommandBase {
         if (this.yController.atGoal()) ySpeed = 0;
         if (this.omegaController.atGoal()) omegaSpeed = 0;
 
-        this.swerveDrive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose.getRotation()));
+        this.swerveDrive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose.getRotation()), false);
     }
 
     /**

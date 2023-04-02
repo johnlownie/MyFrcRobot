@@ -30,7 +30,7 @@ public class ArmModuleMechanism {
      * 
      */
     public ArmModuleMechanism() {
-        this.pivot = MechanismConstants.CANVAS.getRoot("ARM PIVOT", Units.inchesToMeters(15), Units.inchesToMeters(37));
+        this.pivot = MechanismConstants.CANVAS.getRoot("ARM PIVOT", Units.inchesToMeters(20), Units.inchesToMeters(37));
         this.tower = new MechanismLigament2d("ARM TOWER", TOWER_LENGTH_METERS, -70, 6, new Color8Bit(Color.kYellow));
         this.support1 = new MechanismLigament2d("TOWER SUPPORT 1 ", SUPPORT1_LENGTH_METERS, 0, 6, new Color8Bit(Color.kYellow));
         this.support2 = new MechanismLigament2d("TOWER SUPPORT 2", SUPPORT2_LENGTH_METERS, -60, 6, new Color8Bit(Color.kYellow));

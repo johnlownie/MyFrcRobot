@@ -35,7 +35,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -115,7 +114,6 @@ public class SimVisionSystem {
         dbgField = new Field2d();
         dbgRobot = dbgField.getRobotObject();
         dbgCamera = dbgField.getObject(camName + " Camera");
-        SmartDashboard.putData(camName + " Sim Field", dbgField);
     }
 
     /**

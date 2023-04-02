@@ -5,19 +5,21 @@ import static edu.wpi.first.wpilibj2.command.Commands.run;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import frc.lib.util.Timer;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.autonomous.AutonomousBuilder;
-import frc.robot.autonomous.TwoPieceBalance;
 import frc.robot.commands.DeployGamePieceMidCommand;
 import frc.robot.commands.DriveFromPoseCommand;
 import frc.robot.commands.DriveToBestTagCommand;
-import frc.robot.commands.DriveToPoseCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.controls.XBoxControlBindings;
 import frc.robot.modules.drawer.DrawerModule;
@@ -54,6 +56,8 @@ abstract public class RobotContainer {
     protected PoseEstimatorSubsystem poseEstimator;
     protected SwerveDriveSubsystem swerveDrive;
 
+    private final Timer reseedTimer = new Timer();
+
     /**
      * 
      */
@@ -64,6 +68,8 @@ abstract public class RobotContainer {
         
         this.driverController = new XBoxControlBindings();
         this.operatorController = new XBoxControlBindings();
+
+        this.reseedTimer.start();
     }
 
     /**
@@ -165,6 +171,15 @@ abstract public class RobotContainer {
     /**
      * 
      */
+    public void disabledPeriodic() {
+        // Reseed the motor offset continuously when the robot is disabled to help solve dead wheel issue
+        if (this.reseedTimer.advanceIfElapsed(1.0)) {
+            this.swerveDrive.reseedSteerMotorOffsets();
+        }
+    }
+    /**
+     * 
+     */
     abstract public void disable();
     abstract public void enable();
 
@@ -172,8 +187,7 @@ abstract public class RobotContainer {
      * 
      */
     public Command getAutonomousCommand() {
-        // return this.autonomousBuilder.getAutonomousCommand();
-        return new TwoPieceBalance(this.swerveDrive, this.poseEstimator, this.armSubsystem, this.autonomousBuilder);
+        return this.autonomousBuilder.getAutonomousCommand();
     }
         
     /**
@@ -182,8 +196,6 @@ abstract public class RobotContainer {
      */
     public void onAllianceChanged(Alliance alliance, int location) {
         Pose2d pose2d = AllianceFlipUtil.apply(FieldConstants.ALLIANCE_POSES[location - 1]);
-        // int allianceStation = alliance.name().equalsIgnoreCase("blue") ? 0 : 1;
-        // this.poseEstimator.setAlliance(alliance, this.alliancePoses[allianceStation][location - 1]);
         this.poseEstimator.setCurrentPose(pose2d);
     }
 

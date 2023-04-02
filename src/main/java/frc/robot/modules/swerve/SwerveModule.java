@@ -18,9 +18,11 @@ abstract public class SwerveModule implements LoggableInputs {
     private int module_id;
     private double last_angle;
 
-    protected double angleSetpointDegrees = 0.0;
+    protected double driveSetpointMPS = 0.0;
+    protected double driveSetpointPercentage = 0.0;
+    protected double turnSetpointDegrees = 0.0;
 
-    /* Caclulated input values */
+    /* Calculated input values */
     double driveAppliedPercentage = 0.0;
     double driveAppliedVolts = 0.0;
     double driveDistanceMeters = 0.0;
@@ -80,13 +82,6 @@ abstract public class SwerveModule implements LoggableInputs {
         return Rotation2d.fromDegrees(this.turnPositionDeg);
     }
 
-    /** 
-     * Run the turn motor to the specified angle.
-     */
-    public void setAnglePosition(double degrees) {
-        this.angleSetpointDegrees = degrees;
-    }
-
     /*
      * This is a custom optimize function, since default WPILib optimize assumes
      * continuous controller which CTRE and Rev onboard is not
@@ -114,13 +109,14 @@ abstract public class SwerveModule implements LoggableInputs {
         setAnglePosition(this.last_angle);
     }
 
-    /**
-     * Reseeds to Talon FX motor offset from the CANCoder. Workaround for "dead wheel"
-     */
-    abstract public void reseedSteerMotorOffset();
+    abstract protected void applyDriveSettings();
+    abstract protected void applyTurnSettings();
+
+    abstract public void setAnglePosition(double degrees);
     abstract protected void setDrivePercentage(double percentage);
     abstract protected void setDriveVelocity(double velocity);
-    abstract protected void setTurnRotation();
+
+    abstract public void reseedSteerMotorOffset();
     abstract public void updatePositions();
 
     /**
@@ -147,6 +143,8 @@ abstract public class SwerveModule implements LoggableInputs {
   
     @Override
     public void toLog(LogTable table) {
+        table.put("DriveSetpointMPS", this.driveSetpointMPS);
+        table.put("DriveSetpointPercentage", this.driveSetpointPercentage);
         table.put("DriveAppliedPercentage", this.driveAppliedPercentage);
         table.put("DriveAppliedVolts", this.driveAppliedVolts);
         table.put("DriveDistanceMeters", this.driveDistanceMeters);
@@ -155,6 +153,7 @@ abstract public class SwerveModule implements LoggableInputs {
         table.put("DriveCurrentAmps", this.driveCurrentAmps);
         table.put("DriveTempCelsius", this.driveTempCelsius);
 
+        table.put("TurnSetpointDegrees", this.turnSetpointDegrees);
         table.put("TurnAbsolutePositionDeg", this.turnAbsolutePositionDeg);
         table.put("TurnAppliedPercentage", this.turnAppliedPercentage);
         table.put("TurnAppliedVolts", this.turnAppliedVolts);

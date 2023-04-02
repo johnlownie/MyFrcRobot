@@ -17,19 +17,19 @@ import frc.robot.utils.LoggedTunableNumber;
  */
 public class SwerveModuleSimulator extends SwerveModule {
     /* Simulated Drive Motor PID Values */
-    private static final double DRIVE_KP = 2.0;
-    private static final double DRIVE_KI = 0.0;
-    private static final double DRIVE_KD = 0.0;
+    private final double DRIVE_KP = 0.8;
+    private final double DRIVE_KI = 0.0;
+    private final double DRIVE_KD = 0.0;
 
     /* Simulated Turn Motor PID Values */
-    private static final double TURN_KP = 12.0;
-    private static final double TURN_KI = 0.0;
-    private static final double TURN_KD = 0.0;
+    private final double TURN_KP = 2.0;
+    private final double TURN_KI = 0.0;
+    private final double TURN_KD = 0.0;
 
     /* Simulated Drive Motor Characterization Values */
-    private static final double DRIVE_KS = 0.116970;
-    private static final double DRIVE_KV = 0.133240;
-    private static final double DRIVE_KA = 0.0;
+    private final double DRIVE_KS = 0.116970;
+    private final double DRIVE_KV = 0.133240;
+    private final double DRIVE_KA = 0.0;
 
     /* Tunable PID */
     private final LoggedTunableNumber driveKp = new LoggedTunableNumber("Drive/DriveKp", DRIVE_KP);
@@ -51,6 +51,8 @@ public class SwerveModuleSimulator extends SwerveModule {
     private double turnAbsolutePositionRadians = Math.random() * 2.0 * Math.PI;
     private double turnRelativePositionRadians = 0.0;
 
+    private boolean isOpenLoop;
+
     /**
      * 
      */
@@ -58,12 +60,49 @@ public class SwerveModuleSimulator extends SwerveModule {
         super(module_id);
 
         this.driveMotor = getDriveMotor();
-        this.driveController = new PIDController(driveKp.get(), driveKi.get(), driveKd.get());
-
         this.turnMotor = getTurnMotor();
+
+        this.driveController = new PIDController(driveKp.get(), driveKi.get(), driveKd.get());
         this.turnController = new PIDController(turnKp.get(), turnKi.get(), turnKd.get());
 
         this.feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
+        this.isOpenLoop = false;
+    }
+
+    /**
+     * 
+     */
+    @Override
+    protected void applyDriveSettings() {
+        if (isOpenLoop) {
+            this.driveController.reset();
+            this.driveAppliedVolts = MathUtil.clamp(this.driveSetpointPercentage * 12.0, -12.0, 12.0);
+            this.driveMotor.setInputVoltage(this.driveAppliedVolts);
+        }
+        else {
+            double velocityRadiansPerSecond = this.driveSetpointMPS * (2.0 * Math.PI) / (MK4I_L2.WHEEL_CIRCUMFERENCE);
+            double ffOutput = this.feedForward.calculate(velocityRadiansPerSecond); 
+            double pidOutput =  this.driveController.calculate(this.driveVelocityMetersPerSecond, velocityRadiansPerSecond);
+            
+            this.driveAppliedVolts = MathUtil.clamp(ffOutput + pidOutput, -12.0, 12.0);
+            this.driveMotor.setInputVoltage(this.driveAppliedVolts);
+
+            Logger.getInstance().recordOutput("SwerveModuleSimulator[" + getModuleId() + "]/Drive FF Output", ffOutput);
+            Logger.getInstance().recordOutput("SwerveModuleSimulator[" + getModuleId() + "]/Drive PID Output", pidOutput);
+        }
+    }
+
+    /**
+     * 
+     */
+    @Override
+    protected void applyTurnSettings() {
+        double pidOutput = this.turnController.calculate(this.turnRelativePositionRadians, this.turnSetpointDegrees * (Math.PI / 180.0));
+
+        this.turnAppliedVolts = MathUtil.clamp(pidOutput, -12.0, 12.0);
+        this.turnMotor.setInputVoltage(this.turnAppliedVolts);
+
+        Logger.getInstance().recordOutput("SwerveModuleSimulator[" + getModuleId() + "]/Turn PID Output", pidOutput);
     }
 
     /**
@@ -89,78 +128,64 @@ public class SwerveModuleSimulator extends SwerveModule {
      */
     @Override
     public void reseedSteerMotorOffset() {
-        // this.turnController.configMotorOffset(false);
     }
 
-    /**
-     * 
-     */
+    @Override
+    public void setAnglePosition(double degrees) {
+        this.turnSetpointDegrees = degrees;
+    }
+
+    @Override
+    public void setDriveVelocity(double velocity) {
+        this.driveSetpointMPS = velocity;
+        this.isOpenLoop = false;
+    }
+
     @Override
     protected void setDrivePercentage(double percentage) {
-        this.driveController.reset();
-        this.driveAppliedVolts = MathUtil.clamp(percentage * 12.0, -12.0, 12.0);
-        this.driveMotor.setInputVoltage(driveAppliedVolts);
+        this.driveSetpointPercentage = percentage;
+        this.isOpenLoop = true;
     }
-
+    
     /**
      * 
      */
     @Override
-    protected void setDriveVelocity(double velocity) {
-        double velocityRadiansPerSecond = velocity * (2.0 * Math.PI) / (MK4I_L2.WHEEL_CIRCUMFERENCE);
-        double driveAppliedVolts = this.feedForward.calculate(velocityRadiansPerSecond) + this.driveController.calculate(this.driveVelocityMetersPerSecond, velocityRadiansPerSecond);
-        driveAppliedVolts = MathUtil.clamp(driveAppliedVolts, -12.0, 12.0);
+    public void updatePositions() {
+        if (RobotConstants.TUNING_MODE) {
+            if (driveKp.hasChanged(hashCode()) || driveKi.hasChanged(hashCode()) || driveKd.hasChanged(hashCode())) {
+                this.driveController.setPID(driveKp.get(), driveKi.get(), driveKd.get());
+            }
+            
+            if (turnKp.hasChanged(hashCode()) || turnKi.hasChanged(hashCode()) || turnKd.hasChanged(hashCode())) {
+                this.turnController.setPID(turnKp.get(), turnKi.get(), turnKd.get());
+            }
+        }
 
-        this.driveAppliedVolts = driveAppliedVolts;
-        this.driveMotor.setInputVoltage(driveAppliedVolts);
-    }
+        // update the motors
+        this.driveMotor.update(RobotConstants.LOOP_PERIOD_SECS);
+        this.turnMotor.update(RobotConstants.LOOP_PERIOD_SECS);
 
-    /**
-     * 
-     */
-    @Override
-    protected void setTurnRotation() {
-        double turnAppliedVolts = this.turnController.calculate(this.turnRelativePositionRadians, this.angleSetpointDegrees * (Math.PI / 180.0));
-        turnAppliedVolts = MathUtil.clamp(turnAppliedVolts, -12.0, 12.0);
+        updateDrivePosition();
+        updateTurnPosition();
 
-        this.turnAppliedVolts = turnAppliedVolts;
-        this.turnMotor.setInputVoltage(turnAppliedVolts);
+        applyDriveSettings();
+        applyTurnSettings();
+  
+        Logger.getInstance().processInputs("SwerveModuleSimulator", this);
     }
 
     /**
      * 
      */
     private void updateDrivePosition() {
-        this.drivePositionDegrees += (this.driveMotor.getAngularVelocityRadPerSec() * RobotConstants.LOOP_PERIOD_SECS * (180.0 / Math.PI));
-        this.driveDistanceMeters += (this.driveMotor.getAngularVelocityRadPerSec() * RobotConstants.LOOP_PERIOD_SECS * (MK4I_L2.WHEEL_CIRCUMFERENCE / (2.0 * Math.PI)));
+        this.drivePositionDegrees = this.drivePositionDegrees + (this.driveMotor.getAngularVelocityRadPerSec() * RobotConstants.LOOP_PERIOD_SECS * (180.0 / Math.PI));
+        this.driveDistanceMeters = this.driveDistanceMeters + (this.driveMotor.getAngularVelocityRadPerSec() * RobotConstants.LOOP_PERIOD_SECS * (MK4I_L2.WHEEL_CIRCUMFERENCE / (2.0 * Math.PI)));
         this.driveVelocityMetersPerSecond = this.driveMotor.getAngularVelocityRadPerSec() * (MK4I_L2.WHEEL_CIRCUMFERENCE / (2.0 * Math.PI));
 
         this.driveAppliedPercentage = this.driveAppliedVolts / 12.0;
         this.driveCurrentAmps = new double[] {Math.abs(this.driveMotor.getCurrentDrawAmps())};
         this.driveTempCelsius = new double[] {};
-    }
-      
-    @Override
-    public void updatePositions() {
-        // update the motors
-        this.driveMotor.update(RobotConstants.LOOP_PERIOD_SECS);
-        this.turnMotor.update(RobotConstants.LOOP_PERIOD_SECS);
-
-        // update the inputs that will be logged
-        updateDrivePosition();
-        updateTurnPosition();
-        setTurnRotation();
-
-        // Update tunable numbers
-        if (driveKp.hasChanged(hashCode()) || driveKi.hasChanged(hashCode()) || driveKd.hasChanged(hashCode())) {
-            this.driveController.setPID(driveKp.get(), driveKi.get(), driveKd.get());
-        }
-
-        if (turnKp.hasChanged(hashCode()) || turnKi.hasChanged(hashCode()) || turnKd.hasChanged(hashCode())) {
-            this.turnController.setPID(turnKp.get(), turnKi.get(), turnKd.get());
-        }
-  
-        Logger.getInstance().processInputs("SwerveModuleSimulator", this);
     }
 
     /**

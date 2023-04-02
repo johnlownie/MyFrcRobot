@@ -5,6 +5,8 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -149,6 +151,20 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
      */
     public void resetFieldPosition() {
         setCurrentPose(new Pose2d());
+    }
+
+    /**
+     * Sets the odometry of the robot to the specified PathPlanner state. This method should only be
+     * invoked when the rotation of the robot is known (e.g., at the start of an autonomous path). The
+     * origin of the field to the lower left corner (i.e., the corner of the field to the driver's
+     * right). Zero degrees is away from the driver and increases in the CCW direction.
+     *
+     * @param state the specified PathPlanner state to which is set the odometry
+     */
+    public void resetOdometry(PathPlannerState state) {
+        this.estimatedPoseWithoutGyro = new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation);
+
+        this.swerveDrivePoseEstimator.resetPosition(getRotation(), getModulePositions(), new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation));
     }
 
     /**

@@ -2,6 +2,7 @@ package frc.robot.autonomous;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -21,13 +22,14 @@ public class TwoPieceBalance extends SequentialCommandGroup {
     /**
      * 
      */
-    public TwoPieceBalance(SwerveDriveSubsystem swerveDriveSubsystem, PoseEstimatorSubsystem poseEstimatorSubsystem, ArmSubsystem armSubsystem, AutonomousBuilder autonomousBuilder) {
+    public TwoPieceBalance(SwerveDriveSubsystem swerveDriveSubsystem, PoseEstimatorSubsystem poseEstimatorSubsystem, ArmSubsystem armSubsystem, Command drivePoleToPiece) {
         Pose2d deployPose = AllianceFlipUtil.apply(FieldConstants.POLE_POSES[0][0]);
-        Pose2d firstPiecePose = AllianceFlipUtil.apply(FieldConstants.GAME_PIECE_POSES[0]);
+        Pose2d firstPiecePose = FieldConstants.GAME_PIECE_POSES[0];
+        Pose2d goalPose = AllianceFlipUtil.apply(firstPiecePose);
         Pose2d stationEdge = AllianceFlipUtil.apply(FieldConstants.CHARGE_STATION_EDGE);
-        Command drivePoleToPiece = autonomousBuilder.getCommand("PoleToPiece");
 
         addCommands(
+            Commands.print("*** Starting DPTwoPieceBalance ***"),
             new InstantCommand(() -> {
                 armSubsystem.addAction(Action.MOVE_TO_DRAWER);
                 armSubsystem.addAction(Action.GRAB);
@@ -55,7 +57,8 @@ public class TwoPieceBalance extends SequentialCommandGroup {
                 armSubsystem.addAction(Action.MOVE_TO_DRAWER);
             }),
             new DriveToPoseCommand(swerveDriveSubsystem, poseEstimatorSubsystem::getCurrentPose, stationEdge),
-            new AutoLevelCommand(swerveDriveSubsystem)
+            new AutoLevelCommand(swerveDriveSubsystem),
+            Commands.print("*** Finished DPTwoPieceBalance ***")
         );
 
         addRequirements(swerveDriveSubsystem);

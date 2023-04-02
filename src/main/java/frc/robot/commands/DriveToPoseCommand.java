@@ -4,11 +4,12 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.lib.util.ProfiledPIDController;
+import frc.lib.util.Timer;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
@@ -23,6 +24,8 @@ public class DriveToPoseCommand extends CommandBase {
     private final ProfiledPIDController xController = TeleopConstants.xController;
     private final ProfiledPIDController yController = TeleopConstants.yController;
     private final ProfiledPIDController omegaController = TeleopConstants.omegaController;
+
+    private Timer timer = new Timer();
 
     /**
      * 
@@ -43,23 +46,29 @@ public class DriveToPoseCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         this.swerveDrive.stop();
+        this.timer.stop();
             
         Logger.getInstance().recordOutput("ActiveCommands/DriveToPoseCommand", false);
+        Logger.getInstance().recordOutput("DriveToPoseCommand/End Pose", this.poseProvider.get());
+        Logger.getInstance().recordOutput("DriveToPoseCommand/Elapsed Time", this.timer.get());
     }
 
     @Override
     public void execute() {
-        Pose2d robotPose = poseProvider.get();
+        Pose2d robotPose = this.poseProvider.get();
 
-        double xSpeed = xController.calculate(robotPose.getX());
-        double ySpeed = yController.calculate(robotPose.getY());
-        double omegaSpeed = omegaController.calculate(robotPose.getRotation().getRadians());
+        double xSpeed = this.xController.calculate(robotPose.getX());
+        double ySpeed = this.yController.calculate(robotPose.getY());
+        double omegaSpeed = this.omegaController.calculate(robotPose.getRotation().getRadians());
 
-        if (xController.atGoal()) xSpeed = 0;
-        if (yController.atGoal()) ySpeed = 0;
-        if (omegaController.atGoal()) omegaSpeed = 0;
+        if (this.xController.atGoal()) xSpeed = 0;
+        if (this.yController.atGoal()) ySpeed = 0;
+        if (this.omegaController.atGoal()) omegaSpeed = 0;
 
-        this.swerveDrive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose.getRotation()));
+        this.swerveDrive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose.getRotation()), false);
+
+        Logger.getInstance().recordOutput("DriveToPoseCommand/xSpeed", xSpeed);
+        Logger.getInstance().recordOutput("DriveToPoseCommand/Current Pose", this.poseProvider.get());
     }
 
     @Override
@@ -69,8 +78,13 @@ public class DriveToPoseCommand extends CommandBase {
         this.xController.setGoal(this.goalPose.getX());
         this.yController.setGoal(this.goalPose.getY());
         this.omegaController.setGoal(this.goalPose.getRotation().getRadians());
+
+        this.timer.reset();
+        this.timer.start();
             
         Logger.getInstance().recordOutput("ActiveCommands/DriveToPoseCommand", true);
+        Logger.getInstance().recordOutput("DriveToPoseCommand/Initial Pose", this.poseProvider.get());
+        Logger.getInstance().recordOutput("DriveToPoseCommand/Goal Pose", this.goalPose);
     }
 
     /**

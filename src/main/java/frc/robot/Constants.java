@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -14,6 +13,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.lib.util.ProfiledPIDController;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
 
@@ -86,7 +86,8 @@ public final class Constants {
         public static final double LENGTH_METERS = Units.inchesToMeters(651.25);
         public static final double WIDTH_METERS = Units.inchesToMeters(315.5);
 
-        public static final double POSE_X = Units.inchesToMeters(54.73) + (RobotConstants.ROBOT_LENGTH / 2);
+        // AprilTag X + Rail distance = 40.45 + 14.28 (https://firstfrc.blob.core.windows.net/frc2023/FieldAssets/2023FieldDrawings-CHARGEDUPSpecific.pdf)
+        public static final double POSE_X = Units.inchesToMeters(40.45 + 14.28) + (RobotConstants.ROBOT_LENGTH / 2);
         public static final double[] POSE_Y = { Units.inchesToMeters(174.19), Units.inchesToMeters(108.19), Units.inchesToMeters(42.19) };
         public static final double STRAFE_DISTANCE = Units.inchesToMeters(22.0);
 
@@ -112,7 +113,7 @@ public final class Constants {
         };
 
         public static final Pose2d[] GAME_PIECE_POSES = new Pose2d[] {
-            new Pose2d(Units.inchesToMeters(261.0), Units.inchesToMeters(180.19), Rotation2d.fromDegrees(180)),
+            new Pose2d(Units.inchesToMeters(253.54), Units.inchesToMeters(180.71), Rotation2d.fromDegrees(180)),
             new Pose2d(Units.inchesToMeters(261.0), Units.inchesToMeters(132.19), Rotation2d.fromDegrees(180)),
             new Pose2d(Units.inchesToMeters(261.0), Units.inchesToMeters( 84.19), Rotation2d.fromDegrees(0)),
             new Pose2d(Units.inchesToMeters(261.0), Units.inchesToMeters( 36.19), Rotation2d.fromDegrees(0))
@@ -185,9 +186,9 @@ public final class Constants {
     
         public static final double HEADING_TOLERANCE = Units.degreesToRadians(1.5);
 
-        private static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(3, 2);
-        private static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(3, 2);
-        private static final TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(8, 8);
+        public static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(4, 3);
+        public static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(4, 3);
+        public static final TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(8, 8);
     
         public static final ProfiledPIDController xController = new ProfiledPIDController(2, 0, 0, X_CONSTRAINTS);
         public static final ProfiledPIDController yController = new ProfiledPIDController(2, 0, 0, Y_CONSTRAINTS);

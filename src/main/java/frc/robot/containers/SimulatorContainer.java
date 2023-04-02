@@ -35,7 +35,7 @@ public class SimulatorContainer extends RobotContainer {
         this.poseEstimator = new PoseEstimatorSubsystem(this.swerveDrive::getModulePositions, this.swerveDrive::getRotation, this.visionModule);
         this.armSubsystem = new ArmSubsystem(new ArmModuleSimulator());
         
-        this.autonomousBuilder = new AutonomousBuilder(this.swerveDrive, this.poseEstimator);
+        this.autonomousBuilder = new AutonomousBuilder(this.swerveDrive, this.poseEstimator, this.armSubsystem);
 
         setCommands();
 

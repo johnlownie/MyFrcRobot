@@ -4,12 +4,12 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.lib.util.ProfiledPIDController;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
@@ -20,11 +20,11 @@ public class DriveFromPoseCommand extends CommandBase {
     private final SwerveDriveSubsystem swerveDrive;
     private final Supplier<Pose2d> poseProvider;
 
+    private final double xDeltaInMeters, yDeltaInMeters, zDeltaInRadians;
+
     private final ProfiledPIDController xController = TeleopConstants.xController;
     private final ProfiledPIDController yController = TeleopConstants.yController;
     private final ProfiledPIDController omegaController = TeleopConstants.omegaController;
-
-    private double xDeltaInMeters, yDeltaInMeters, zDeltaInRadians;
 
     /**
      * Drive to x, y, z delta from current position
@@ -53,17 +53,17 @@ public class DriveFromPoseCommand extends CommandBase {
 
     @Override
     public void execute() {
-        Pose2d robotPose = poseProvider.get();
+        Pose2d robotPose = this.poseProvider.get();
 
-        double xSpeed = xController.calculate(robotPose.getX());
-        double ySpeed = yController.calculate(robotPose.getY());
-        double omegaSpeed = omegaController.calculate(robotPose.getRotation().getRadians());
+        double xSpeed = this.xController.calculate(robotPose.getX());
+        double ySpeed = this.yController.calculate(robotPose.getY());
+        double omegaSpeed = this.omegaController.calculate(robotPose.getRotation().getRadians());
 
-        if (xController.atGoal()) xSpeed = 0;
-        if (yController.atGoal()) ySpeed = 0;
-        if (omegaController.atGoal()) omegaSpeed = 0;
+        if (this.xController.atGoal()) xSpeed = 0;
+        if (this.yController.atGoal()) ySpeed = 0;
+        if (this.omegaController.atGoal()) omegaSpeed = 0;
 
-        this.swerveDrive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose.getRotation()));
+        this.swerveDrive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose.getRotation()), false);
     }
 
     @Override
