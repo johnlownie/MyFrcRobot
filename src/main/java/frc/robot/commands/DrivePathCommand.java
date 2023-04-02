@@ -5,7 +5,6 @@ import org.littletonrobotics.junction.Logger;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import frc.lib.util.ProfiledPIDController;
@@ -23,18 +22,14 @@ public class DrivePathCommand extends PPSwerveControllerCommand {
     private final PathPlannerTrajectory trajectory;
     private final boolean initialPath;
 
-    private final ProfiledPIDController xController = TeleopConstants.xController;
-    private final ProfiledPIDController yController = TeleopConstants.yController;
-    private final ProfiledPIDController omegaController = TeleopConstants.omegaController;
-
     private Timer timer = new Timer();
-
+    
     /**
      * 
      */
     public DrivePathCommand(SwerveDriveSubsystem swerveDrive, PoseEstimatorSubsystem poseEstimator, PathPlannerTrajectory trajectory, boolean initialPath) {
         super(trajectory, poseEstimator::getCurrentPose, swerveDrive.getKinematics(),
-            new PIDController(2, 0, 0), new PIDController(2, 0, 0), new PIDController(2, 0, 0),
+            swerveDrive.getXController().getController(), swerveDrive.getYController().getController(), swerveDrive.getOmegaController().getController(),
             swerveDrive::setModuleStates, swerveDrive, poseEstimator);
 
         this.swerveDrive = swerveDrive;
@@ -42,10 +37,10 @@ public class DrivePathCommand extends PPSwerveControllerCommand {
         this.trajectory = trajectory;
         this.initialPath = initialPath;
 
-        // this.xController.setTolerance(0.2);
-        // this.yController.setTolerance(0.2);
-        // this.omegaController.setTolerance(Units.degreesToRadians(3));
-        // this.omegaController.enableContinuousInput(-Math.PI, Math.PI);
+        this.swerveDrive.getXController().setTolerance(0.2);
+        this.swerveDrive.getYController().setTolerance(0.2);
+        this.swerveDrive.getOmegaController().setTolerance(Units.degreesToRadians(3));
+        this.swerveDrive.getOmegaController().enableContinuousInput(-Math.PI, Math.PI);
     }
 
     @Override
@@ -74,7 +69,7 @@ public class DrivePathCommand extends PPSwerveControllerCommand {
     public void initialize() {
         super.initialize();
         
-        // resetPIDControllers();
+        resetPIDControllers();
         
         this.timer.reset();
         this.timer.start();
@@ -94,8 +89,8 @@ public class DrivePathCommand extends PPSwerveControllerCommand {
     private void resetPIDControllers() {
         Pose2d robotPose = this.poseEstimator.getCurrentPose();
 
-        this.xController.reset(robotPose.getX());
-        this.yController.reset(robotPose.getY());
-        this.omegaController.reset(robotPose.getRotation().getRadians());
+        this.swerveDrive.getXController().reset(robotPose.getX());
+        this.swerveDrive.getYController().reset(robotPose.getY());
+        this.swerveDrive.getOmegaController().reset(robotPose.getRotation().getRadians());
     }
 }

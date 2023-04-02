@@ -23,10 +23,12 @@ public class TwoPieceBalance extends SequentialCommandGroup {
      * 
      */
     public TwoPieceBalance(SwerveDriveSubsystem swerveDriveSubsystem, PoseEstimatorSubsystem poseEstimatorSubsystem, ArmSubsystem armSubsystem, Command drivePoleToPiece) {
-        Pose2d deployPose = AllianceFlipUtil.apply(FieldConstants.POLE_POSES[0][0]);
+        /* In simulation these poses are not updated when switching stations */
+        // Pose2d deployPose = AllianceFlipUtil.apply(FieldConstants.POLE_POSES[0][0]);
+        Pose2d deployPose = FieldConstants.POLE_POSES[0][0];
         Pose2d firstPiecePose = FieldConstants.GAME_PIECE_POSES[0];
         Pose2d goalPose = AllianceFlipUtil.apply(firstPiecePose);
-        Pose2d stationEdge = AllianceFlipUtil.apply(FieldConstants.CHARGE_STATION_EDGE);
+        Pose2d stationEdge = FieldConstants.CHARGE_STATION_EDGE;
 
         addCommands(
             Commands.print("*** Starting DPTwoPieceBalance ***"),

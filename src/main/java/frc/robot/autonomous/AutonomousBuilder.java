@@ -62,9 +62,9 @@ public class AutonomousBuilder {
         this.autoChooser = new SendableChooser<>();
         this.autoChooser.setDefaultOption("None", Commands.none());
         this.autoChooser.addOption("PPDrive5Meters", getDrive5Meters());
+        this.autoChooser.addOption("DPDrive5Meters", new Drive5Meters(this.swerveDrive, this.poseEstimator));
         this.autoChooser.addOption("PPTwoPieceBalance", getTwoPieceBalance());
         this.autoChooser.addOption("DPTwoPieceBalance", new TwoPieceBalance(this.swerveDrive, this.poseEstimator, this.armSubsystem, getAutoBuildForPathGroup("PoletoPiece")));
-        this.autoChooser.addOption("DPDrive5Meters", new Drive5Meters(this.swerveDrive, this.poseEstimator));
     }
 
     /**

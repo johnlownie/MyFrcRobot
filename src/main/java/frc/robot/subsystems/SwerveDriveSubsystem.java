@@ -11,8 +11,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.util.ProfiledPIDController;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.SwerveModuleConstants;
+import frc.robot.Constants.TeleopConstants;
 import frc.robot.modules.gyro.GyroModule;
 import frc.robot.modules.swerve.SwerveModule;
 
@@ -20,9 +22,14 @@ import frc.robot.modules.swerve.SwerveModule;
  * 
  */
 public class SwerveDriveSubsystem extends SubsystemBase {
-    private SwerveModule[] swerveModules;
-    private SwerveDriveKinematics swerveDriveKinematics;
-    private GyroModule gyro;
+    private final SwerveModule[] swerveModules;
+    private final SwerveDriveKinematics swerveDriveKinematics;
+    private final GyroModule gyro;
+
+    /* These are used only for Path Planner autonomous mode in the DrivePathCommand */
+    private final ProfiledPIDController xController = TeleopConstants.xController;
+    private final ProfiledPIDController yController = TeleopConstants.yController;
+    private final ProfiledPIDController omegaController = TeleopConstants.omegaController;
 
     private ChassisSpeeds desiredChassisSpeeds;
     private double gyroOffset;
@@ -220,6 +227,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     /** Getters and Setters */
+    public ProfiledPIDController getXController() { return this.xController; }
+    public ProfiledPIDController getYController() { return this.yController; }
+    public ProfiledPIDController getOmegaController() { return this.omegaController; }
+
     public boolean isFieldOriented() { return this.isFieldOriented; }
     public GyroModule getGyro() { return this.gyro; }
     public SwerveDriveKinematics getKinematics() { return this.swerveDriveKinematics; }

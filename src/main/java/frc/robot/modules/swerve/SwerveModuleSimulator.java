@@ -17,7 +17,7 @@ import frc.robot.utils.LoggedTunableNumber;
  */
 public class SwerveModuleSimulator extends SwerveModule {
     /* Simulated Drive Motor PID Values */
-    private final double DRIVE_KP = 0.8;
+    private final double DRIVE_KP = 2.0;
     private final double DRIVE_KI = 0.0;
     private final double DRIVE_KD = 0.0;
 
