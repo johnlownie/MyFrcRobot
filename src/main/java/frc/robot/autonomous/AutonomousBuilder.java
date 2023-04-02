@@ -65,6 +65,7 @@ public class AutonomousBuilder {
         this.autoChooser.addOption("DPDrive5Meters", new Drive5Meters(this.swerveDrive, this.poseEstimator));
         this.autoChooser.addOption("PPTwoPieceBalance", getTwoPieceBalance());
         this.autoChooser.addOption("DPTwoPieceBalance", new TwoPieceBalance(this.swerveDrive, this.poseEstimator, this.armSubsystem, getAutoBuildForPathGroup("PoletoPiece")));
+        this.autoChooser.addOption("PPTurn180Degrees", getTurn180Degrees());
     }
 
     /**
@@ -200,4 +201,23 @@ public class AutonomousBuilder {
 
         return command;
     }
+    
+    /**
+     * 
+     */
+    private Command getTurn180Degrees() {
+        List<PathPlannerTrajectory> path = this.trajectoryMap.get("PPTurn180Degrees");
+        
+        if (path == null) {
+            return Commands.print("*** Failed to build PPTurn180Degrees");
+        }
+        
+        Command command = Commands.sequence(
+            Commands.print("*** Starting PPTurn180Degrees ***"),
+            new FollowPathWithEvents(new DrivePathCommand(this.swerveDrive, this.poseEstimator, path.get(0), true), path.get(0).getMarkers(), this.eventMap),
+            Commands.print("*** Finished PPTurn180Degrees ***")
+            );
+            
+            return command;
+        }
 }

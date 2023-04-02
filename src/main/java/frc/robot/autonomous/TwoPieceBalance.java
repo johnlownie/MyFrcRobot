@@ -42,24 +42,24 @@ public class TwoPieceBalance extends SequentialCommandGroup {
             }),
             new WaitUntilCommand(armSubsystem::isReleased),
             new DriveToPoseCommand(swerveDriveSubsystem, poseEstimatorSubsystem::getCurrentPose, firstPiecePose),
-            new InstantCommand(() -> {
-                armSubsystem.addAction(Action.GRAB);
-                armSubsystem.addAction(Action.MOVE_TO_MID_NODE);
-            }),
-            new DriveToPoseCommand(swerveDriveSubsystem, poseEstimatorSubsystem::getCurrentPose, deployPose),
-            new InstantCommand(() -> {
-                armSubsystem.addAction(Action.RELEASE);
-                armSubsystem.addAction(Action.PAUSE);
-                armSubsystem.addAction(Action.MOVE_TO_GROUND);
-            }),
-            new WaitUntilCommand(armSubsystem::isReleased),
-            drivePoleToPiece,
-            new InstantCommand(() -> {
-                armSubsystem.addAction(Action.GRAB);
-                armSubsystem.addAction(Action.MOVE_TO_DRAWER);
-            }),
-            new DriveToPoseCommand(swerveDriveSubsystem, poseEstimatorSubsystem::getCurrentPose, stationEdge),
-            new AutoLevelCommand(swerveDriveSubsystem),
+            // new InstantCommand(() -> {
+            //     armSubsystem.addAction(Action.GRAB);
+            //     armSubsystem.addAction(Action.MOVE_TO_MID_NODE);
+            // }),
+            // new DriveToPoseCommand(swerveDriveSubsystem, poseEstimatorSubsystem::getCurrentPose, deployPose),
+            // new InstantCommand(() -> {
+            //     armSubsystem.addAction(Action.RELEASE);
+            //     armSubsystem.addAction(Action.PAUSE);
+            //     armSubsystem.addAction(Action.MOVE_TO_GROUND);
+            // }),
+            // new WaitUntilCommand(armSubsystem::isReleased),
+            // drivePoleToPiece,
+            // new InstantCommand(() -> {
+            //     armSubsystem.addAction(Action.GRAB);
+            //     armSubsystem.addAction(Action.MOVE_TO_DRAWER);
+            // }),
+            // new DriveToPoseCommand(swerveDriveSubsystem, poseEstimatorSubsystem::getCurrentPose, stationEdge),
+            // new AutoLevelCommand(swerveDriveSubsystem),
             Commands.print("*** Finished DPTwoPieceBalance ***")
         );
 
