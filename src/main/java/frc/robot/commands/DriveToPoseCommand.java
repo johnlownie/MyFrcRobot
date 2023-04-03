@@ -87,16 +87,9 @@ public class DriveToPoseCommand extends CommandBase {
         Logger.getInstance().recordOutput("DriveToPoseCommand/Goal Pose", this.goalPose);
     }
 
-    /**
-     * 
-     */
-    private boolean isAtGoal() {
-        return this.xController.atGoal() && this.yController.atGoal() && this.omegaController.atGoal();
-    }
-
     @Override
     public boolean isFinished() {
-        return isAtGoal();
+        return this.xController.atGoal() && this.yController.atGoal() && this.omegaController.atGoal();
     }
 
     /**

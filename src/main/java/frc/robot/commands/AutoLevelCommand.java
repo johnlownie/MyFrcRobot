@@ -1,7 +1,4 @@
 package frc.robot.commands;
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -27,19 +24,12 @@ public class AutoLevelCommand extends CommandBase {
         addRequirements(this.swerveDriveSubsystem);
     }
 
-    // Called when the command is initially scheduled.
     @Override
-    public void initialize() {
-        this.timer.start();
+    public void end(boolean interrupted) {
+        this.swerveDriveSubsystem.stop();
+        this.timer.stop();
     }
 
-    // Returns true when the command should end.
-    @Override
-    public boolean isFinished() {
-        return timer.hasElapsed(3);
-    }
-
-    // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
         double pidOutput = -pid.calculate(this.swerveDriveSubsystem.getGyro().getPitchDeg());
@@ -48,11 +38,14 @@ public class AutoLevelCommand extends CommandBase {
         this.swerveDriveSubsystem.drive(chassisSpeeds, false);
     }
 
-    // Called once the command ends or is interrupted.
     @Override
-    public void end(boolean interrupted) {
-        this.swerveDriveSubsystem.stop();
-        this.timer.stop();
+    public void initialize() {
         this.timer.reset();
+        this.timer.start();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return timer.hasElapsed(3);
     }
 }
