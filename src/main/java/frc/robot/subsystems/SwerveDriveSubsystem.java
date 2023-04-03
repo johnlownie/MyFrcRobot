@@ -13,10 +13,12 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.util.ProfiledPIDController;
 import frc.robot.Constants.DriveTrainConstants;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.modules.gyro.GyroModule;
 import frc.robot.modules.swerve.SwerveModule;
+import frc.robot.utils.LoggedTunableNumber;
 
 /**
  * 
@@ -30,6 +32,19 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private final ProfiledPIDController xController = TeleopConstants.xController;
     private final ProfiledPIDController yController = TeleopConstants.yController;
     private final ProfiledPIDController omegaController = TeleopConstants.omegaController;
+
+    /* Tunable PID used only for Path Planner autonomous mode in the DrivePathCommand */
+    private final LoggedTunableNumber xKp = new LoggedTunableNumber("PathPlanner/XKp", 2.0);
+    private final LoggedTunableNumber xKi = new LoggedTunableNumber("PathPlanner/XKi", 0.0);
+    private final LoggedTunableNumber xKd = new LoggedTunableNumber("PathPlanner/XKd", 0.0);
+
+    private final LoggedTunableNumber yKp = new LoggedTunableNumber("PathPlanner/YKp", 2.0);
+    private final LoggedTunableNumber yKi = new LoggedTunableNumber("PathPlanner/YKi", 0.0);
+    private final LoggedTunableNumber yKd = new LoggedTunableNumber("PathPlanner/YKd", 0.0);
+
+    private final LoggedTunableNumber omegaKp = new LoggedTunableNumber("PathPlanner/OmegaKp", 1.5);
+    private final LoggedTunableNumber omegaKi = new LoggedTunableNumber("PathPlanner/OmegaKi", 0.0);
+    private final LoggedTunableNumber omegaKd = new LoggedTunableNumber("PathPlanner/OmegaKd", 0.0);
 
     private ChassisSpeeds desiredChassisSpeeds;
     private double gyroOffset;
@@ -112,6 +127,20 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (RobotConstants.TUNING_MODE) {
+            if (xKp.hasChanged(hashCode()) || xKi.hasChanged(hashCode()) || xKd.hasChanged(hashCode())) {
+                this.xController.setPID(xKp.get(), xKi.get(), xKd.get());
+            }
+            
+            if (yKp.hasChanged(hashCode()) || yKi.hasChanged(hashCode()) || yKd.hasChanged(hashCode())) {
+                this.yController.setPID(yKp.get(), yKi.get(), yKd.get());
+            }
+            
+            if (omegaKp.hasChanged(hashCode()) || omegaKi.hasChanged(hashCode()) || omegaKd.hasChanged(hashCode())) {
+                this.omegaController.setPID(omegaKp.get(), omegaKi.get(), omegaKd.get());
+            }
+        }
+
         // Set the swerve module states
         if (this.desiredChassisSpeeds != null) {
             SwerveModuleState[] desiredStates = this.swerveDriveKinematics.toSwerveModuleStates(desiredChassisSpeeds);

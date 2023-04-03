@@ -24,7 +24,7 @@
               "_showGlyph": false
             }
           },
-          "0,1": {
+          "2,0": {
             "size": [
               2,
               1
@@ -37,7 +37,7 @@
               "_showGlyph": false
             }
           },
-          "0,2": {
+          "4,0": {
             "size": [
               2,
               1
@@ -50,7 +50,7 @@
               "_showGlyph": false
             }
           },
-          "2,0": {
+          "0,1": {
             "size": [
               2,
               1
@@ -76,7 +76,7 @@
               "_showGlyph": false
             }
           },
-          "2,2": {
+          "4,1": {
             "size": [
               2,
               1
@@ -89,7 +89,7 @@
               "_showGlyph": false
             }
           },
-          "4,0": {
+          "6,0": {
             "size": [
               2,
               1
@@ -102,7 +102,7 @@
               "_showGlyph": false
             }
           },
-          "4,1": {
+          "6,1": {
             "size": [
               2,
               1
@@ -115,7 +115,7 @@
               "_showGlyph": false
             }
           },
-          "4,2": {
+          "6,2": {
             "size": [
               2,
               1
@@ -128,9 +128,9 @@
               "_showGlyph": false
             }
           },
-          "6,0": {
+          "8,0": {
             "size": [
-              2,
+              3,
               1
             ],
             "content": {
@@ -141,9 +141,9 @@
               "_showGlyph": false
             }
           },
-          "6,1": {
+          "8,1": {
             "size": [
-              2,
+              3,
               1
             ],
             "content": {
@@ -154,9 +154,9 @@
               "_showGlyph": false
             }
           },
-          "6,2": {
+          "8,2": {
             "size": [
-              2,
+              3,
               1
             ],
             "content": {
@@ -167,15 +167,158 @@
               "_showGlyph": false
             }
           },
-          "8,0": {
+          "0,2": {
             "size": [
-              3,
+              2,
               1
             ],
             "content": {
-              "_type": "ComboBox Chooser",
-              "_source0": "network_table:///Shuffleboard/Driver/Autonomous",
-              "_title": "Shuffleboard/Driver/Autonomous",
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/TunableNumbers/PathPlanner/XKp",
+              "_title": "TunableNumbers/PathPlanner/XKp",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "2,2": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/TunableNumbers/PathPlanner/XKi",
+              "_title": "TunableNumbers/PathPlanner/XKi",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "4,2": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/TunableNumbers/PathPlanner/XKd",
+              "_title": "TunableNumbers/PathPlanner/XKd",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "0,3": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/TunableNumbers/PathPlanner/YKp",
+              "_title": "TunableNumbers/PathPlanner/YKp",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "2,3": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/TunableNumbers/PathPlanner/YKi",
+              "_title": "TunableNumbers/PathPlanner/YKi",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "4,3": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/TunableNumbers/PathPlanner/YKd",
+              "_title": "TunableNumbers/PathPlanner/YKd",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "14,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/TunableNumbers/PathPlanner/OmegaKp",
+              "_title": "TunableNumbers/PathPlanner/OmegaKp",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "15,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/TunableNumbers/PathPlanner/OmegaKi",
+              "_title": "TunableNumbers/PathPlanner/OmegaKi",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "16,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/TunableNumbers/PathPlanner/OmegaKd",
+              "_title": "TunableNumbers/PathPlanner/OmegaKd",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "4,4": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///AdvantageKit/DashboardInputs/TunableNumbers/PathPlanner/OmegaKd",
+              "_title": "AdvantageKit/DashboardInputs/TunableNumbers/PathPlanner/OmegaKd",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "2,4": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///AdvantageKit/DashboardInputs/TunableNumbers/PathPlanner/OmegaKi",
+              "_title": "AdvantageKit/DashboardInputs/TunableNumbers/PathPlanner/OmegaKi",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "0,4": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///AdvantageKit/DashboardInputs/TunableNumbers/PathPlanner/OmegaKp",
+              "_title": "AdvantageKit/DashboardInputs/TunableNumbers/PathPlanner/OmegaKp",
               "_glyph": 148,
               "_showGlyph": false
             }
@@ -198,9 +341,9 @@
     }
   ],
   "windowGeometry": {
-    "x": 261.0,
-    "y": 93.0,
-    "width": 2602.0,
-    "height": 696.0
+    "x": 12.0,
+    "y": 70.0,
+    "width": 1940.0,
+    "height": 935.0
   }
 }
