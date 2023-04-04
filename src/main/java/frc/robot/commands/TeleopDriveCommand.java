@@ -8,7 +8,6 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
@@ -20,7 +19,7 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
  */
 public class TeleopDriveCommand extends CommandBase {
     private final SwerveDriveSubsystem swerveDrive;
-    private Supplier<Rotation2d> robotAngleSupplier;
+    private final Supplier<Rotation2d> robotAngleSupplier;
     private final DoubleSupplier translationXSupplier;
     private final DoubleSupplier translationYSupplier;
     private final DoubleSupplier rotationSupplier;
@@ -63,10 +62,10 @@ public class TeleopDriveCommand extends CommandBase {
 
         this.swerveDrive.drive(xVelocity, yVelocity, rVelocity, angle, true);
 
-        Logger.getInstance().recordOutput("TeleopDriveCommand/angle", angle.getDegrees());
         Logger.getInstance().recordOutput("TeleopDriveCommand/xVelocity", xVelocity);
         Logger.getInstance().recordOutput("TeleopDriveCommand/yVelocity", yVelocity);
         Logger.getInstance().recordOutput("TeleopDriveCommand/rVelocity", rVelocity);
+        Logger.getInstance().recordOutput("TeleopDriveCommand/angle", angle.getDegrees());
     }
     
     @Override

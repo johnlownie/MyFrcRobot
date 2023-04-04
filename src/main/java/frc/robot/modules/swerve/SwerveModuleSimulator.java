@@ -22,7 +22,7 @@ public class SwerveModuleSimulator extends SwerveModule {
     private final double DRIVE_KD = 0.0;
 
     /* Simulated Turn Motor PID Values */
-    private final double TURN_KP = 2.0;
+    private final double TURN_KP = 8.0;
     private final double TURN_KI = 0.0;
     private final double TURN_KD = 0.0;
 

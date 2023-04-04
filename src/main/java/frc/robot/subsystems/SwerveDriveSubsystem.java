@@ -145,6 +145,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         if (this.desiredChassisSpeeds != null) {
             SwerveModuleState[] desiredStates = this.swerveDriveKinematics.toSwerveModuleStates(desiredChassisSpeeds);
             setModuleStates(desiredStates, this.isOpenLoop, false);
+
+            Logger.getInstance().recordOutput("SwerveDrive/Desired Module States", desiredStates);
         }
 
         // update and log the swerve module position
@@ -156,12 +158,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         Logger.getInstance().recordOutput("Gyro/isConnected", this.gyro.isConnected());
         Logger.getInstance().recordOutput("Gyro/PositionDeg", this.gyro.getPositionDeg());
         Logger.getInstance().recordOutput("Gyro/VelocityDegPerSec", this.gyro.getVelocityDegPerSec());
-        Logger.getInstance().recordOutput("Gyro/Rotation", this.gyro.isConnected() ? getRotation().getDegrees() : 0);
         Logger.getInstance().recordOutput("Gyro/gyroOffset", this.gyroOffset);
-        Logger.getInstance().recordOutput("Field Relative", this.isFieldOriented);
-        Logger.getInstance().recordOutput("SwerveModuleStates", getModuleStates());
-        Logger.getInstance().recordOutput("SwerveDrive/Desired xSpeed", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.vxMetersPerSecond : 0);
-        Logger.getInstance().recordOutput("SwerveDrive/Actual xSpeed", getChassisSpeeds().vxMetersPerSecond);
+        Logger.getInstance().recordOutput("SwerveDrive/Field Relative", this.isFieldOriented);
+        Logger.getInstance().recordOutput("SwerveDrive/Is OpenLoop", this.isOpenLoop);
+        Logger.getInstance().recordOutput("SwerveDrive/Actual Module States", getModuleStates());
+        Logger.getInstance().recordOutput("SwerveDrive/Desired Speeds", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.toString() : "");
+        Logger.getInstance().recordOutput("SwerveDrive/Actual Speeds", getChassisSpeeds().toString());
 
         // Always reset desiredChassisSpeeds to null to prevent latching to the last state (aka motor safety)!!
         this.desiredChassisSpeeds = null;
