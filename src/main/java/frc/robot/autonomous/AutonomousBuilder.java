@@ -61,12 +61,12 @@ public class AutonomousBuilder {
         
         this.autoChooser = new SendableChooser<>();
         this.autoChooser.setDefaultOption("None", Commands.none());
-        this.autoChooser.addOption("PPDrive5Meters", getDrive5Meters());
-        this.autoChooser.addOption("DPDrive5Meters", new Drive5Meters(this.swerveDrive, this.poseEstimator));
+        this.autoChooser.addOption("PPDrive5Meters", getPPCommand("PPDrive5Meters"));
+        this.autoChooser.addOption("PPTurn180Degrees", getPPCommand("PPTurn180Degrees"));
         this.autoChooser.addOption("PPTwoPieceBalance", getTwoPieceBalance());
-        this.autoChooser.addOption("DPTwoPieceBalance", new TwoPieceBalance(this.swerveDrive, this.poseEstimator, this.armSubsystem, getAutoBuildForPathGroup("PoletoPiece")));
-        this.autoChooser.addOption("PPTurn180Degrees", getTurn180Degrees());
+        this.autoChooser.addOption("DPDrive5Meters", new Drive5Meters(this.swerveDrive, this.poseEstimator));
         this.autoChooser.addOption("DPTurn180Degrees", new Turn180Degrees(this.swerveDrive, this.poseEstimator));
+        this.autoChooser.addOption("DPTwoPieceBalance", new TwoPieceBalance(this.swerveDrive, this.poseEstimator, this.armSubsystem, getAutoBuildForPathGroup("PoletoPiece")));
     }
 
     /**
@@ -187,38 +187,19 @@ public class AutonomousBuilder {
     /**
      * 
      */
-    private Command getDrive5Meters() {
-        List<PathPlannerTrajectory> path = this.trajectoryMap.get("PPDrive5Meters");
+    private Command getPPCommand(String name) {
+        List<PathPlannerTrajectory> path = this.trajectoryMap.get(name);
 
         if (path == null) {
-            return Commands.print("*** Failed to build PPDrive5Meters");
+            return Commands.print("*** Failed to build " + name);
         }
         
         Command command = Commands.sequence(
-            Commands.print("*** Starting PPDrive5Meters ***"),
+            Commands.print("*** Starting " + name + " ***"),
             new FollowPathWithEvents(new DrivePathCommand(this.swerveDrive, this.poseEstimator, path.get(0), true), path.get(0).getMarkers(), this.eventMap),
-            Commands.print("*** Finished PPDrive5Meters ***")
+            Commands.print("*** Finished " + name + " ***")
         );
 
         return command;
     }
-    
-    /**
-     * 
-     */
-    private Command getTurn180Degrees() {
-        List<PathPlannerTrajectory> path = this.trajectoryMap.get("PPTurn180Degrees");
-        
-        if (path == null) {
-            return Commands.print("*** Failed to build PPTurn180Degrees");
-        }
-        
-        Command command = Commands.sequence(
-            Commands.print("*** Starting PPTurn180Degrees ***"),
-            new FollowPathWithEvents(new DrivePathCommand(this.swerveDrive, this.poseEstimator, path.get(0), true), path.get(0).getMarkers(), this.eventMap),
-            Commands.print("*** Finished PPTurn180Degrees ***")
-            );
-            
-            return command;
-        }
 }
