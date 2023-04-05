@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package frc.lib.util;
+package frc.lib.photonvision;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;

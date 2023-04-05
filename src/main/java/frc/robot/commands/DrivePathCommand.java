@@ -4,7 +4,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 
-import frc.lib.util.PPSwerveControllerCommand;
+import frc.lib.pathplanner.PPSwerveControllerCommand;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 

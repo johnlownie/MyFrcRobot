@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-package frc.lib.util;
+package frc.lib.photonvision;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.numbers.N1;
