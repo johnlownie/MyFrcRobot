@@ -41,6 +41,9 @@ public class DrivePathCommand extends PPSwerveControllerCommand {
     public void initialize() {
         super.initialize();
 
+        // don't use swerve module pid controllers
+        this.swerveDrive.zeroPIDControllers();
+
         if (this.isInitialPath) {
             // reset odometry to the starting pose of the trajectory
             this.poseEstimator.resetOdometry(this.trajectory.getInitialState());

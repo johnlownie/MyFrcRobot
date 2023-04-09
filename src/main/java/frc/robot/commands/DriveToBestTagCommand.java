@@ -89,6 +89,9 @@ public class DriveToBestTagCommand extends CommandBase {
   
     @Override
     public void initialize() {
+        // don't use swerve module pid controllers
+        this.swerveDrive.zeroPIDControllers();
+
         resetPIDControllers();
 
         Pose2d robotPose2d = this.poseProvider.get();

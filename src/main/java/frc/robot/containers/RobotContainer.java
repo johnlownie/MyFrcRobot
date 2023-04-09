@@ -77,12 +77,12 @@ abstract public class RobotContainer {
      */
     protected void configureButtonBindings() {
         /* Driver Buttons */
-        // switch from field relative to field oriented
+        // switch from robot relative to field relative
         this.driverController.driveType().ifPresent(trigger -> trigger.toggleOnTrue(
             either(
-                runOnce(this.swerveDrive::disableFieldOriented, this.swerveDrive),
-                runOnce(this.swerveDrive::enableFieldOriented, this.swerveDrive),
-                this.swerveDrive::isFieldOriented)
+                runOnce(this.swerveDrive::disableFieldRelative, this.swerveDrive),
+                runOnce(this.swerveDrive::enableFieldRelative, this.swerveDrive),
+                this.swerveDrive::isFieldRelative)
         ));
 
         // POV up for field oriented drive

@@ -64,6 +64,9 @@ public class DriveToPoseCommand extends CommandBase {
 
     @Override
     public void initialize() {
+        // don't use swerve module pid controllers
+        this.swerveDrive.zeroPIDControllers();
+
         resetPIDControllers();
 
         this.xController.setGoal(this.goalPose.getX());

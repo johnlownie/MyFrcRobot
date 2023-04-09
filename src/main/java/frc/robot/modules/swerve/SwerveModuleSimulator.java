@@ -123,11 +123,14 @@ public class SwerveModuleSimulator extends SwerveModule {
         return motor;
     }
 
-    /**
-     * Reseeds to Talon FX motor offset from the CANCoder. Workaround for "dead wheel"
-     */
     @Override
     public void reseedSteerMotorOffset() {
+    }
+
+    @Override
+    public void resetPIDController() {
+        this.driveController.setPID(driveKp.get(), driveKi.get(), driveKd.get());
+        this.turnController.setPID(turnKp.get(), turnKi.get(), turnKd.get());
     }
 
     @Override
@@ -211,5 +214,11 @@ public class SwerveModuleSimulator extends SwerveModule {
         this.turnAppliedPercentage = this.turnAppliedVolts / 12.0;
         this.turnCurrentAmps = new double[] {Math.abs(this.turnMotor.getCurrentDrawAmps())};
         this.turnTempCelsius = new double[] {};
+    }
+
+    @Override
+    public void zeroPIDController() {
+        this.driveController.setPID(0, 0, 0);
+        this.turnController.setPID(0, 0, 0);
     }
 }

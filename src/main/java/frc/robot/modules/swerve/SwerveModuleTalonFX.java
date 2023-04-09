@@ -158,9 +158,9 @@ public class SwerveModuleTalonFX extends SwerveModule {
         talonFXConfiguration.supplyCurrLimit.currentLimit = 80;
         talonFXConfiguration.supplyCurrLimit.enable = true;
     
-        talonFXConfiguration.slot0.kP = DRIVE_KP;
-        talonFXConfiguration.slot0.kI = DRIVE_KI;
-        talonFXConfiguration.slot0.kD = DRIVE_KD;
+        talonFXConfiguration.slot0.kP = driveKp.get();
+        talonFXConfiguration.slot0.kI = driveKi.get();
+        talonFXConfiguration.slot0.kD = driveKd.get();
 
         return talonFXConfiguration;
     }
@@ -219,9 +219,9 @@ public class SwerveModuleTalonFX extends SwerveModule {
         talonFXConfiguration.supplyCurrLimit.currentLimit = 80;
         talonFXConfiguration.supplyCurrLimit.enable = true;
     
-        talonFXConfiguration.slot0.kP = TURN_KP;
-        talonFXConfiguration.slot0.kI = TURN_KI;
-        talonFXConfiguration.slot0.kD = TURN_KD;
+        talonFXConfiguration.slot0.kP = turnKp.get();
+        talonFXConfiguration.slot0.kI = turnKi.get();
+        talonFXConfiguration.slot0.kD = turnKd.get();
 
         talonFXConfiguration.slot0.kF = (1023.0 * this.turnEncoderPositionCoefficient / 12) * MOTION_MAGIC_VELOCITY;
         talonFXConfiguration.motionCruiseVelocity = 2.0 / MOTION_MAGIC_VELOCITY / this.turnEncoderVelocityCoefficient;
@@ -233,6 +233,17 @@ public class SwerveModuleTalonFX extends SwerveModule {
     @Override
     public void reseedSteerMotorOffset() {
         configMotorOffset(false);
+    }
+
+    @Override
+    public void resetPIDController() {
+        this.driveMotor.config_kP(SLOT_INDEX, driveKp.get());
+        this.driveMotor.config_kI(SLOT_INDEX, driveKi.get());
+        this.driveMotor.config_kD(SLOT_INDEX, driveKd.get());
+
+        this.turnMotor.config_kP(SLOT_INDEX, turnKp.get());
+        this.turnMotor.config_kI(SLOT_INDEX, turnKi.get());
+        this.turnMotor.config_kD(SLOT_INDEX, turnKd.get());
     }
 
     @Override
@@ -301,5 +312,16 @@ public class SwerveModuleTalonFX extends SwerveModule {
         this.turnAppliedPercentage = this.turnMotor.getMotorOutputPercent();
         this.turnCurrentAmps = new double[] { this.turnMotor.getStatorCurrent()};
         this.turnTempCelsius = new double[] { this.turnMotor.getTemperature()};
+    }
+
+    @Override
+    public void zeroPIDController() {
+        this.driveMotor.config_kP(SLOT_INDEX, 0);
+        this.driveMotor.config_kI(SLOT_INDEX, 0);
+        this.driveMotor.config_kD(SLOT_INDEX, 0);
+
+        this.turnMotor.config_kP(SLOT_INDEX, 0);
+        this.turnMotor.config_kI(SLOT_INDEX, 0);
+        this.turnMotor.config_kD(SLOT_INDEX, 0);
     }
 }

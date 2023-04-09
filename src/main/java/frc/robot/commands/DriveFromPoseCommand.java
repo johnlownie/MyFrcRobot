@@ -68,6 +68,9 @@ public class DriveFromPoseCommand extends CommandBase {
 
     @Override
     public void initialize() {
+        // don't use swerve module pid controllers
+        this.swerveDrive.zeroPIDControllers();
+
         resetPIDControllers();
 
         Pose2d currentPose = this.poseProvider.get();

@@ -70,6 +70,9 @@ public class TeleopDriveCommand extends CommandBase {
     
     @Override
     public void initialize() {
+        // use swerve module pid controllers
+        this.swerveDrive.resetPIDControllers();
+
         Logger.getInstance().recordOutput("ActiveCommands/TeleopDriveCommand", true);
     }
 }

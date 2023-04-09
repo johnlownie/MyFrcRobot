@@ -42,13 +42,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private final LoggedTunableNumber yKi = new LoggedTunableNumber("PathPlanner/YKi", 0.0);
     private final LoggedTunableNumber yKd = new LoggedTunableNumber("PathPlanner/YKd", 0.0);
 
-    private final LoggedTunableNumber omegaKp = new LoggedTunableNumber("PathPlanner/OmegaKp", 1.5);
+    private final LoggedTunableNumber omegaKp = new LoggedTunableNumber("PathPlanner/OmegaKp", 12.0);
     private final LoggedTunableNumber omegaKi = new LoggedTunableNumber("PathPlanner/OmegaKi", 0.0);
     private final LoggedTunableNumber omegaKd = new LoggedTunableNumber("PathPlanner/OmegaKd", 0.0);
 
     private ChassisSpeeds desiredChassisSpeeds;
     private double gyroOffset;
-    private boolean isFieldOriented;
+    private boolean isFieldRelative;
     private boolean isOpenLoop;
 
     /**
@@ -61,15 +61,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         this.gyro = gyro;
         zeroGyroscope();
         
-        this.isFieldOriented = false;
+        this.isFieldRelative = false;
         this.isOpenLoop = false;
     }
     
     /**
      * 
      */
-    public void disableFieldOriented() { setIsFieldOriented(false); }
-    public void enableFieldOriented () { setIsFieldOriented(true ); }
+    public void disableFieldRelative() { setIsFieldRelative(false); }
+    public void enableFieldRelative () { setIsFieldRelative(true ); }
 
     /**
      * 
@@ -85,7 +85,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public void drive(double xVelocity, double yVelocity, double rVelocity, Rotation2d angle, boolean isOpenLoop) {
         ChassisSpeeds chassisSpeeds = null;
 
-        if (isFieldOriented) {
+        if (isFieldRelative) {
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xVelocity, yVelocity, rVelocity, angle);
         } else {
             chassisSpeeds = new ChassisSpeeds(xVelocity, yVelocity, rVelocity);
@@ -159,7 +159,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         Logger.getInstance().recordOutput("Gyro/PositionDeg", this.gyro.getPositionDeg());
         Logger.getInstance().recordOutput("Gyro/VelocityDegPerSec", this.gyro.getVelocityDegPerSec());
         Logger.getInstance().recordOutput("Gyro/gyroOffset", this.gyroOffset);
-        Logger.getInstance().recordOutput("SwerveDrive/Field Relative", this.isFieldOriented);
+        Logger.getInstance().recordOutput("SwerveDrive/Field Oriented", this.isFieldRelative);
         Logger.getInstance().recordOutput("SwerveDrive/Is OpenLoop", this.isOpenLoop);
         Logger.getInstance().recordOutput("SwerveDrive/Actual Module States", getModuleStates());
         Logger.getInstance().recordOutput("SwerveDrive/Desired Speeds", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.toString() : "");
@@ -174,6 +174,20 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      */
     public void reseedSteerMotorOffsets() {
         Arrays.stream(this.swerveModules).forEach(SwerveModule::reseedSteerMotorOffset);
+    }
+
+    /**
+     * Resets the module PID Controllers
+     */
+    public void resetPIDControllers() {
+        Arrays.stream(this.swerveModules).forEach(SwerveModule::resetPIDController);
+    }
+
+    /**
+     * Zero out module PID controllers so they don't interfere with any external controllers
+     */
+    public void zeroPIDControllers() {
+        Arrays.stream(this.swerveModules).forEach(SwerveModule::zeroPIDController);
     }
     
     /**
@@ -262,9 +276,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public ProfiledPIDController getYController() { return this.yController; }
     public ProfiledPIDController getOmegaController() { return this.omegaController; }
 
-    public boolean isFieldOriented() { return this.isFieldOriented; }
+    public boolean isFieldRelative() { return this.isFieldRelative; }
     public GyroModule getGyro() { return this.gyro; }
     public SwerveDriveKinematics getKinematics() { return this.swerveDriveKinematics; }
 
-    public void setIsFieldOriented(boolean isFieldOriented) { this.isFieldOriented = isFieldOriented; }
+    public void setIsFieldRelative(boolean isFieldRelative) { this.isFieldRelative = isFieldRelative; }
 }

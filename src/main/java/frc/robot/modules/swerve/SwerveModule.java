@@ -117,7 +117,9 @@ abstract public class SwerveModule implements LoggableInputs {
     abstract protected void setDriveVelocity(double velocity);
 
     abstract public void reseedSteerMotorOffset();
+    abstract public void resetPIDController();
     abstract public void updatePositions();
+    abstract public void zeroPIDController();
 
     /**
      * Logging

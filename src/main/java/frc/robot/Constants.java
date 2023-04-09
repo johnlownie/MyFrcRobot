@@ -134,6 +134,16 @@ public final class Constants {
     /**
      * 
      */
+    public static class ArmConstants {
+        public static final int ANGLE_DRAWER_PICKUP = -40;
+        public static final int ANGLE_DEPLOY_MID = 180;
+        public static final int ANGLE_DEPLOY_LOW = 225;
+        public static final int ANGLE_GROUND_PICKUP = 255;
+    }
+
+    /**
+     * 
+     */
     public static final class PneumaticConstants {
         public static final int HUB_ID = 50;
 
@@ -188,11 +198,11 @@ public final class Constants {
 
         private static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(4, 3);
         private static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(4, 3);
-        private static final TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(8, 8);
+        private static final TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(12, 12);
     
         public static final ProfiledPIDController xController = new ProfiledPIDController(2, 0, 0, X_CONSTRAINTS);
         public static final ProfiledPIDController yController = new ProfiledPIDController(2, 0, 0, Y_CONSTRAINTS);
-        public static final ProfiledPIDController omegaController = new ProfiledPIDController(2.0, 0, 0, OMEGA_CONSTRAINTS);
+        public static final ProfiledPIDController omegaController = new ProfiledPIDController(12.0, 0, 0, OMEGA_CONSTRAINTS);
     }
 
     /**
@@ -212,19 +222,5 @@ public final class Constants {
         public static final double DIAGONAL_FOV = 70;
         public static final int IMG_WIDTH = 640;
         public static final int IMG_HEIGHT = 480;
-    }
-
-    /**
-     * 
-     */
-    public static class ArmConstants {
-        public static final int ANGLE_DRAWER_PICKUP = -40;
-        public static final int ANGLE_DEPLOY_MID = 180;
-        public static final int ANGLE_DEPLOY_LOW = 225;
-        public static final int ANGLE_GROUND_PICKUP = 255;
-
-        public static final int midArmPosition = -2500;
-        public static final int hybridArmPosition = -3240;
-        public static final int shelfPosition = -755;
     }
  }

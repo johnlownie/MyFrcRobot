@@ -321,7 +321,7 @@ public class PPSwerveControllerCommand extends CommandBase {
             logActiveTrajectory.accept(transformedTrajectory);
         }
 
-        this.controller.setTolerance(new Pose2d(new Translation2d(0.03, 0.03), new Rotation2d(Units.degreesToRadians(0.01))));
+        this.controller.setTolerance(new Pose2d(new Translation2d(0.03, 0.03), new Rotation2d(Units.degreesToRadians(1.0))));
 
         timer.reset();
         timer.start();
@@ -332,7 +332,7 @@ public class PPSwerveControllerCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        boolean isTimeout = this.timer.hasElapsed(transformedTrajectory.getTotalTimeSeconds());
+        boolean isTimeout = this.timer.hasElapsed(transformedTrajectory.getTotalTimeSeconds() + 1.0);
         boolean atReference = this.controller.atReference();
 
         Logger.getInstance().recordOutput("PPSwerveControllerCommand/Is Timeout", isTimeout);
