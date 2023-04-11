@@ -235,7 +235,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             swerveModule.setDesiredState(states[swerveModule.getModuleId()], false, false);
         }
 
-        Logger.getInstance().recordOutput("SwerveDrive/Desired Module States", states);
+        Logger.getInstance().recordOutput("PathPlanner/Desired Module States", states);
     }
 
     /**
@@ -249,7 +249,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             swerveModule.setDesiredState(states[swerveModule.getModuleId()], isOpenLoop, forceAngle);
         }
 
-        Logger.getInstance().recordOutput("SwerveDrive/Desired Module States", states);
+        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Desired Module States", states);
     }
 
     /**
