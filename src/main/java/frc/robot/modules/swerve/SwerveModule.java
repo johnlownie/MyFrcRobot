@@ -23,21 +23,24 @@ abstract public class SwerveModule implements LoggableInputs {
     protected double turnSetpointDegrees = 0.0;
 
     /* Calculated input values */
-    double driveAppliedPercentage = 0.0;
-    double driveAppliedVolts = 0.0;
-    double driveDistanceMeters = 0.0;
-    double drivePositionDegrees = 0.0;
-    double driveVelocityMetersPerSecond = 0.0;
-    double[] driveCurrentAmps = new double[] {};
-    double[] driveTempCelsius = new double[] {};
+    protected double driveAcceleration = 0.0;
+    protected double driveAppliedPercentage = 0.0;
+    protected double driveAppliedVolts = 0.0;
+    protected double driveDistanceMeters = 0.0;
+    protected double drivePositionDegrees = 0.0;
+    protected double drivePreviousTimestamp = 0.0;
+    protected double drivePreviousVelocityMPS = 0.0;
+    protected double driveVelocityMetersPerSecond = 0.0;
+    protected double[] driveCurrentAmps = new double[] {};
+    protected double[] driveTempCelsius = new double[] {};
 
-    double turnAbsolutePositionDeg = 0.0;
-    double turnAppliedPercentage = 0.0;
-    double turnAppliedVolts = 0.0;
-    double turnPositionDeg = 0.0;
-    double turnVelocityRevPerMin = 0.0;
-    double[] turnCurrentAmps = new double[] {};
-    double[] turnTempCelsius = new double[] {};
+    protected double turnAbsolutePositionDeg = 0.0;
+    protected double turnAppliedPercentage = 0.0;
+    protected double turnAppliedVolts = 0.0;
+    protected double turnPositionDeg = 0.0;
+    protected double turnVelocityRevPerMin = 0.0;
+    protected double[] turnCurrentAmps = new double[] {};
+    protected double[] turnTempCelsius = new double[] {};
 
     /**
      * 
@@ -109,6 +112,20 @@ abstract public class SwerveModule implements LoggableInputs {
         setAnglePosition(this.last_angle);
     }
 
+    /**
+     * Set the drive motor to the specified voltage. This is only used for characterization via the
+     * FeedForwardCharacterization command. The module will be set to 0 degrees throughout the
+     * characterization; as a result, the wheels don't need to be clamped to hold them straight.
+     *
+     * @param voltage the specified voltage for the drive motor
+     */
+    public void setVoltageForCharacterization(double voltage) {
+        setAnglePosition(0.0);
+
+        this.last_angle = 0.0;
+        setDrivePercentage(voltage / 12.0);
+    }
+
     abstract protected void applyDriveSettings();
     abstract protected void applyTurnSettings();
 
@@ -117,51 +134,51 @@ abstract public class SwerveModule implements LoggableInputs {
     abstract protected void setDriveVelocity(double velocity);
 
     abstract public void reseedSteerMotorOffset();
-    abstract public void resetPIDController();
     abstract public void updatePositions();
-    abstract public void zeroPIDController();
 
     /**
      * Logging
      */
     @Override
     public void fromLog(LogTable table) {
-        this.driveAppliedPercentage = table.getDouble("DriveAppliedPercentage", this.driveAppliedPercentage);
-        this.driveAppliedVolts = table.getDouble("DriveAppliedVolts", this.driveAppliedVolts);
-        this.driveDistanceMeters = table.getDouble("DriveDistanceMeters", this.driveDistanceMeters);
-        this.drivePositionDegrees = table.getDouble("DrivePositionDeg", this.drivePositionDegrees);
-        this.driveVelocityMetersPerSecond = table.getDouble("DriveVelocityMetersPerSec", this.driveVelocityMetersPerSecond);
-        this.driveCurrentAmps = table.getDoubleArray("DriveCurrentAmps", this.driveCurrentAmps);
-        this.driveTempCelsius = table.getDoubleArray("DriveTempCelsius", this.driveTempCelsius);
+        this.driveAppliedPercentage = table.getDouble("Mod" + module_id + "/DriveAppliedPercentage", this.driveAppliedPercentage);
+        this.driveAppliedVolts = table.getDouble("Mod" + module_id + "/DriveAppliedVolts", this.driveAppliedVolts);
+        this.driveDistanceMeters = table.getDouble("Mod" + module_id + "/DriveDistanceMeters", this.driveDistanceMeters);
+        this.drivePositionDegrees = table.getDouble("Mod" + module_id + "/DrivePositionDeg", this.drivePositionDegrees);
+        this.driveVelocityMetersPerSecond = table.getDouble("Mod" + module_id + "/DriveVelocityMPS", this.driveVelocityMetersPerSecond);
+        this.driveAcceleration = table.getDouble("Mod" + module_id + "/DriveAccelerationMPS^2", this.driveAcceleration);
+        this.driveCurrentAmps = table.getDoubleArray("Mod" + module_id + "/DriveCurrentAmps", this.driveCurrentAmps);
+        this.driveTempCelsius = table.getDoubleArray("Mod" + module_id + "/DriveTempCelsius", this.driveTempCelsius);
 
-        this.turnAbsolutePositionDeg = table.getDouble("TurnAbsolutePositionDeg", this.turnAbsolutePositionDeg);
-        this.turnAppliedPercentage = table.getDouble("TurnAppliedPercentage", this.turnAppliedPercentage);
-        this.turnAppliedVolts = table.getDouble("TurnAppliedVolts", this.turnAppliedVolts);
-        this.turnPositionDeg = table.getDouble("TurnPositionDeg", this.turnPositionDeg);
-        this.turnVelocityRevPerMin = table.getDouble("TurnVelocityRevPerMin", this.turnVelocityRevPerMin);
-        this.turnCurrentAmps = table.getDoubleArray("TurnCurrentAmps", this.turnCurrentAmps);
-        this.turnTempCelsius = table.getDoubleArray("TurnTempCelsius", this.turnTempCelsius);
+        this.turnAbsolutePositionDeg = table.getDouble("Mod" + module_id + "/TurnAbsolutePositionDeg", this.turnAbsolutePositionDeg);
+        this.turnAppliedPercentage = table.getDouble("Mod" + module_id + "/TurnAppliedPercentage", this.turnAppliedPercentage);
+        this.turnAppliedVolts = table.getDouble("Mod" + module_id + "/TurnAppliedVolts", this.turnAppliedVolts);
+        this.turnPositionDeg = table.getDouble("Mod" + module_id + "/TurnPositionDeg", this.turnPositionDeg);
+        this.turnVelocityRevPerMin = table.getDouble("Mod" + module_id + "/TurnVelocityRevPerMin", this.turnVelocityRevPerMin);
+        this.turnCurrentAmps = table.getDoubleArray("Mod" + module_id + "/TurnCurrentAmps", this.turnCurrentAmps);
+        this.turnTempCelsius = table.getDoubleArray("Mod" + module_id + "/TurnTempCelsius", this.turnTempCelsius);
     }
   
     @Override
     public void toLog(LogTable table) {
-        table.put("DriveSetpointMPS", this.driveSetpointMPS);
-        table.put("DriveSetpointPercentage", this.driveSetpointPercentage);
-        table.put("DriveAppliedPercentage", this.driveAppliedPercentage);
-        table.put("DriveAppliedVolts", this.driveAppliedVolts);
-        table.put("DriveDistanceMeters", this.driveDistanceMeters);
-        table.put("DrivePositionDeg", this.drivePositionDegrees);
-        table.put("DriveVelocityMetersPerSec", this.driveVelocityMetersPerSecond);
-        table.put("DriveCurrentAmps", this.driveCurrentAmps);
-        table.put("DriveTempCelsius", this.driveTempCelsius);
+        table.put("Mod" + module_id + "/DriveSetpointMPS", this.driveSetpointMPS);
+        table.put("Mod" + module_id + "/DriveSetpointPercentage", this.driveSetpointPercentage);
+        table.put("Mod" + module_id + "/DriveAppliedPercentage", this.driveAppliedPercentage);
+        table.put("Mod" + module_id + "/DriveAppliedVolts", this.driveAppliedVolts);
+        table.put("Mod" + module_id + "/DriveDistanceMeters", this.driveDistanceMeters);
+        table.put("Mod" + module_id + "/DrivePositionDeg", this.drivePositionDegrees);
+        table.put("Mod" + module_id + "/DriveVelocityMPS", this.driveVelocityMetersPerSecond);
+        table.put("Mod" + module_id + "/DriveAccelerationMPS", this.driveAcceleration);
+        table.put("Mod" + module_id + "/DriveCurrentAmps", this.driveCurrentAmps);
+        table.put("Mod" + module_id + "/DriveTempCelsius", this.driveTempCelsius);
 
-        table.put("TurnSetpointDegrees", this.turnSetpointDegrees);
-        table.put("TurnAbsolutePositionDeg", this.turnAbsolutePositionDeg);
-        table.put("TurnAppliedPercentage", this.turnAppliedPercentage);
-        table.put("TurnAppliedVolts", this.turnAppliedVolts);
-        table.put("TurnPositionDeg", this.turnPositionDeg);
-        table.put("TurnVelocityRevPerMin", this.turnVelocityRevPerMin);
-        table.put("TurnCurrentAmps", this.turnCurrentAmps);
-        table.put("TurnTempCelsius", this.turnTempCelsius);
+        table.put("Mod" + module_id + "/TurnSetpointDegrees", this.turnSetpointDegrees);
+        table.put("Mod" + module_id + "/TurnAbsolutePositionDeg", this.turnAbsolutePositionDeg);
+        table.put("Mod" + module_id + "/TurnAppliedPercentage", this.turnAppliedPercentage);
+        table.put("Mod" + module_id + "/TurnAppliedVolts", this.turnAppliedVolts);
+        table.put("Mod" + module_id + "/TurnPositionDeg", this.turnPositionDeg);
+        table.put("Mod" + module_id + "/TurnVelocityRevPerMin", this.turnVelocityRevPerMin);
+        table.put("Mod" + module_id + "/TurnCurrentAmps", this.turnCurrentAmps);
+        table.put("Mod" + module_id + "/TurnTempCelsius", this.turnTempCelsius);
     }
 }

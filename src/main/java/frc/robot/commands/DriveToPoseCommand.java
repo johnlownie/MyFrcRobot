@@ -44,7 +44,7 @@ public class DriveToPoseCommand extends CommandBase {
     public void end(boolean interrupted) {
         this.swerveDrive.stop();
             
-        Logger.getInstance().recordOutput("ActiveCommands/DriveToPoseCommand", false);
+        Logger.getInstance().recordOutput("Commands/Active Command", "");
     }
 
     @Override
@@ -64,16 +64,13 @@ public class DriveToPoseCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        // don't use swerve module pid controllers
-        this.swerveDrive.zeroPIDControllers();
-
         resetPIDControllers();
 
         this.xController.setGoal(this.goalPose.getX());
         this.yController.setGoal(this.goalPose.getY());
         this.omegaController.setGoal(this.goalPose.getRotation().getRadians());
         
-        Logger.getInstance().recordOutput("ActiveCommands/DriveToPoseCommand", true);
+        Logger.getInstance().recordOutput("Commands/Active Command", this.getName());
     }
 
     @Override

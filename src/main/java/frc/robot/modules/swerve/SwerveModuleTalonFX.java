@@ -39,9 +39,9 @@ public class SwerveModuleTalonFX extends SwerveModule {
     private final double TURN_KD = 0.0;
 
     /* Drive Motor Characterization Values */
-    private final double DRIVE_KS = 0.116970;
-    private final double DRIVE_KV = 0.133240;
-    private final double DRIVE_KA = 0.0;
+    private final double DRIVE_KS = 0.55493;
+    private final double DRIVE_KV = 2.3014;
+    private final double DRIVE_KA = 0.12872;
 
     // Not sure what these represent, but smaller is faster
     private final double MOTION_MAGIC_VELOCITY = .125;
@@ -236,17 +236,6 @@ public class SwerveModuleTalonFX extends SwerveModule {
     }
 
     @Override
-    public void resetPIDController() {
-        this.driveMotor.config_kP(SLOT_INDEX, driveKp.get());
-        this.driveMotor.config_kI(SLOT_INDEX, driveKi.get());
-        this.driveMotor.config_kD(SLOT_INDEX, driveKd.get());
-
-        this.turnMotor.config_kP(SLOT_INDEX, turnKp.get());
-        this.turnMotor.config_kI(SLOT_INDEX, turnKi.get());
-        this.turnMotor.config_kD(SLOT_INDEX, turnKd.get());
-    }
-
-    @Override
     public void setAnglePosition(double degrees) {
         this.turnMotor.set(ControlMode.Position, Conversions.degreesTo(degrees, MK4I_L2.ANGLE_GEAR_RATIO));
     }
@@ -312,16 +301,5 @@ public class SwerveModuleTalonFX extends SwerveModule {
         this.turnAppliedPercentage = this.turnMotor.getMotorOutputPercent();
         this.turnCurrentAmps = new double[] { this.turnMotor.getStatorCurrent()};
         this.turnTempCelsius = new double[] { this.turnMotor.getTemperature()};
-    }
-
-    @Override
-    public void zeroPIDController() {
-        this.driveMotor.config_kP(SLOT_INDEX, 0);
-        this.driveMotor.config_kI(SLOT_INDEX, 0);
-        this.driveMotor.config_kD(SLOT_INDEX, 0);
-
-        this.turnMotor.config_kP(SLOT_INDEX, 0);
-        this.turnMotor.config_kI(SLOT_INDEX, 0);
-        this.turnMotor.config_kD(SLOT_INDEX, 0);
     }
 }

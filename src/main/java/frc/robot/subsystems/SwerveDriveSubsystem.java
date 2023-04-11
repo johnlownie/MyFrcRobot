@@ -4,12 +4,14 @@ import java.util.Arrays;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.util.ProfiledPIDController;
 import frc.robot.Constants.DriveTrainConstants;
@@ -34,17 +36,21 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private final ProfiledPIDController omegaController = TeleopConstants.omegaController;
 
     /* Tunable PID used only for Path Planner autonomous mode in the DrivePathCommand */
-    private final LoggedTunableNumber xKp = new LoggedTunableNumber("PathPlanner/XKp", 2.0);
+    private final LoggedTunableNumber xKp = new LoggedTunableNumber("PathPlanner/XKp", 6.0);
     private final LoggedTunableNumber xKi = new LoggedTunableNumber("PathPlanner/XKi", 0.0);
     private final LoggedTunableNumber xKd = new LoggedTunableNumber("PathPlanner/XKd", 0.0);
 
-    private final LoggedTunableNumber yKp = new LoggedTunableNumber("PathPlanner/YKp", 2.0);
+    private final LoggedTunableNumber yKp = new LoggedTunableNumber("PathPlanner/YKp", 6.0);
     private final LoggedTunableNumber yKi = new LoggedTunableNumber("PathPlanner/YKi", 0.0);
     private final LoggedTunableNumber yKd = new LoggedTunableNumber("PathPlanner/YKd", 0.0);
 
-    private final LoggedTunableNumber omegaKp = new LoggedTunableNumber("PathPlanner/OmegaKp", 12.0);
+    private final LoggedTunableNumber omegaKp = new LoggedTunableNumber("PathPlanner/OmegaKp", 10.0);
     private final LoggedTunableNumber omegaKi = new LoggedTunableNumber("PathPlanner/OmegaKi", 0.0);
     private final LoggedTunableNumber omegaKd = new LoggedTunableNumber("PathPlanner/OmegaKd", 0.0);
+
+    private final PIDController xController2 = new PIDController(xKp.get(), xKi.get(), xKd.get());
+    private final PIDController yController2 = new PIDController(yKp.get(), yKi.get(), yKd.get());
+    private final PIDController omegaController2 = new PIDController(omegaKp.get(), omegaKi.get(), omegaKd.get());
 
     private ChassisSpeeds desiredChassisSpeeds;
     private double gyroOffset;
@@ -63,6 +69,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         
         this.isFieldRelative = false;
         this.isOpenLoop = false;
+
+        this.omegaController2.enableContinuousInput(-Math.PI, Math.PI);
     }
     
     /**
@@ -92,6 +100,17 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         }
 
         drive(chassisSpeeds, isOpenLoop);
+    }
+
+    /** Returns the average drive velocity in meters/sec. */
+    public double getCharacterizationVelocity() {
+        double driveVelocityAverage = 0.0;
+
+        for (SwerveModule swerveModule : this.swerveModules) {
+            driveVelocityAverage += swerveModule.getState().speedMetersPerSecond;
+        }
+
+        return driveVelocityAverage / 4.0;
     }
 
     /**
@@ -145,8 +164,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         if (this.desiredChassisSpeeds != null) {
             SwerveModuleState[] desiredStates = this.swerveDriveKinematics.toSwerveModuleStates(desiredChassisSpeeds);
             setModuleStates(desiredStates, this.isOpenLoop, false);
-
-            Logger.getInstance().recordOutput("SwerveDrive/Desired Module States", desiredStates);
         }
 
         // update and log the swerve module position
@@ -155,15 +172,16 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         }
 
         // log poses, 3D geometry, and swerve module states, gyro offset
-        Logger.getInstance().recordOutput("Gyro/isConnected", this.gyro.isConnected());
-        Logger.getInstance().recordOutput("Gyro/PositionDeg", this.gyro.getPositionDeg());
-        Logger.getInstance().recordOutput("Gyro/VelocityDegPerSec", this.gyro.getVelocityDegPerSec());
-        Logger.getInstance().recordOutput("Gyro/gyroOffset", this.gyroOffset);
-        Logger.getInstance().recordOutput("SwerveDrive/Field Oriented", this.isFieldRelative);
-        Logger.getInstance().recordOutput("SwerveDrive/Is OpenLoop", this.isOpenLoop);
-        Logger.getInstance().recordOutput("SwerveDrive/Actual Module States", getModuleStates());
-        Logger.getInstance().recordOutput("SwerveDrive/Desired Speeds", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.toString() : "");
-        Logger.getInstance().recordOutput("SwerveDrive/Actual Speeds", getChassisSpeeds().toString());
+        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Gyro/isConnected", this.gyro.isConnected());
+        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Gyro/PositionDeg", this.gyro.getPositionDeg());
+        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Gyro/Acceleration", this.gyro.getAcceleration());
+        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Gyro/VelocityDegPerSec", this.gyro.getVelocityDegPerSec());
+        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Gyro/gyroOffset", this.gyroOffset);
+        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Field Oriented", this.isFieldRelative);
+        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Is OpenLoop", this.isOpenLoop);
+        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Actual Module States", getModuleStates());
+        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Desired Speeds", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.toString() : "");
+        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Actual Speeds", getChassisSpeeds().toString());
 
         // Always reset desiredChassisSpeeds to null to prevent latching to the last state (aka motor safety)!!
         this.desiredChassisSpeeds = null;
@@ -176,18 +194,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         Arrays.stream(this.swerveModules).forEach(SwerveModule::reseedSteerMotorOffset);
     }
 
-    /**
-     * Resets the module PID Controllers
-     */
-    public void resetPIDControllers() {
-        Arrays.stream(this.swerveModules).forEach(SwerveModule::resetPIDController);
-    }
-
-    /**
-     * Zero out module PID controllers so they don't interfere with any external controllers
-     */
-    public void zeroPIDControllers() {
-        Arrays.stream(this.swerveModules).forEach(SwerveModule::zeroPIDController);
+    /** Runs forwards at the commanded voltage. */
+    public void runCharacterizationVolts(double volts) {
+        for (SwerveModule swerveModule : swerveModules) {
+            swerveModule.setVoltageForCharacterization(volts);
+        }
     }
     
     /**
@@ -223,6 +234,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         for (SwerveModule swerveModule : this.swerveModules) {
             swerveModule.setDesiredState(states[swerveModule.getModuleId()], false, false);
         }
+
+        Logger.getInstance().recordOutput("SwerveDrive/Desired Module States", states);
     }
 
     /**
@@ -235,6 +248,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         for (SwerveModule swerveModule : this.swerveModules) {
             swerveModule.setDesiredState(states[swerveModule.getModuleId()], isOpenLoop, forceAngle);
         }
+
+        Logger.getInstance().recordOutput("SwerveDrive/Desired Module States", states);
     }
 
     /**
@@ -275,6 +290,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public ProfiledPIDController getXController() { return this.xController; }
     public ProfiledPIDController getYController() { return this.yController; }
     public ProfiledPIDController getOmegaController() { return this.omegaController; }
+
+    public PIDController getXController2() { return this.xController2; }
+    public PIDController getYController2() { return this.yController2; }
+    public PIDController getOmegaController2() { return this.omegaController2; }
 
     public boolean isFieldRelative() { return this.isFieldRelative; }
     public GyroModule getGyro() { return this.gyro; }

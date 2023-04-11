@@ -52,7 +52,7 @@ public class DriveToBestTagCommand extends CommandBase {
     public void end(boolean interrupted) {
         this.swerveDrive.stop();
             
-        Logger.getInstance().recordOutput("ActiveCommands/DriveToTagCommand", false);
+        Logger.getInstance().recordOutput("Commands/Active Command", "");
     }
 
     @Override
@@ -89,9 +89,6 @@ public class DriveToBestTagCommand extends CommandBase {
   
     @Override
     public void initialize() {
-        // don't use swerve module pid controllers
-        this.swerveDrive.zeroPIDControllers();
-
         resetPIDControllers();
 
         Pose2d robotPose2d = this.poseProvider.get();
@@ -104,7 +101,7 @@ public class DriveToBestTagCommand extends CommandBase {
         this.yController.setGoal(goalPose.getY());
         this.omegaController.setGoal(goalPose.getRotation().getRadians());
         
-        Logger.getInstance().recordOutput("ActiveCommands/DriveToTagCommand", true);
+        Logger.getInstance().recordOutput("Commands/Active Command", this.getName());
     }
 
     /**

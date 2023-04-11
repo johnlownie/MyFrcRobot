@@ -76,8 +76,8 @@ abstract public class VisionModule implements Runnable, LoggableInputs {
         processFrame(this.poseSupplier.get());
 
         PhotonPipelineResult results = getResults();
-        Logger.getInstance().recordOutput("Vision/hasTargets", results.hasTargets());
-        Logger.getInstance().recordOutput("Vision/TargetCount", results.hasTargets() ? results.getTargets().size() : 0);
+        Logger.getInstance().recordOutput("Subsystems/Vision/hasTargets", results.hasTargets());
+        Logger.getInstance().recordOutput("Subsystems/Vision/TargetCount", results.hasTargets() ? results.getTargets().size() : 0);
         if (!results.hasTargets() || (results.targets.size() > 1 && results.targets.get(0).getPoseAmbiguity() > VisionConstants.APRILTAG_AMBIGUITY_THRESHOLD)) {
             return;
         }
@@ -86,7 +86,7 @@ abstract public class VisionModule implements Runnable, LoggableInputs {
         for (PhotonTrackedTarget target : results.getTargets()) {
             targetIds.add("" + target.getFiducialId());
         }
-        Logger.getInstance().recordOutput("Vision/Target Ids", targetIds.toString());
+        Logger.getInstance().recordOutput("Subsystems/Vision/Target Ids", targetIds.toString());
 
         this.photonPoseEstimator.update(results).ifPresent(estimatedRobotPose -> {
             var estimatedPose = estimatedRobotPose.estimatedPose;
@@ -98,14 +98,14 @@ abstract public class VisionModule implements Runnable, LoggableInputs {
             }
 
             EstimatedRobotPose pose = grabLatestEstimatedPose();
-            Logger.getInstance().recordOutput("Vision/Pose", pose != null ? pose.estimatedPose : new Pose3d());
+            Logger.getInstance().recordOutput("Subsystems/Vision/Pose", pose != null ? pose.estimatedPose : new Pose3d());
         });
 
         if (results.hasTargets()) {
             PhotonTrackedTarget target = results.getBestTarget();
             
-            Logger.getInstance().recordOutput("Vision/Last Target Id", String.format("%d", target.getFiducialId()));
-            Logger.getInstance().recordOutput("Vision/Target Yaw", target.getYaw());
+            Logger.getInstance().recordOutput("Subsystems/Vision/Last Target Id", String.format("%d", target.getFiducialId()));
+            Logger.getInstance().recordOutput("Subsystems/Vision/Target Yaw", target.getYaw());
         }
     }
 

@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -15,6 +17,7 @@ import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -22,15 +25,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.AutoLevelCommand;
 import frc.robot.commands.DrivePathCommand;
+import frc.robot.commands.FeedForwardCharacterizationCommand;
+import frc.robot.commands.FeedForwardCharacterizationCommand.FeedForwardCharacterizationData;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.subsystems.ArmSubsystem.Action;
 
 public class AutonomousBuilder {
-    private final PathConstraints CONSTRAINTS = new PathConstraints(4, 3);
+    private final PathConstraints CONSTRAINTS = new PathConstraints(2, 2);
 
     private final SwerveDriveSubsystem swerveDrive;
     private final PoseEstimatorSubsystem poseEstimator;
@@ -61,11 +67,35 @@ public class AutonomousBuilder {
         
         this.autoChooser = new SendableChooser<>();
         this.autoChooser.setDefaultOption("None", Commands.none());
-        this.autoChooser.addOption("PPDrive5Meters", getPPCommand("PPDrive5Meters"));
-        this.autoChooser.addOption("PPTurn180Degrees", getPPCommand("PPTurn180Degrees"));
+
+        if (RobotConstants.TUNING_MODE) {
+            this.autoChooser.addOption("PPDrive5Meters", getPPCommand("PPDrive5Meters"));
+            this.autoChooser.addOption("PPTurn180Degrees", getPPCommand("PPTurn180Degrees"));
+
+            this.autoChooser.addOption("DPDrive5Meters", new Drive5Meters(this.swerveDrive, this.poseEstimator));
+            this.autoChooser.addOption("DPTurn180Degrees", new Turn180Degrees(this.swerveDrive, this.poseEstimator));
+
+            this.autoChooser.addOption("Drive Velocity Tuning",
+                Commands.sequence(
+                    Commands.runOnce(this.swerveDrive::disableFieldRelative, this.swerveDrive),
+                    Commands.deadline(
+                        Commands.waitSeconds(5.0),
+                        Commands.run(() -> this.swerveDrive.drive(1.5, 0.0, 0.0, new Rotation2d(), false), this.swerveDrive)
+                    )
+                )
+            );
+
+            this.autoChooser.addOption("Drive Characterization",
+                new FeedForwardCharacterizationCommand(
+                    this.swerveDrive,
+                    true,
+                    new FeedForwardCharacterizationData("drive"),
+                    this.swerveDrive::runCharacterizationVolts,
+                    this.swerveDrive::getCharacterizationVelocity)
+                );
+        }
+
         this.autoChooser.addOption("PPTwoPieceBalance", getTwoPieceBalance());
-        this.autoChooser.addOption("DPDrive5Meters", new Drive5Meters(this.swerveDrive, this.poseEstimator));
-        this.autoChooser.addOption("DPTurn180Degrees", new Turn180Degrees(this.swerveDrive, this.poseEstimator));
         this.autoChooser.addOption("DPTwoPieceBalance", new TwoPieceBalance(this.swerveDrive, this.poseEstimator, this.armSubsystem, getAutoBuildForPathGroup("PoletoPiece")));
     }
 
@@ -100,7 +130,7 @@ public class AutonomousBuilder {
      * 
      */
     private Command getAutoBuildForPathGroup(String pathGroupName) {
-        List<PathPlannerTrajectory> trajectories = PathPlanner.loadPathGroup(pathGroupName, new PathConstraints(4, 3));
+        List<PathPlannerTrajectory> trajectories = PathPlanner.loadPathGroup(pathGroupName, CONSTRAINTS);
         if (trajectories == null) {
             return Commands.print("*** Path failed to load: " + pathGroupName);
         }
@@ -142,42 +172,44 @@ public class AutonomousBuilder {
      * 
      */
     private Command getTwoPieceBalance() {
-        List<PathPlannerTrajectory> path = this.trajectoryMap.get("PPTwoPieceBalance");
+        List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("PPTwoPieceBalance", CONSTRAINTS);
 
         if (path == null) {
             return Commands.print("*** Failed to build TwoPieceBalance");
         }
-        
+
+        Logger.getInstance().recordOutput("Path", path.get(0));
+    
         Command command = Commands.sequence(
             Commands.print("*** Starting PPTwoPieceBalance ***"),
-            new InstantCommand(() -> {
-                    armSubsystem.addAction(Action.MOVE_TO_DRAWER);
-                    armSubsystem.addAction(Action.GRAB);
-                    armSubsystem.addAction(Action.MOVE_TO_MID_NODE);
-                    armSubsystem.addAction(Action.RELEASE);
-                    armSubsystem.addAction(Action.PAUSE);
-                    armSubsystem.addAction(Action.MOVE_TO_GROUND);
-            }),
-            new WaitUntilCommand(armSubsystem::isReleased),
+            // new InstantCommand(() -> {
+            //         armSubsystem.addAction(Action.MOVE_TO_DRAWER);
+            //         armSubsystem.addAction(Action.GRAB);
+            //         armSubsystem.addAction(Action.MOVE_TO_MID_NODE);
+            //         armSubsystem.addAction(Action.RELEASE);
+            //         armSubsystem.addAction(Action.PAUSE);
+            //         armSubsystem.addAction(Action.MOVE_TO_GROUND);
+            // }),
+            // new WaitUntilCommand(armSubsystem::isReleased),
             new FollowPathWithEvents(new DrivePathCommand(this.swerveDrive, this.poseEstimator, path.get(0), true), path.get(0).getMarkers(), this.eventMap),
-            new InstantCommand(() -> {
-                armSubsystem.addAction(Action.GRAB);
-                armSubsystem.addAction(Action.MOVE_TO_MID_NODE);
-            }),
-            new FollowPathWithEvents(new DrivePathCommand(this.swerveDrive, this.poseEstimator, path.get(1), false), path.get(1).getMarkers(), this.eventMap),
-            new InstantCommand(() -> {
-                armSubsystem.addAction(Action.RELEASE);
-                armSubsystem.addAction(Action.PAUSE);
-                armSubsystem.addAction(Action.MOVE_TO_GROUND);
-            }),
-            new WaitUntilCommand(armSubsystem::isReleased),
-            new FollowPathWithEvents(new DrivePathCommand(this.swerveDrive, this.poseEstimator, path.get(2), false), path.get(2).getMarkers(), this.eventMap),
-            new InstantCommand(() -> {
-                armSubsystem.addAction(Action.GRAB);
-                armSubsystem.addAction(Action.MOVE_TO_DRAWER);
-            }),
-            new FollowPathWithEvents(new DrivePathCommand(this.swerveDrive, this.poseEstimator, path.get(3), false), path.get(2).getMarkers(), this.eventMap),
-            new AutoLevelCommand(this.swerveDrive),
+            // new InstantCommand(() -> {
+            //     armSubsystem.addAction(Action.GRAB);
+            //     armSubsystem.addAction(Action.MOVE_TO_MID_NODE);
+            // }),
+            // new FollowPathWithEvents(new DrivePathCommand(this.swerveDrive, this.poseEstimator, path.get(1), false), path.get(1).getMarkers(), this.eventMap),
+            // new InstantCommand(() -> {
+            //     armSubsystem.addAction(Action.RELEASE);
+            //     armSubsystem.addAction(Action.PAUSE);
+            //     armSubsystem.addAction(Action.MOVE_TO_GROUND);
+            // }),
+            // new WaitUntilCommand(armSubsystem::isReleased),
+            // new FollowPathWithEvents(new DrivePathCommand(this.swerveDrive, this.poseEstimator, path.get(2), false), path.get(2).getMarkers(), this.eventMap),
+            // new InstantCommand(() -> {
+            //     armSubsystem.addAction(Action.GRAB);
+            //     armSubsystem.addAction(Action.MOVE_TO_DRAWER);
+            // }),
+            // new FollowPathWithEvents(new DrivePathCommand(this.swerveDrive, this.poseEstimator, path.get(3), false), path.get(3).getMarkers(), this.eventMap),
+            // new AutoLevelCommand(this.swerveDrive),
             Commands.print("*** Finished PPTwoPieceBalance ***")
         );
 

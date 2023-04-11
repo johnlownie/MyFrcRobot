@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
@@ -28,6 +30,8 @@ public class AutoLevelCommand extends CommandBase {
     public void end(boolean interrupted) {
         this.swerveDriveSubsystem.stop();
         this.timer.stop();
+
+        Logger.getInstance().recordOutput("Commands/Active Command", "");
     }
 
     @Override
@@ -42,6 +46,8 @@ public class AutoLevelCommand extends CommandBase {
     public void initialize() {
         this.timer.reset();
         this.timer.start();
+
+        Logger.getInstance().recordOutput("Commands/Active Command", this.getName());
     }
 
     @Override

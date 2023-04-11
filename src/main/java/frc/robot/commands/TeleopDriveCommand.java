@@ -50,7 +50,7 @@ public class TeleopDriveCommand extends CommandBase {
     public void end(boolean interrupted) {
         this.swerveDrive.stop();
 
-        Logger.getInstance().recordOutput("ActiveCommands/TeleopDriveCommand", false);
+        Logger.getInstance().recordOutput("Commands/Active Command", "");
     }
 
     @Override
@@ -62,17 +62,14 @@ public class TeleopDriveCommand extends CommandBase {
 
         this.swerveDrive.drive(xVelocity, yVelocity, rVelocity, angle, true);
 
-        Logger.getInstance().recordOutput("TeleopDriveCommand/xVelocity", xVelocity);
-        Logger.getInstance().recordOutput("TeleopDriveCommand/yVelocity", yVelocity);
-        Logger.getInstance().recordOutput("TeleopDriveCommand/rVelocity", rVelocity);
-        Logger.getInstance().recordOutput("TeleopDriveCommand/angle", angle.getDegrees());
+        Logger.getInstance().recordOutput("Commands/TeleopDriveCommand/xVelocity", xVelocity);
+        Logger.getInstance().recordOutput("Commands/TeleopDriveCommand/yVelocity", yVelocity);
+        Logger.getInstance().recordOutput("Commands/TeleopDriveCommand/rVelocity", rVelocity);
+        Logger.getInstance().recordOutput("Commands/TeleopDriveCommand/angle", angle.getDegrees());
     }
     
     @Override
     public void initialize() {
-        // use swerve module pid controllers
-        this.swerveDrive.resetPIDControllers();
-
-        Logger.getInstance().recordOutput("ActiveCommands/TeleopDriveCommand", true);
+        Logger.getInstance().recordOutput("Commands/Active Command", this.getName());
     }
 }

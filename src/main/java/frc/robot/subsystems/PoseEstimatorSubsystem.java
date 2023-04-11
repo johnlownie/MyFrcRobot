@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
@@ -21,8 +22,10 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.util.Timer;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.modules.swerve.SwerveModule;
 import frc.robot.modules.vision.VisionModule;
 
 /**
@@ -115,8 +118,9 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
         // if the gyro is not connected, use the swerve module positions to estimate the robot's rotation
         if (!isConnected()) {
             SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[this.previousModulePositions.length];
+            SwerveModulePosition[] currentPositions = getModulePositions();
             for (int i = 0; i < moduleDeltas.length; i++) {
-                SwerveModulePosition current = getModulePositions()[i];
+                SwerveModulePosition current = currentPositions[i];
                 SwerveModulePosition previous = this.previousModulePositions[i];
                 
                 moduleDeltas[i] = new SwerveModulePosition(current.distanceMeters - previous.distanceMeters, current.angle);
@@ -126,22 +130,22 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
             Twist2d twist = DriveTrainConstants.SWERVE_DRIVE_KINEMATICS.toTwist2d(moduleDeltas);
             this.estimatedPoseWithoutGyro = this.estimatedPoseWithoutGyro.exp(twist);
         }
-        
-        // Update pose estimator with drivetrain sensors
-        this.swerveDrivePoseEstimator.update(getRotation(), getModulePositions());
     
         EstimatedRobotPose visionPose = this.visionModule.grabLatestEstimatedPose();
         if (visionPose != null) {
             Pose2d pose2d = visionPose.estimatedPose.toPose2d();
             
-            this.swerveDrivePoseEstimator.addVisionMeasurement(pose2d, visionPose.timestampSeconds);
-            Logger.getInstance().recordOutput("PoseEstimator/VisionPose", pose2d);
+            // this.swerveDrivePoseEstimator.addVisionMeasurement(pose2d, visionPose.timestampSeconds);
+            Logger.getInstance().recordOutput("Subsystems/PoseEstimator/VisionPose", pose2d);
         }
         
+        // Update pose estimator with drivetrain sensors
+        this.swerveDrivePoseEstimator.updateWithTime(Timer.getFPGATimestamp(), getRotation(), getModulePositions());
+        
         // log poses, 3D geometry, and swerve module states, gyro offset
-        Logger.getInstance().recordOutput("PoseEstimator/Robot", getCurrentPose());
-        Logger.getInstance().recordOutput("PoseEstimator/RobotNoGyro", this.estimatedPoseWithoutGyro);
-        Logger.getInstance().recordOutput("PoseEstimator/Rotation", getRotation().getDegrees());
+        Logger.getInstance().recordOutput("Subsystems/PoseEstimator/Robot", getCurrentPose());
+        Logger.getInstance().recordOutput("Subsystems/PoseEstimator/RobotNoGyro", this.estimatedPoseWithoutGyro);
+        Logger.getInstance().recordOutput("Subsystems/PoseEstimator/Rotation", getRotation().getDegrees());
         Logger.getInstance().recordOutput("3DField", new Pose3d(getCurrentPose()));
     }
 
@@ -163,8 +167,11 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
      */
     public void resetOdometry(PathPlannerState state) {
         this.estimatedPoseWithoutGyro = new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation);
-
-        this.swerveDrivePoseEstimator.resetPosition(getRotation(), getModulePositions(), new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation));
+        this.swerveDrivePoseEstimator.resetPosition(
+            getRotation(), 
+            getModulePositions(), 
+            new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation)
+        );
     }
 
     /**
@@ -219,14 +226,22 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     private void setSwerveDrivePoseEstimators() {
         this.estimatedPoseWithoutGyro = new Pose2d();
 
+        // this.swerveDrivePoseEstimator =  new SwerveDrivePoseEstimator(
+        //     DriveTrainConstants.SWERVE_DRIVE_KINEMATICS,
+        //     getRotation(),
+        //     this.defaultModulePositions,
+        //     new Pose2d(),
+        //     stateStdDevs,
+        //     visionMeasurementStdDevs
+        // );
+
         this.swerveDrivePoseEstimator =  new SwerveDrivePoseEstimator(
             DriveTrainConstants.SWERVE_DRIVE_KINEMATICS,
-            getRotation(),
+            new Rotation2d(),
             this.defaultModulePositions,
-            new Pose2d(),
-            stateStdDevs,
-            visionMeasurementStdDevs
+            new Pose2d()
         );
+
     }
 
     /**

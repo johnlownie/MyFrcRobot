@@ -1,10 +1,7 @@
 package frc.lib.pathplanner;
 
-/* Overridden to add logging */
-
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -13,7 +10,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -44,13 +40,18 @@ public class PPSwerveControllerCommand extends CommandBase {
     private static BiConsumer<Translation2d, Rotation2d> logError = PPSwerveControllerCommand::defaultLogError;
 
     /**
-     * Constructs a new PPSwerveControllerCommand that when executed will follow the provided
-     * trajectory. This command will not return output voltages but ChassisSpeeds from the position
-     * controllers which need to be converted to module states and put into a velocity PID.
+     * Constructs a new PPSwerveControllerCommand that when executed will follow the
+     * provided
+     * trajectory. This command will not return output voltages but ChassisSpeeds
+     * from the position
+     * controllers which need to be converted to module states and put into a
+     * velocity PID.
      *
      * <p>
-     * Note: The controllers will *not* set the output to zero upon completion of the path this is
-     * left to the user, since it is not appropriate for paths with nonstationary endstates.
+     * Note: The controllers will *not* set the output to zero upon completion of
+     * the path this is
+     * left to the user, since it is not appropriate for paths with nonstationary
+     * endstates.
      *
      * @param trajectory          The trajectory to follow.
      * @param poseSupplier        A function that supplies the robot pose - use one
@@ -258,18 +259,22 @@ public class PPSwerveControllerCommand extends CommandBase {
     }
 
     @Override
-    public void end(boolean interrupted) {
-        this.timer.stop();
-
-        if (interrupted || Math.abs(transformedTrajectory.getEndState().velocityMetersPerSecond) < 0.1) {
-            if (useKinematics) {
-                this.outputModuleStates.accept(
-                        this.kinematics.toSwerveModuleStates(new ChassisSpeeds(0, 0, 0)));
-            }
-            else {
-                this.outputChassisSpeeds.accept(new ChassisSpeeds());
-            }
+    public void initialize() {
+        if (useAllianceColor && trajectory.fromGUI) {
+            transformedTrajectory = PathPlannerTrajectory.transformTrajectoryForAlliance(
+                    trajectory, DriverStation.getAlliance());
+        } else {
+            transformedTrajectory = trajectory;
         }
+
+        if (logActiveTrajectory != null) {
+            logActiveTrajectory.accept(transformedTrajectory);
+        }
+
+        timer.reset();
+        timer.start();
+
+        PathPlannerServer.sendActivePath(transformedTrajectory.getStates());
     }
 
     @Override
@@ -277,18 +282,22 @@ public class PPSwerveControllerCommand extends CommandBase {
         double currentTime = this.timer.get();
         PathPlannerState desiredState = (PathPlannerState) transformedTrajectory.sample(currentTime);
 
+        Logger.getInstance().recordOutput("PathPlanner/desiredState", desiredState.toString());
+
         Pose2d currentPose = this.poseSupplier.get();
 
         PathPlannerServer.sendPathFollowingData(new Pose2d(desiredState.poseMeters.getTranslation(), desiredState.holonomicRotation), currentPose);
 
         ChassisSpeeds targetChassisSpeeds = this.controller.calculate(currentPose, desiredState);
+        Logger.getInstance().recordOutput("PathPlanner/targetChassisSpeeds", targetChassisSpeeds.toString());
 
         if (this.useKinematics) {
             SwerveModuleState[] targetModuleStates = this.kinematics.toSwerveModuleStates(targetChassisSpeeds);
 
             this.outputModuleStates.accept(targetModuleStates);
-        }
-        else {
+
+            Logger.getInstance().recordOutput("PathPlanner/targetModuleStates", targetModuleStates);
+        } else {
             this.outputChassisSpeeds.accept(targetChassisSpeeds);
         }
 
@@ -309,42 +318,29 @@ public class PPSwerveControllerCommand extends CommandBase {
     }
 
     @Override
-    public void initialize() {
-        if (useAllianceColor && trajectory.fromGUI) {
-            transformedTrajectory = PathPlannerTrajectory.transformTrajectoryForAlliance(trajectory, DriverStation.getAlliance());
-        } 
-        else {
-            transformedTrajectory = trajectory;
+    public void end(boolean interrupted) {
+        this.timer.stop();
+
+        if (interrupted
+                || Math.abs(transformedTrajectory.getEndState().velocityMetersPerSecond) < 0.1) {
+            if (useKinematics) {
+                this.outputModuleStates.accept(
+                        this.kinematics.toSwerveModuleStates(new ChassisSpeeds(0, 0, 0)));
+            } else {
+                this.outputChassisSpeeds.accept(new ChassisSpeeds());
+            }
         }
-
-        if (logActiveTrajectory != null) {
-            logActiveTrajectory.accept(transformedTrajectory);
-        }
-
-        this.controller.setTolerance(new Pose2d(new Translation2d(0.03, 0.03), new Rotation2d(Units.degreesToRadians(1.0))));
-
-        timer.reset();
-        timer.start();
-
-        PathPlannerServer.sendActivePath(transformedTrajectory.getStates());
-        Logger.getInstance().recordOutput("PPSwerveControllerCommand/Total Time to Run", transformedTrajectory.getTotalTimeSeconds());
     }
 
     @Override
     public boolean isFinished() {
-        boolean isTimeout = this.timer.hasElapsed(transformedTrajectory.getTotalTimeSeconds() + 1.0);
-        boolean atReference = this.controller.atReference();
-
-        Logger.getInstance().recordOutput("PPSwerveControllerCommand/Is Timeout", isTimeout);
-        Logger.getInstance().recordOutput("PPSwerveControllerCommand/At Reference", atReference);
-
-        return isTimeout;
+        return this.timer.hasElapsed(transformedTrajectory.getTotalTimeSeconds());
     }
 
     private static void defaultLogError(Translation2d translationError, Rotation2d rotationError) {
-        Logger.getInstance().recordOutput("PPSwerveControllerCommand/xErrorMeters", translationError.getX());
-        Logger.getInstance().recordOutput("PPSwerveControllerCommand/yErrorMeters", translationError.getY());
-        Logger.getInstance().recordOutput("PPSwerveControllerCommand/rotationErrorDegrees", rotationError.getDegrees());
+        SmartDashboard.putNumber("PPSwerveControllerCommand/xErrorMeters", translationError.getX());
+        SmartDashboard.putNumber("PPSwerveControllerCommand/yErrorMeters", translationError.getY());
+        SmartDashboard.putNumber("PPSwerveControllerCommand/rotationErrorDegrees", rotationError.getDegrees());
     }
 
     /**

@@ -20,6 +20,7 @@ public class GyroModuleNavx extends GyroModule {
 
     @Override
     public void update() {
+        setAccleration(new double[] { this.gyro.getWorldLinearAccelX(), this.gyro.getWorldLinearAccelY() });
         setIsConnected(this.gyro.isConnected());
         setPitchDeg(this.gyro.getPitch());
         setPositionDeg(this.gyro.getYaw());

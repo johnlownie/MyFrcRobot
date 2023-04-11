@@ -198,11 +198,11 @@ public final class Constants {
 
         private static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(4, 3);
         private static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(4, 3);
-        private static final TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(12, 12);
+        private static final TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(8, 8);
     
-        public static final ProfiledPIDController xController = new ProfiledPIDController(2, 0, 0, X_CONSTRAINTS);
-        public static final ProfiledPIDController yController = new ProfiledPIDController(2, 0, 0, Y_CONSTRAINTS);
-        public static final ProfiledPIDController omegaController = new ProfiledPIDController(12.0, 0, 0, OMEGA_CONSTRAINTS);
+        public static final ProfiledPIDController xController = new ProfiledPIDController(6, 0, 0, X_CONSTRAINTS);
+        public static final ProfiledPIDController yController = new ProfiledPIDController(6, 0, 0, Y_CONSTRAINTS);
+        public static final ProfiledPIDController omegaController = new ProfiledPIDController(10.0, 0, 0, OMEGA_CONSTRAINTS);
     }
 
     /**

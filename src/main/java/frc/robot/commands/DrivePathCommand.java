@@ -30,32 +30,35 @@ public class DrivePathCommand extends PPSwerveControllerCommand {
         this.trajectory = trajectory;
         this.isInitialPath = isInitialPath;
     }
-
+    
     @Override
     public void end(boolean interrupted) {
         this.swerveDrive.stop();
         super.end(interrupted);
+        
+        Logger.getInstance().recordOutput("Commands/Active Command", "");
     }
-  
+    
     @Override
     public void initialize() {
         super.initialize();
-
-        // don't use swerve module pid controllers
-        this.swerveDrive.zeroPIDControllers();
+        
+        Logger.getInstance().recordOutput("Commands/DrivePathCommand/Trajectory", this.trajectory);
 
         if (this.isInitialPath) {
             // reset odometry to the starting pose of the trajectory
             this.poseEstimator.resetOdometry(this.trajectory.getInitialState());
+            this.swerveDrive.setGyroOffset(this.trajectory.getInitialState().holonomicRotation.getDegrees());
         }
 
-        // reset the theta controller such that old accumulated ID values aren't used with the new path
-        //      this doesn't matter if only the P value is non-zero, which is the current behavior
         this.swerveDrive.getXController().reset(this.trajectory.getInitialPose().getX());
         this.swerveDrive.getYController().reset(this.trajectory.getInitialPose().getY());
         this.swerveDrive.getOmegaController().reset(this.trajectory.getInitialPose().getRotation().getRadians());
 
-        Logger.getInstance().recordOutput("DriveToPathCommand/Trajectory Size", this.trajectory.getStates().size());
-        Logger.getInstance().recordOutput("DriveToPathCommand/Trajectory Total Time", this.trajectory.getTotalTimeSeconds());
+        this.swerveDrive.getXController2().reset();
+        this.swerveDrive.getYController2().reset();
+        this.swerveDrive.getOmegaController2().reset();
+
+        Logger.getInstance().recordOutput("Commands/Active Command", this.getName());
     }
 }

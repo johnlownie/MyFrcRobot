@@ -120,9 +120,9 @@ public class Robot extends LoggedRobot {
         logger.start();
 
         // Alternative logging of scheduled commands
-        CommandScheduler.getInstance().onCommandInitialize(command -> Logger.getInstance().recordOutput("Command initialized", command.getName()));
-        CommandScheduler.getInstance().onCommandInterrupt(command -> Logger.getInstance().recordOutput("Command interrupted", command.getName()));
-        CommandScheduler.getInstance().onCommandFinish(command -> Logger.getInstance().recordOutput("Command finished", command.getName()));
+        CommandScheduler.getInstance().onCommandInitialize(command -> Logger.getInstance().recordOutput("Commands/Command initialized", command.getName()));
+        CommandScheduler.getInstance().onCommandInterrupt(command -> Logger.getInstance().recordOutput("Commands/Command interrupted", command.getName()));
+        CommandScheduler.getInstance().onCommandFinish(command -> Logger.getInstance().recordOutput("Commands/Command finished", command.getName()));
 
         checkDriverStationUpdate();
     }
