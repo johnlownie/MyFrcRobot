@@ -90,12 +90,12 @@ abstract public class RobotContainer {
             trigger -> trigger.onTrue(runOnce(() -> this.swerveDrive.setDefaultCommand(this.teleopDriveCommand))
                 .andThen(new ScheduleCommand(this.teleopDriveCommand))));
 
-        // drive to tag and strafe
+        // drive to tag, strafe, and deploy cone
         this.driverController.driveToPoleLeft().ifPresent(
             trigger -> trigger.onTrue(
-                new DriveToBestTagCommand(this.swerveDrive, this.visionModule.getCamera(), this.poseEstimator::getCurrentPose)
+                new DriveToBestTagCommand(this.swerveDrive, this.visionModule, this.poseEstimator::getCurrentPose, false)
                 .andThen(
-                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, -FieldConstants.STRAFE_DISTANCE, 0.0)
+                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, -FieldConstants.POLE_STRAFE_DISTANCE, 0.0)
                     .andThen(
                         new DeployGamePieceMidCommand(this.armSubsystem)
                     )
@@ -105,12 +105,12 @@ abstract public class RobotContainer {
             )
         );
 
-        // drive to tag and strafe
+        // drive to tag, strafe, and deploy cone
         this.driverController.driveToPoleRight().ifPresent(
             trigger -> trigger.onTrue(
-                new DriveToBestTagCommand(this.swerveDrive, this.visionModule.getCamera(), this.poseEstimator::getCurrentPose)
+                new DriveToBestTagCommand(this.swerveDrive, this.visionModule, this.poseEstimator::getCurrentPose, false)
                 .andThen(
-                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, FieldConstants.STRAFE_DISTANCE, 0.0)
+                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, FieldConstants.POLE_STRAFE_DISTANCE, 0.0)
                     .andThen(
                         new DeployGamePieceMidCommand(this.armSubsystem)
                     )
@@ -135,6 +135,37 @@ abstract public class RobotContainer {
         ));
 
         /* Operator Buttons */
+
+        // drive to tag, strafe, and deploy cone
+        this.operatorController.driveToStationLeft().ifPresent(
+            trigger -> trigger.onTrue(
+                new DriveToBestTagCommand(this.swerveDrive, this.visionModule, this.poseEstimator::getCurrentPose, true)
+                .andThen(
+                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, -FieldConstants.STATION_STRAFE_DISTANCE, 0.0)
+                    .andThen(
+                        runOnce(this.drawerSubsystem::extend)
+                    )
+                    .until(this.driverController.driverWantsControl())
+                )
+                .until(this.driverController.driverWantsControl())
+            )
+        );
+
+        // drive to tag, strafe, and deploy cone
+        this.operatorController.driveToStationRight().ifPresent(
+            trigger -> trigger.onTrue(
+                new DriveToBestTagCommand(this.swerveDrive, this.visionModule, this.poseEstimator::getCurrentPose, true)
+                .andThen(
+                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, FieldConstants.STATION_STRAFE_DISTANCE, 0.0)
+                    .andThen(
+                        runOnce(this.drawerSubsystem::extend)
+                    )
+                    .until(this.driverController.driverWantsControl())
+                )
+                .until(this.driverController.driverWantsControl())
+            )
+        );
+
         this.operatorController.closeGripper()
             .ifPresent(trigger -> trigger.onTrue(
                 runOnce(this.armSubsystem::closeGripper)

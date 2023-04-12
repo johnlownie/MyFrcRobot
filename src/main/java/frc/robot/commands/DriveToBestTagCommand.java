@@ -3,8 +3,6 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
-import org.photonvision.PhotonCamera;
-import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,12 +16,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.util.ProfiledPIDController;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.modules.vision.VisionModule;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public class DriveToBestTagCommand extends CommandBase {
     private final SwerveDriveSubsystem swerveDrive;
-    private final PhotonCamera photonCamera;
+    private final VisionModule visionModule;
     private final Supplier<Pose2d> poseProvider;
+    private final boolean fromFrontCamera;
 
     private final ProfiledPIDController xController = TeleopConstants.xController;
     private final ProfiledPIDController yController = TeleopConstants.yController;
@@ -33,10 +33,11 @@ public class DriveToBestTagCommand extends CommandBase {
     /**
      * 
      */
-    public DriveToBestTagCommand(SwerveDriveSubsystem swerveDrive, PhotonCamera photonCamera, Supplier<Pose2d> poseProvider) {
+    public DriveToBestTagCommand(SwerveDriveSubsystem swerveDrive, VisionModule visionModule, Supplier<Pose2d> poseProvider, boolean fromFrontCamera) {
         this.swerveDrive = swerveDrive;
-        this.photonCamera = photonCamera;
+        this.visionModule = visionModule;
         this.poseProvider = poseProvider;
+        this.fromFrontCamera = fromFrontCamera;
 
         this.xController.setTolerance(0.2);
         this.yController.setTolerance(0.2);
@@ -74,13 +75,12 @@ public class DriveToBestTagCommand extends CommandBase {
      * 
      */
     private Pose2d getBestTagPose(Pose3d currentPose) {
-        PhotonPipelineResult results = this.photonCamera.getLatestResult();
+        PhotonTrackedTarget target = this.visionModule.getBestTarget(this.fromFrontCamera);
 
-        if (!results.hasTargets()) return null;
-
-        PhotonTrackedTarget target = results.getBestTarget();
+        if (target == null) return null;
         
-        Pose3d cameraPose = currentPose.transformBy(VisionConstants.ROBOT_TO_REAR_CAMERA);
+        Pose3d cameraPose = currentPose.transformBy(this.fromFrontCamera ? VisionConstants.ROBOT_TO_FRONT_CAMERA : VisionConstants.ROBOT_TO_REAR_CAMERA);
+
         Transform3d camToTarget = target.getBestCameraToTarget();
         Pose3d targetPose = cameraPose.transformBy(camToTarget);
         

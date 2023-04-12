@@ -8,7 +8,8 @@ import frc.lib.photonvision.SimVisionSystem;
 import frc.robot.Constants.VisionConstants;
 
 public class VisionModuleSimulator extends VisionModule {
-    private SimVisionSystem simVisionSystem;
+    private SimVisionSystem frontSimVisionSystem;
+    private SimVisionSystem rearSimVisionSystem;
 
     /**
      * 
@@ -16,24 +17,33 @@ public class VisionModuleSimulator extends VisionModule {
     public VisionModuleSimulator(AprilTagFields aprilTagFields) {
         super(aprilTagFields);
         
-        this.simVisionSystem = new SimVisionSystem(VisionConstants.REAR_CAMERA_NAME, VisionConstants.DIAGONAL_FOV, VisionConstants.ROBOT_TO_REAR_CAMERA, 9000, VisionConstants.IMG_WIDTH, VisionConstants.IMG_HEIGHT, 0);
+        this.frontSimVisionSystem = new SimVisionSystem(VisionConstants.FRONT_CAMERA_NAME, VisionConstants.DIAGONAL_FOV, VisionConstants.ROBOT_TO_FRONT_CAMERA, 9000, VisionConstants.IMG_WIDTH, VisionConstants.IMG_HEIGHT, 0);
+        this.rearSimVisionSystem = new SimVisionSystem(VisionConstants.REAR_CAMERA_NAME, VisionConstants.DIAGONAL_FOV, VisionConstants.ROBOT_TO_REAR_CAMERA, 9000, VisionConstants.IMG_WIDTH, VisionConstants.IMG_HEIGHT, 0);
+        
         setTargets();
     }
     
     @Override
-    protected PhotonPipelineResult getResults() {
-        return this.simVisionSystem.cam.getLatestResult();
+    protected PhotonPipelineResult getFrontCameraResults() {
+        return this.frontSimVisionSystem.cam.getLatestResult();
+    }
+    
+    @Override
+    protected PhotonPipelineResult getRearCameraResults() {
+        return this.rearSimVisionSystem.cam.getLatestResult();
     }
 
     @Override
     protected void processFrame(Pose2d pose) {
-        this.simVisionSystem.processFrame(pose);
+        this.frontSimVisionSystem.processFrame(pose);
+        this.rearSimVisionSystem.processFrame(pose);
     }
 
     /**
      * 
      */
     private void setTargets() {
-        this.simVisionSystem.addVisionTargets(this.aprilTagFieldLayout);
+        this.frontSimVisionSystem.addVisionTargets(this.aprilTagFieldLayout);
+        this.rearSimVisionSystem.addVisionTargets(this.aprilTagFieldLayout);
     }
 }

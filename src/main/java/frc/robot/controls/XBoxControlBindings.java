@@ -69,6 +69,16 @@ public class XBoxControlBindings implements ControlBindings {
      }
 
      @Override
+     public Optional<Trigger> driveToStationLeft() {
+         return Optional.of(this.operatorController.leftBumper());
+     }
+ 
+     @Override
+     public Optional<Trigger> driveToStationRight() {
+         return Optional.of(this.operatorController.rightBumper());
+     }
+ 
+     @Override
      public Optional<Trigger> extendDrawer() {
          return Optional.of(this.operatorController.x());
      }

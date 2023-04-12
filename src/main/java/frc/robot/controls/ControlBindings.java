@@ -10,10 +10,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public interface ControlBindings {
     Optional<Trigger> closeGripper();
+    Optional<Trigger> driveTeleop();
     Optional<Trigger> driveToCube();
     Optional<Trigger> driveToPoleLeft();
     Optional<Trigger> driveToPoleRight();
-    Optional<Trigger> driveTeleop();
+    Optional<Trigger> driveToStationLeft();
+    Optional<Trigger> driveToStationRight();
     Optional<Trigger> driveType();
     Optional<Trigger> extendDrawer();
     Optional<Trigger> openGripper();

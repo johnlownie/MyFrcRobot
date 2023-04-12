@@ -89,7 +89,8 @@ public final class Constants {
         // AprilTag X + Rail distance = 40.45 + 14.28 (https://firstfrc.blob.core.windows.net/frc2023/FieldAssets/2023FieldDrawings-CHARGEDUPSpecific.pdf)
         public static final double POSE_X = Units.inchesToMeters(40.45 + 14.28) + (RobotConstants.ROBOT_LENGTH / 2);
         public static final double[] POSE_Y = { Units.inchesToMeters(174.19), Units.inchesToMeters(108.19), Units.inchesToMeters(42.19) };
-        public static final double STRAFE_DISTANCE = Units.inchesToMeters(22.0);
+        public static final double POLE_STRAFE_DISTANCE = Units.inchesToMeters(22.0);
+        public static final double STATION_STRAFE_DISTANCE = Units.inchesToMeters(22.0);
 
         public static final Pose2d[] ALLIANCE_POSES = new Pose2d[] {
             new Pose2d(POSE_X, POSE_Y[0], Rotation2d.fromDegrees(0)),
@@ -99,16 +100,16 @@ public final class Constants {
 
         public static final Pose2d[][] POLE_POSES = new Pose2d[][] {
             new Pose2d[] {
-                new Pose2d(POSE_X, POSE_Y[0] + STRAFE_DISTANCE, Rotation2d.fromDegrees(0)),
-                new Pose2d(POSE_X, POSE_Y[0] - STRAFE_DISTANCE, Rotation2d.fromDegrees(0))
+                new Pose2d(POSE_X, POSE_Y[0] + POLE_STRAFE_DISTANCE, Rotation2d.fromDegrees(0)),
+                new Pose2d(POSE_X, POSE_Y[0] - POLE_STRAFE_DISTANCE, Rotation2d.fromDegrees(0))
             },
             new Pose2d[] {
-                new Pose2d(POSE_X, POSE_Y[1] + STRAFE_DISTANCE, Rotation2d.fromDegrees(0)),
-                new Pose2d(POSE_X, POSE_Y[1] - STRAFE_DISTANCE, Rotation2d.fromDegrees(0))
+                new Pose2d(POSE_X, POSE_Y[1] + POLE_STRAFE_DISTANCE, Rotation2d.fromDegrees(0)),
+                new Pose2d(POSE_X, POSE_Y[1] - POLE_STRAFE_DISTANCE, Rotation2d.fromDegrees(0))
             },
             new Pose2d[] {
-                new Pose2d(POSE_X, POSE_Y[2] + STRAFE_DISTANCE, Rotation2d.fromDegrees(0)),
-                new Pose2d(POSE_X, POSE_Y[2] - STRAFE_DISTANCE, Rotation2d.fromDegrees(0))
+                new Pose2d(POSE_X, POSE_Y[2] + POLE_STRAFE_DISTANCE, Rotation2d.fromDegrees(0)),
+                new Pose2d(POSE_X, POSE_Y[2] - POLE_STRAFE_DISTANCE, Rotation2d.fromDegrees(0))
             }
         };
 
@@ -119,7 +120,7 @@ public final class Constants {
             new Pose2d(Units.inchesToMeters(261.0), Units.inchesToMeters( 36.19), Rotation2d.fromDegrees(0))
         };
         
-        public static final Pose2d CHARGE_STATION_EDGE = new Pose2d(POSE_X + Units.inchesToMeters(119.25), POSE_Y[1] + STRAFE_DISTANCE, Rotation2d.fromDegrees(0));
+        public static final Pose2d CHARGE_STATION_EDGE = new Pose2d(POSE_X + Units.inchesToMeters(119.25), POSE_Y[1] + POLE_STRAFE_DISTANCE, Rotation2d.fromDegrees(0));
     }
 
     /**
@@ -209,10 +210,16 @@ public final class Constants {
      * 
      */
     public static class VisionConstants {
+        public static final String FRONT_CAMERA_NAME = "FRONT_CAMERA";
+        public static final Transform3d FRONT_CAMERA_TO_ROBOT = new Transform3d(
+            new Translation3d(0.0, 0.0, -0.5), // cam mounted center of robot, half meter up
+            new Rotation3d(0, 0, 0));
+        public static final Transform3d ROBOT_TO_FRONT_CAMERA = FRONT_CAMERA_TO_ROBOT.inverse();
+
         public static final String REAR_CAMERA_NAME = "REAR_CAMERA";
-           public static final Transform3d REAR_CAMERA_TO_ROBOT = new Transform3d(
-                new Translation3d(0.0, 0.0, -0.5), // cam mounted center of robot, half meter up
-                new Rotation3d(0, 0, Math.PI));
+        public static final Transform3d REAR_CAMERA_TO_ROBOT = new Transform3d(
+            new Translation3d(0.0, 0.0, -0.5), // cam mounted center of robot, half meter up
+            new Rotation3d(0, 0, Math.PI));
         public static final Transform3d ROBOT_TO_REAR_CAMERA = REAR_CAMERA_TO_ROBOT.inverse();
 
         /** Minimum target ambiguity. Targets with higher ambiguity will be discarded */

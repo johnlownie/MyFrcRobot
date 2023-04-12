@@ -14,8 +14,13 @@ public class VisionModulePhotonVision extends VisionModule {
     }
     
     @Override
-    protected PhotonPipelineResult getResults() {
-        return this.photonCamera.getLatestResult();
+    protected PhotonPipelineResult getFrontCameraResults() {
+        return this.frontCamera.getLatestResult();
+    }
+    
+    @Override
+    protected PhotonPipelineResult getRearCameraResults() {
+        return this.rearCamera.getLatestResult();
     }
 
     @Override

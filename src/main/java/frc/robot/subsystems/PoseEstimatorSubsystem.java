@@ -226,22 +226,21 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     private void setSwerveDrivePoseEstimators() {
         this.estimatedPoseWithoutGyro = new Pose2d();
 
-        // this.swerveDrivePoseEstimator =  new SwerveDrivePoseEstimator(
-        //     DriveTrainConstants.SWERVE_DRIVE_KINEMATICS,
-        //     getRotation(),
-        //     this.defaultModulePositions,
-        //     new Pose2d(),
-        //     stateStdDevs,
-        //     visionMeasurementStdDevs
-        // );
-
         this.swerveDrivePoseEstimator =  new SwerveDrivePoseEstimator(
             DriveTrainConstants.SWERVE_DRIVE_KINEMATICS,
             new Rotation2d(),
             this.defaultModulePositions,
-            new Pose2d()
+            new Pose2d(),
+            stateStdDevs,
+            visionMeasurementStdDevs
         );
 
+        // this.swerveDrivePoseEstimator =  new SwerveDrivePoseEstimator(
+        //     DriveTrainConstants.SWERVE_DRIVE_KINEMATICS,
+        //     new Rotation2d(),
+        //     this.defaultModulePositions,
+        //     new Pose2d()
+        // );
     }
 
     /**
