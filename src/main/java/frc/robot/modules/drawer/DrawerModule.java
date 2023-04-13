@@ -3,7 +3,6 @@ package frc.robot.modules.drawer;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.robot.Constants.PneumaticConstants;

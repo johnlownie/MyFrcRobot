@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.Arrays;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
@@ -25,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.util.Timer;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.modules.swerve.SwerveModule;
 import frc.robot.modules.vision.VisionModule;
 
 /**

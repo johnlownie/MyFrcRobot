@@ -172,9 +172,6 @@ public final class Constants {
             public static final double ANGLE_GEAR_RATIO = 1 / ((14.0 / 50.0) * (10.0 / 60.0));
             public static final boolean ANGLE_MOTOR_INVERTED = true;
 
-            private static final double ENCODER_RESEED_SECONDS = 10.0;
-            private static final double ENCODER_RESEED_MAX_ANGULAR_VELOCITY = Math.toRadians(0.5);
-            private static final int STATUS_FRAME_GENERAL_PERIOD_MS = 250;
             public static final double TICKS_PER_ROTATION = 2048.0;
             public static final boolean CAN_CODER_INVERTED = false;
             public static final int CAN_TIMEOUT_MS = 250;

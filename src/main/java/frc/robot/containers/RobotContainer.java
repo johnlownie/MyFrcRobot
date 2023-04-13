@@ -5,7 +5,6 @@ import static edu.wpi.first.wpilibj2.command.Commands.run;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -14,8 +13,6 @@ import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.util.Timer;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.RobotConstants;
-import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.autonomous.AutonomousBuilder;
 import frc.robot.commands.DeployGamePieceMidCommand;
 import frc.robot.commands.DriveFromPoseCommand;
