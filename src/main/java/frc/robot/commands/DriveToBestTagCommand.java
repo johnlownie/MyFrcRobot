@@ -44,7 +44,10 @@ public class DriveToBestTagCommand extends CommandBase {
         this.omegaController.setTolerance(Units.degreesToRadians(3));
         this.omegaController.enableContinuousInput(-Math.PI, Math.PI);
 
-        this.FIELD_TO_TAG = new Transform3d(new Translation3d(0.76, 0.0, 0.0), new Rotation3d(0.0, 0.0, 0.0));
+        double xMetersFromTag = fromFrontCamera ? 0.15 : 0.76;
+        double cameraYaw = fromFrontCamera ? Math.PI : 0.0;
+
+        this.FIELD_TO_TAG = new Transform3d(new Translation3d(xMetersFromTag, 0.0, 0.0), new Rotation3d(0.0, 0.0, cameraYaw));
    
         addRequirements(this.swerveDrive);
     }

@@ -95,7 +95,7 @@ abstract public class RobotContainer {
             trigger -> trigger.onTrue(
                 new DriveToBestTagCommand(this.swerveDrive, this.visionModule, this.poseEstimator::getCurrentPose, false)
                 .andThen(
-                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, -FieldConstants.POLE_STRAFE_DISTANCE, 0.0)
+                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, FieldConstants.POLE_STRAFE_DISTANCE, 0.0)
                     .andThen(
                         new DeployGamePieceMidCommand(this.armSubsystem)
                     )
@@ -110,7 +110,7 @@ abstract public class RobotContainer {
             trigger -> trigger.onTrue(
                 new DriveToBestTagCommand(this.swerveDrive, this.visionModule, this.poseEstimator::getCurrentPose, false)
                 .andThen(
-                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, FieldConstants.POLE_STRAFE_DISTANCE, 0.0)
+                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, -FieldConstants.POLE_STRAFE_DISTANCE, 0.0)
                     .andThen(
                         new DeployGamePieceMidCommand(this.armSubsystem)
                     )
@@ -141,7 +141,7 @@ abstract public class RobotContainer {
             trigger -> trigger.onTrue(
                 new DriveToBestTagCommand(this.swerveDrive, this.visionModule, this.poseEstimator::getCurrentPose, true)
                 .andThen(
-                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, -FieldConstants.STATION_STRAFE_DISTANCE, 0.0)
+                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, FieldConstants.STATION_STRAFE_DISTANCE, 0.0)
                     .andThen(
                         runOnce(this.drawerSubsystem::extend)
                     )
@@ -156,7 +156,7 @@ abstract public class RobotContainer {
             trigger -> trigger.onTrue(
                 new DriveToBestTagCommand(this.swerveDrive, this.visionModule, this.poseEstimator::getCurrentPose, true)
                 .andThen(
-                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, FieldConstants.STATION_STRAFE_DISTANCE, 0.0)
+                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, -FieldConstants.STATION_STRAFE_DISTANCE, 0.0)
                     .andThen(
                         runOnce(this.drawerSubsystem::extend)
                     )

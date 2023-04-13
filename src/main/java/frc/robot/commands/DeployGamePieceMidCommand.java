@@ -40,6 +40,7 @@ public class DeployGamePieceMidCommand extends CommandBase {
     public void initialize() {
         this.timer.reset();
         this.timer.start();
+        this.armSubsystem.addAction(Action.GRAB);
         this.armSubsystem.addAction(Action.MOVE_TO_MID_NODE);
         this.armSubsystem.addAction(Action.RELEASE);
 
