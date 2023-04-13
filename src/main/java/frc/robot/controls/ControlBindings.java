@@ -31,4 +31,5 @@ public interface ControlBindings {
     Supplier<Optional<Rotation2d>> heading();
 
     BooleanSupplier driverWantsControl();
+    BooleanSupplier operatorWantsControl();
 }

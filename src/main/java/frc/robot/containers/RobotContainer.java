@@ -145,9 +145,9 @@ abstract public class RobotContainer {
                     .andThen(
                         runOnce(this.drawerSubsystem::extend)
                     )
-                    .until(this.driverController.driverWantsControl())
+                    .until(this.operatorController.operatorWantsControl())
                 )
-                .until(this.driverController.driverWantsControl())
+                .until(this.operatorController.operatorWantsControl())
             )
         );
 
@@ -160,9 +160,9 @@ abstract public class RobotContainer {
                     .andThen(
                         runOnce(this.drawerSubsystem::extend)
                     )
-                    .until(this.driverController.driverWantsControl())
+                    .until(this.operatorController.operatorWantsControl())
                 )
-                .until(this.driverController.driverWantsControl())
+                .until(this.operatorController.operatorWantsControl())
             )
         );
 
