@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.util.Timer;
 import frc.robot.Constants.FieldConstants;
@@ -19,7 +20,6 @@ import frc.robot.commands.DriveFromPoseCommand;
 import frc.robot.commands.DriveToBestTagCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.controls.XBoxControlBindings;
-import frc.robot.modules.drawer.DrawerModule;
 import frc.robot.modules.gyro.GyroModule;
 import frc.robot.modules.swerve.SwerveModule;
 import frc.robot.modules.vision.VisionModule;
@@ -61,7 +61,6 @@ abstract public class RobotContainer {
     public RobotContainer() {
         /* Subsystems with no simulated modules */
         this.pneumaticSubsystem = new PneumaticSubsystem();
-        this.drawerSubsystem = new DrawerSubsystem(new DrawerModule(this.pneumaticSubsystem));
         
         this.driverController = new XBoxControlBindings();
         this.operatorController = new XBoxControlBindings();
@@ -140,7 +139,18 @@ abstract public class RobotContainer {
                 .andThen(
                     new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, FieldConstants.STATION_STRAFE_DISTANCE, 0.0)
                     .andThen(
-                        runOnce(this.drawerSubsystem::extend)
+                        runOnce(this.drawerSubsystem::extendAndWait)
+                        .andThen(
+                            new WaitUntilCommand(this.drawerSubsystem::hasGamePiece)
+                            .andThen(
+                                runOnce(this.drawerSubsystem::retract)
+                                .andThen(
+                                    runOnce(this.armSubsystem::closeGripper)
+                                )
+                            )
+                            .until(this.operatorController.operatorWantsControl())
+                        )
+                        .until(this.operatorController.operatorWantsControl())
                     )
                     .until(this.operatorController.operatorWantsControl())
                 )
@@ -155,7 +165,18 @@ abstract public class RobotContainer {
                 .andThen(
                     new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, -FieldConstants.STATION_STRAFE_DISTANCE, 0.0)
                     .andThen(
-                        runOnce(this.drawerSubsystem::extend)
+                        runOnce(this.drawerSubsystem::extendAndWait)
+                        .andThen(
+                            new WaitUntilCommand(this.drawerSubsystem::hasGamePiece)
+                            .andThen(
+                                runOnce(this.drawerSubsystem::retract)
+                                .andThen(
+                                    runOnce(this.armSubsystem::closeGripper)
+                                )
+                            )
+                            .until(this.operatorController.operatorWantsControl())
+                        )
+                        .until(this.operatorController.operatorWantsControl())
                     )
                     .until(this.operatorController.operatorWantsControl())
                 )

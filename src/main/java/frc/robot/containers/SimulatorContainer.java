@@ -4,10 +4,12 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.autonomous.AutonomousBuilder;
 import frc.robot.modules.arm.ArmModuleSimulator;
+import frc.robot.modules.drawer.DrawerModuleSimulator;
 import frc.robot.modules.gyro.GyroModuleSimulator;
 import frc.robot.modules.swerve.SwerveModuleSimulator;
 import frc.robot.modules.vision.VisionModuleSimulator;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.DrawerSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.subsystems.ArmSubsystem.Action;
@@ -34,6 +36,7 @@ public class SimulatorContainer extends RobotContainer {
         this.swerveDrive = new SwerveDriveSubsystem(this.swerveModules, DriveTrainConstants.SWERVE_DRIVE_KINEMATICS, this.gyroModule);
         this.poseEstimator = new PoseEstimatorSubsystem(this.swerveDrive::getModulePositions, this.swerveDrive::getRotation, this.visionModule);
         this.armSubsystem = new ArmSubsystem(new ArmModuleSimulator());
+        this.drawerSubsystem = new DrawerSubsystem(new DrawerModuleSimulator(this.pneumaticSubsystem));
         
         this.autonomousBuilder = new AutonomousBuilder(this.swerveDrive, this.poseEstimator, this.armSubsystem);
 

@@ -137,8 +137,9 @@ public final class Constants {
      */
     public static class ArmConstants {
         public static final int ANGLE_DRAWER_PICKUP = -40;
-        public static final int ANGLE_DEPLOY_MID = 180;
         public static final int ANGLE_DEPLOY_LOW = 225;
+        public static final int ANGLE_DEPLOY_MID = 180;
+        public static final int ANGLE_DEPLOY_HIGH = 135;
         public static final int ANGLE_GROUND_PICKUP = 255;
     }
 

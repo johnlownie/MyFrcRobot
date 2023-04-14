@@ -3,10 +3,12 @@ package frc.robot.containers;
 import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.modules.arm.ArmModuleTalonSRX;
+import frc.robot.modules.drawer.DrawerModule;
 import frc.robot.modules.gyro.GyroModuleNavx;
 import frc.robot.modules.swerve.SwerveModuleTalonFX;
 import frc.robot.modules.vision.VisionModulePhotonVision;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.DrawerSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
@@ -32,6 +34,7 @@ public class ChargedUpContainer extends RobotContainer {
         this.swerveDrive = new SwerveDriveSubsystem(this.swerveModules, DriveTrainConstants.SWERVE_DRIVE_KINEMATICS, this.gyroModule);
         this.poseEstimator = new PoseEstimatorSubsystem(this.swerveDrive::getModulePositions, this.swerveDrive::getRotation, this.visionModule);
         this.armSubsystem = new ArmSubsystem(new ArmModuleTalonSRX(this.pneumaticSubsystem));
+        this.drawerSubsystem = new DrawerSubsystem(new DrawerModule(this.pneumaticSubsystem));
 
         setCommands();
 

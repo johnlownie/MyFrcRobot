@@ -15,7 +15,7 @@ import frc.robot.modules.arm.ArmModule;
  */
 public class ArmSubsystem extends SubsystemBase {
     public static enum Action {
-        IDLE, GRAB, MOVE, MOVE_TO_DRAWER, MOVE_TO_GROUND, MOVE_TO_LOW_NODE, MOVE_TO_MID_NODE, PAUSE, RELEASE, STOP
+        IDLE, GRAB, MOVE, MOVE_TO_DRAWER, MOVE_TO_GROUND, MOVE_TO_LOW_NODE, MOVE_TO_MID_NODE, MOVE_TO_HIGH_NODE, PAUSE, RELEASE, STOP
     }
 
     private final StateMachine<Action> stateMachine;
@@ -43,6 +43,7 @@ public class ArmSubsystem extends SubsystemBase {
         this.stateMachine.addState(Action.MOVE_TO_GROUND, this::handleMoveToGround);
         this.stateMachine.addState(Action.MOVE_TO_LOW_NODE, this::handleMoveToLowNode);
         this.stateMachine.addState(Action.MOVE_TO_MID_NODE, this::handleMoveToMidNode);
+        this.stateMachine.addState(Action.MOVE_TO_HIGH_NODE, this::handleMoveToHighNode);
         this.stateMachine.addState(Action.PAUSE, this::handlePause);
         this.stateMachine.addState(Action.RELEASE, this::handleRelease);
 
@@ -135,6 +136,16 @@ public class ArmSubsystem extends SubsystemBase {
         if (stateMetadata.isFirstRun()) {
             setDesiredAngle(ArmConstants.ANGLE_DEPLOY_MID);
             moveArm(true);
+        }
+    }
+
+    /**
+     * 
+     */
+    private void handleMoveToHighNode(StateMetadata<Action> stateMetadata) {
+        if (stateMetadata.isFirstRun()) {
+            setDesiredAngle(ArmConstants.ANGLE_DEPLOY_HIGH);
+            moveArm(false);
         }
     }
     

@@ -44,6 +44,13 @@ public class DrawerModule {
     /**
      * 
      */
+    public boolean hasGamePiece() {
+        return this.distance_millimeters <= 70.0;
+    }
+
+    /**
+     * 
+     */
     public void retract() {
         this.doubleSolenoid.set(Value.kReverse);
         this.drawerModuleMechanism.retract();
