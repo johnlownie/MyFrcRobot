@@ -96,7 +96,7 @@ public class AutonomousBuilder {
         }
 
         this.autoChooser.addOption("PPTwoPieceBalance", getTwoPieceBalance());
-        this.autoChooser.addOption("DPTwoPieceBalance", new TwoPieceBalance(this.swerveDrive, this.poseEstimator, this.armSubsystem, getAutoBuildForPathGroup("PoletoPiece")));
+        this.autoChooser.addOption("DPTwoPieceBalance", new TwoPieceBalance(this.swerveDrive, this.poseEstimator, this.armSubsystem));
     }
 
     /**
