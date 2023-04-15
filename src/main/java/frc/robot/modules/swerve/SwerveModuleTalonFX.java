@@ -29,19 +29,19 @@ public class SwerveModuleTalonFX extends SwerveModule {
     private final int SLOT_INDEX = 0;
 
     /* Drive Motor PID Values */
-    private final double DRIVE_KP = 0.8;
+    private final double DRIVE_KP = 0.05;
     private final double DRIVE_KI = 0.0;
     private final double DRIVE_KD = 0.0;
 
     /* Turn Motor PID Values */
-    private final double TURN_KP = 12.0;
+    private final double TURN_KP = 0.3;
     private final double TURN_KI = 0.0;
     private final double TURN_KD = 0.0;
 
     /* Drive Motor Characterization Values */
-    private final double DRIVE_KS = 0.55493;
-    private final double DRIVE_KV = 2.3014;
-    private final double DRIVE_KA = 0.12872;
+    private final double DRIVE_KS = 0.32 / 12.0;
+    private final double DRIVE_KV = 1.51 / 12.0;
+    private final double DRIVE_KA = 0.27 / 12.0;
 
     // Not sure what these represent, but smaller is faster
     private final double MOTION_MAGIC_VELOCITY = .125;
@@ -185,7 +185,7 @@ public class SwerveModuleTalonFX extends SwerveModule {
     private CANCoderConfiguration getEncoderConfiguration(double angle_offset_degrees) {
         CANCoderConfiguration canCoderConfiguration = new CANCoderConfiguration();
         canCoderConfiguration.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
-        canCoderConfiguration.magnetOffsetDegrees = Math.toDegrees(angle_offset_degrees);
+        canCoderConfiguration.magnetOffsetDegrees = angle_offset_degrees;
         canCoderConfiguration.sensorDirection = false;
         canCoderConfiguration.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
 

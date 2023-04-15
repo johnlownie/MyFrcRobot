@@ -28,9 +28,9 @@ public class SwerveModuleSimulator extends SwerveModule {
     private final double TURN_KD = 0.0;
 
     /* Simulated Drive Motor Characterization Values */
-    private final double DRIVE_KS = 0.116970;
-    private final double DRIVE_KV = 0.133240;
-    private final double DRIVE_KA = 0.0;
+    private final double DRIVE_KS = 0.0545;  // 0.116970;
+    private final double DRIVE_KV = 0.40126 / 12.0; // 0.133240;
+    private final double DRIVE_KA = 0.0225;  // 0.0;
 
     /* Tunable PID */
     private final LoggedTunableNumber driveKp = new LoggedTunableNumber("Drive/DriveKp", DRIVE_KP);

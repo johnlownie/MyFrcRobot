@@ -22,10 +22,10 @@ public class ChargedUpContainer extends RobotContainer {
     public ChargedUpContainer() {
         super();
 
-        SwerveModuleTalonFX frontLeftModule = new SwerveModuleTalonFX(0, 0, 0, 0, 0);
-        SwerveModuleTalonFX frontRightModule = new SwerveModuleTalonFX(0, 0, 0, 0, 0);
-        SwerveModuleTalonFX rearLeftModule = new SwerveModuleTalonFX(0, 0, 0, 0, 0);
-        SwerveModuleTalonFX rearRightModule = new SwerveModuleTalonFX(0, 0, 0, 0, 0);
+        SwerveModuleTalonFX frontLeftModule  = new SwerveModuleTalonFX(0, 11, 12, 1, 183.603);
+        SwerveModuleTalonFX frontRightModule = new SwerveModuleTalonFX(1, 31, 32, 3, 235.107);
+        SwerveModuleTalonFX rearLeftModule   = new SwerveModuleTalonFX(2, 21, 22, 2, 299.001);
+        SwerveModuleTalonFX rearRightModule  = new SwerveModuleTalonFX(3, 41, 42, 4, 231.152);
 
         this.swerveModules = new SwerveModuleTalonFX[] { frontLeftModule, frontRightModule, rearLeftModule, rearRightModule};
         this.gyroModule = new GyroModuleNavx();
