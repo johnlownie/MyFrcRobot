@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.AutoLevelCommand;
-import frc.robot.commands.DrivePathCommand;
+import frc.robot.commands.DriveTrajectoryCommand;
 import frc.robot.commands.FeedForwardCharacterizationCommand;
 import frc.robot.commands.FeedForwardCharacterizationCommand.FeedForwardCharacterizationData;
 import frc.robot.subsystems.ArmSubsystem;
@@ -191,12 +191,12 @@ public class AutonomousBuilder {
                     this.armSubsystem.addAction(Action.MOVE_TO_GROUND);
             }),
             new WaitUntilCommand(armSubsystem::isReleased),
-            new FollowPathWithEvents(new DrivePathCommand(this.swerveDrive, this.poseEstimator, path.get(0), true), path.get(0).getMarkers(), this.eventMap),
+            new FollowPathWithEvents(new DriveTrajectoryCommand(this.swerveDrive, this.poseEstimator, path.get(0), true), path.get(0).getMarkers(), this.eventMap),
             new InstantCommand(() -> {
                 this.armSubsystem.addAction(Action.GRAB);
                 this.armSubsystem.addAction(Action.MOVE_TO_HIGH_NODE);
             }),
-            new FollowPathWithEvents(new DrivePathCommand(this.swerveDrive, this.poseEstimator, path.get(1), false), path.get(1).getMarkers(), this.eventMap),
+            new FollowPathWithEvents(new DriveTrajectoryCommand(this.swerveDrive, this.poseEstimator, path.get(1), false), path.get(1).getMarkers(), this.eventMap),
             new InstantCommand(() -> {
                 this.armSubsystem.addAction(Action.MOVE_TO_MID_NODE);
                 this.armSubsystem.addAction(Action.RELEASE);
@@ -204,12 +204,12 @@ public class AutonomousBuilder {
                 this.armSubsystem.addAction(Action.MOVE_TO_GROUND);
             }),
             new WaitUntilCommand(armSubsystem::isReleased),
-            new FollowPathWithEvents(new DrivePathCommand(this.swerveDrive, this.poseEstimator, path.get(2), false), path.get(2).getMarkers(), this.eventMap),
+            new FollowPathWithEvents(new DriveTrajectoryCommand(this.swerveDrive, this.poseEstimator, path.get(2), false), path.get(2).getMarkers(), this.eventMap),
             new InstantCommand(() -> {
                 this.armSubsystem.addAction(Action.GRAB);
                 this.armSubsystem.addAction(Action.MOVE_TO_DRAWER);
             }),
-            new FollowPathWithEvents(new DrivePathCommand(this.swerveDrive, this.poseEstimator, path.get(3), false), path.get(3).getMarkers(), this.eventMap),
+            new FollowPathWithEvents(new DriveTrajectoryCommand(this.swerveDrive, this.poseEstimator, path.get(3), false), path.get(3).getMarkers(), this.eventMap),
             new AutoLevelCommand(this.swerveDrive),
             Commands.print("*** Finished PPTwoPieceBalance ***")
         );
@@ -229,7 +229,7 @@ public class AutonomousBuilder {
         
         Command command = Commands.sequence(
             Commands.print("*** Starting " + name + " ***"),
-            new FollowPathWithEvents(new DrivePathCommand(this.swerveDrive, this.poseEstimator, path.get(0), true), path.get(0).getMarkers(), this.eventMap),
+            new FollowPathWithEvents(new DriveTrajectoryCommand(this.swerveDrive, this.poseEstimator, path.get(0), true), path.get(0).getMarkers(), this.eventMap),
             Commands.print("*** Finished " + name + " ***")
         );
 

@@ -5,6 +5,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.run;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -16,6 +17,7 @@ import frc.lib.util.Timer;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.autonomous.AutonomousBuilder;
 import frc.robot.commands.DeployGamePieceMidCommand;
+import frc.robot.commands.DriveFromBestTagCommand;
 import frc.robot.commands.DriveFromPoseCommand;
 import frc.robot.commands.DriveToBestTagCommand;
 import frc.robot.commands.TeleopDriveCommand;
@@ -94,6 +96,7 @@ abstract public class RobotContainer {
                     new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, FieldConstants.POLE_STRAFE_DISTANCE, 0.0)
                     .andThen(
                         new DeployGamePieceMidCommand(this.armSubsystem)
+                        .until(this.driverController.driverWantsControl())
                     )
                     .until(this.driverController.driverWantsControl())
                 )
@@ -104,12 +107,9 @@ abstract public class RobotContainer {
         // drive to tag, strafe, and deploy cone
         this.driverController.driveToPoleRight().ifPresent(
             trigger -> trigger.onTrue(
-                new DriveToBestTagCommand(this.swerveDrive, this.visionModule, this.poseEstimator::getCurrentPose, false)
+                new DriveFromBestTagCommand(this.swerveDrive, this.visionModule, this.poseEstimator::getCurrentPose, new Translation3d(0.76, -FieldConstants.POLE_STRAFE_DISTANCE, 0.0), false)
                 .andThen(
-                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, -FieldConstants.POLE_STRAFE_DISTANCE, 0.0)
-                    .andThen(
-                        new DeployGamePieceMidCommand(this.armSubsystem)
-                    )
+                    new DeployGamePieceMidCommand(this.armSubsystem)
                     .until(this.driverController.driverWantsControl())
                 )
                 .until(this.driverController.driverWantsControl())

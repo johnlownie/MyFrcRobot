@@ -11,7 +11,7 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 /**
  * 
  */
-public class DrivePathCommand extends PPSwerveControllerCommand {
+public class DriveTrajectoryCommand extends PPSwerveControllerCommand {
     private final SwerveDriveSubsystem swerveDrive;
     private final PoseEstimatorSubsystem poseEstimator;
     private final PathPlannerTrajectory trajectory;
@@ -20,7 +20,7 @@ public class DrivePathCommand extends PPSwerveControllerCommand {
     /**
      * 
      */
-    public DrivePathCommand(SwerveDriveSubsystem swerveDrive, PoseEstimatorSubsystem poseEstimator, PathPlannerTrajectory trajectory, boolean isInitialPath) {
+    public DriveTrajectoryCommand(SwerveDriveSubsystem swerveDrive, PoseEstimatorSubsystem poseEstimator, PathPlannerTrajectory trajectory, boolean isInitialPath) {
         super(trajectory, poseEstimator::getCurrentPose, swerveDrive.getKinematics(),
             swerveDrive.getXController().getController(), swerveDrive.getYController().getController(), swerveDrive.getOmegaController().getController(),
             swerveDrive::setModuleStates, swerveDrive, poseEstimator);
