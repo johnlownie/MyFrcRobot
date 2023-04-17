@@ -14,7 +14,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.util.ProfiledPIDController;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.modules.vision.VisionModule;
