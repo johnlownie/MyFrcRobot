@@ -36,14 +36,13 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.subsystems.ArmSubsystem.Action;
 
 public class AutonomousBuilder {
-    private final PathConstraints CONSTRAINTS = new PathConstraints(2, 2);
+    private final PathConstraints CONSTRAINTS = new PathConstraints(4, 3);
 
     private final SwerveDriveSubsystem swerveDrive;
     private final PoseEstimatorSubsystem poseEstimator;
     private final ArmSubsystem armSubsystem;
 
     private final SendableChooser<Command> autoChooser;
-    private final SwerveAutoBuilder swerveAutoBuilder;
     private final HashMap<String, Command> eventMap;
     
     private HashMap<String, List<PathPlannerTrajectory>> trajectoryMap;
@@ -56,12 +55,6 @@ public class AutonomousBuilder {
         this.poseEstimator = poseEstimator;
         this.armSubsystem = armSubsystem;
         this.eventMap = getEventMap();
-
-        this.swerveAutoBuilder = new AutoBuilder(
-            this.poseEstimator::getCurrentPose, this.poseEstimator::setCurrentPose, this.swerveDrive.getKinematics(),
-            new PIDConstants(0, 0, 0), new PIDConstants(0, 0, 0), this.swerveDrive::setModuleStates,
-            this.eventMap, true, new Command[] {}, this.swerveDrive
-        );
         
         setTrajectoryMap();
         
@@ -124,18 +117,6 @@ public class AutonomousBuilder {
         eventMap.put("OpenGripper", Commands.print("Placing Cube").withTimeout(3.0));
         
         return eventMap;
-    }
-
-    /**
-     * 
-     */
-    private Command getAutoBuildForPathGroup(String pathGroupName) {
-        List<PathPlannerTrajectory> trajectories = PathPlanner.loadPathGroup(pathGroupName, CONSTRAINTS);
-        if (trajectories == null) {
-            return Commands.print("*** Path failed to load: " + pathGroupName);
-        }
-
-        return this.swerveAutoBuilder.fullAuto(trajectories);
     }
     
     /**
