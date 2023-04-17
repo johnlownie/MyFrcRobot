@@ -16,11 +16,10 @@ public class DrawerModule {
     private final int ECHO_ID = 4;
 
     private final DoubleSolenoid doubleSolenoid;
-    private Ultrasonic ultrasonic;
+    private final Ultrasonic ultrasonic;
+    private final DrawerModuleMechanism drawerModuleMechanism;
 
     private double distance_millimeters;
-
-    private final DrawerModuleMechanism drawerModuleMechanism;
 
     /**
      * 

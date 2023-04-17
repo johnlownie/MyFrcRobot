@@ -26,6 +26,8 @@ public class ArmModuleSimulator extends ArmModule {
     private final double ARM_MAX_ANGLE_DEGREES = 255.0;
     private final double ARM_REDUCTION = 200.0;
     private final double DISTANCE_PER_PULSE = 2.0 * Math.PI / 4096;
+    
+    private final Vector<N1> STD_DEVS = VecBuilder.fill(DISTANCE_PER_PULSE);
 
     /* Motor PID Values */
     private final double KP = 50.0;
@@ -37,31 +39,33 @@ public class ArmModuleSimulator extends ArmModule {
     private final LoggedTunableNumber ki = new LoggedTunableNumber("Arm/Ki", KI);
     private final LoggedTunableNumber kd = new LoggedTunableNumber("Arm/Kd", KD);
     
-    /* Simulated Hardware */
-    private final DCMotor gearBox = DCMotor.getFalcon500(2);
-    private final PWMSparkMax motor = new PWMSparkMax(2);
-    private final EncoderSim encoderSim = new EncoderSim(new Encoder(9, 10));
-
     private final PIDController pidController = new PIDController(KP, KI, KD);
     
-    private final Vector<N1> stdDevs = VecBuilder.fill(DISTANCE_PER_PULSE);
-
-    private final SingleJointedArmSim singleJointedArmSim = new SingleJointedArmSim(
-        this.gearBox, 
-        ARM_REDUCTION,
-        SingleJointedArmSim.estimateMOI(Units.inchesToMeters(30), 8.0),
-        Units.inchesToMeters(30),
-        Units.degreesToRadians(ARM_MIN_ANGLE_DEGRESS),
-        Units.degreesToRadians(ARM_MAX_ANGLE_DEGREES),
-        true,
-        stdDevs
-    );
+    /* Simulated Hardware */
+    private final DCMotor gearBox;
+    private final PWMSparkMax motor;
+    private final EncoderSim encoderSim;
+    private final SingleJointedArmSim singleJointedArmSim;
 
     /**
      * 
      */
     public ArmModuleSimulator() {
         super();
+
+        this.gearBox = DCMotor.getFalcon500(2);
+        this.motor = new PWMSparkMax(2);
+        this.encoderSim = new EncoderSim(new Encoder(9, 10));
+        this.singleJointedArmSim = new SingleJointedArmSim(
+            this.gearBox, 
+            ARM_REDUCTION,
+            SingleJointedArmSim.estimateMOI(Units.inchesToMeters(30), 8.0),
+            Units.inchesToMeters(30),
+            Units.degreesToRadians(ARM_MIN_ANGLE_DEGRESS),
+            Units.degreesToRadians(ARM_MAX_ANGLE_DEGREES),
+            true,
+            STD_DEVS
+        );
 
         this.encoderSim.setDistancePerPulse(DISTANCE_PER_PULSE);
         this.pidController.setTolerance(50);
