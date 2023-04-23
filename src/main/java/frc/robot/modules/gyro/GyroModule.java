@@ -1,5 +1,8 @@
 package frc.robot.modules.gyro;
 
+/**
+ * 
+ */
 abstract public class GyroModule {
     private double[] acceleration = { 0, 0 };
     private boolean is_connected = false;

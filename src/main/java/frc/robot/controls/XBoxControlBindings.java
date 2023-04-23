@@ -12,6 +12,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.Constants.TeleopConstants;
 
+/**
+ * 
+ */
 public class XBoxControlBindings implements ControlBindings {
     private final CommandXboxController driverController = new CommandXboxController(0);;
     private final CommandXboxController operatorController = new CommandXboxController(1);;

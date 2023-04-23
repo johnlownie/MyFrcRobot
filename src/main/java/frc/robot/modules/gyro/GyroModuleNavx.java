@@ -1,7 +1,6 @@
 package frc.robot.modules.gyro;
 
 import edu.wpi.first.wpilibj.SPI;
-
 import com.kauailabs.navx.frc.AHRS;
 
 /**

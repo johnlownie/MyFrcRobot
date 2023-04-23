@@ -7,6 +7,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import frc.lib.photonvision.SimVisionSystem;
 import frc.robot.Constants.VisionConstants;
 
+/**
+ * 
+ */
 public class VisionModuleSimulator extends VisionModule {
     private SimVisionSystem frontSimVisionSystem;
     private SimVisionSystem rearSimVisionSystem;

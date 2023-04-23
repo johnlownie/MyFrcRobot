@@ -1,5 +1,8 @@
 package frc.robot.modules.gyro;
 
+/**
+ * 
+ */
 public class GyroModuleSimulator extends GyroModule {
     /**
      * 
