@@ -12,11 +12,11 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 /**
  * 
  */
-public class Turn180Degrees extends SequentialCommandGroup {
+public class DPTurn180Degrees extends SequentialCommandGroup {
     /**
      * 
      */
-    public Turn180Degrees(SwerveDriveSubsystem swerveDriveSubsystem, PoseEstimatorSubsystem poseEstimatorSubsystem) {
+    public DPTurn180Degrees(SwerveDriveSubsystem swerveDriveSubsystem, PoseEstimatorSubsystem poseEstimatorSubsystem) {
         Pose2d oneEightyDegreesPose = new Pose2d(FieldConstants.POSE_X, FieldConstants.POSE_Y[0], Rotation2d.fromDegrees(180));
 
         addCommands(

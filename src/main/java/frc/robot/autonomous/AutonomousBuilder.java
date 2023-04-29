@@ -13,8 +13,6 @@ import org.littletonrobotics.junction.Logger;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.auto.PIDConstants;
-import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -68,8 +66,8 @@ public class AutonomousBuilder {
             this.autoChooser.addOption("PPDrive5Meters", getPPCommand("PPDrive5Meters"));
             this.autoChooser.addOption("PPTurn180Degrees", getPPCommand("PPTurn180Degrees"));
 
-            this.autoChooser.addOption("DPDrive5Meters", new Drive5Meters(this.swerveDrive, this.poseEstimator));
-            this.autoChooser.addOption("DPTurn180Degrees", new Turn180Degrees(this.swerveDrive, this.poseEstimator));
+            this.autoChooser.addOption("DPDrive5Meters", new DPDrive5Meters(this.swerveDrive, this.poseEstimator));
+            this.autoChooser.addOption("DPTurn180Degrees", new DPTurn180Degrees(this.swerveDrive, this.poseEstimator));
 
             this.autoChooser.addOption("Drive Velocity Tuning",
                 Commands.sequence(
@@ -91,8 +89,8 @@ public class AutonomousBuilder {
                 );
         }
 
-        this.autoChooser.addOption("PPTwoPieceBalance", getTwoPieceBalance());
-        this.autoChooser.addOption("DPTwoPieceBalance", new TwoPieceBalance(this.swerveDrive, this.poseEstimator, this.armSubsystem));
+        this.autoChooser.addOption("PPTwoPieceBalance", getPPTwoPieceBalance());
+        this.autoChooser.addOption("DPTwoPieceBalance", new DPTwoPieceBalance(this.swerveDrive, this.poseEstimator, this.armSubsystem));
     }
 
     /**
@@ -155,7 +153,7 @@ public class AutonomousBuilder {
     /**
      * 
      */
-    private Command getTwoPieceBalance() {
+    private Command getPPTwoPieceBalance() {
         List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("PPTwoPieceBalance", CONSTRAINTS);
 
         if (path == null) {

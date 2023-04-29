@@ -144,7 +144,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
         Logger.getInstance().recordOutput("Subsystems/PoseEstimator/Robot", getCurrentPose());
         Logger.getInstance().recordOutput("Subsystems/PoseEstimator/RobotNoGyro", this.estimatedPoseWithoutGyro);
         Logger.getInstance().recordOutput("Subsystems/PoseEstimator/Rotation", getRotation().getDegrees());
-        Logger.getInstance().recordOutput("3DField", new Pose3d(getCurrentPose()));
+        Logger.getInstance().recordOutput("3DFieldPose", new Pose3d(getCurrentPose()));
     }
 
     /**

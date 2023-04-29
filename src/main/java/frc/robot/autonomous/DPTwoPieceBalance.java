@@ -17,11 +17,11 @@ import frc.robot.utils.AllianceFlipUtil;
 /**
  * 
  */
-public class TwoPieceBalance extends SequentialCommandGroup {
+public class DPTwoPieceBalance extends SequentialCommandGroup {
     /**
      * 
      */
-    public TwoPieceBalance(SwerveDriveSubsystem swerveDriveSubsystem, PoseEstimatorSubsystem poseEstimatorSubsystem, ArmSubsystem armSubsystem) {
+    public DPTwoPieceBalance(SwerveDriveSubsystem swerveDriveSubsystem, PoseEstimatorSubsystem poseEstimatorSubsystem, ArmSubsystem armSubsystem) {
         /* In simulation these poses are not updated when switching stations */
         // Pose2d deployPose = AllianceFlipUtil.apply(FieldConstants.POLE_POSES[0][0]);
         Pose2d deployPose = FieldConstants.POLE_POSES[0][0];
