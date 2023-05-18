@@ -29,9 +29,9 @@ import frc.robot.commands.DriveTrajectoryCommand;
 import frc.robot.commands.FeedForwardCharacterizationCommand;
 import frc.robot.commands.FeedForwardCharacterizationCommand.FeedForwardCharacterizationData;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ArmSubsystem.Action;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
-import frc.robot.subsystems.ArmSubsystem.Action;
 
 /**
  * 
