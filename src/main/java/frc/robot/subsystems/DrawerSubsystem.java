@@ -111,13 +111,10 @@ public class DrawerSubsystem extends SubsystemBase {
         this.drawerModule.update();
 
         // Run any action in the queue
-        if (this.stateMachine.getCurrentState() == Action.HOLD) {
+        if (this.stateMachine.getCurrentState() == Action.HOLD && this.actionQueue.size() > 0) {
             try { 
-                
                 Action nextAction = this.actionQueue.removeFirst();
-
                 this.stateMachine.setState(nextAction);
-            
             } catch (NoSuchElementException e) {}
         }
     }

@@ -226,13 +226,10 @@ public class ArmSubsystem extends SubsystemBase {
         }
 
         // Run any action in the queue
-        if (this.stateMachine.getCurrentState() == Action.IDLE) {
+        if (this.stateMachine.getCurrentState() == Action.IDLE && this.actionQueue.size() > 0) {
             try { 
-                
                 Action nextAction = this.actionQueue.removeFirst();
-
                 this.stateMachine.setState(nextAction);
-            
             } catch (NoSuchElementException e) {}
         }
     }
