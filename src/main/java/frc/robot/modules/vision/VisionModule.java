@@ -1,6 +1,6 @@
 package frc.robot.modules.vision;
 
-import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -29,12 +29,12 @@ import frc.robot.Constants.VisionConstants;
 /**
  * 
  */
-@AutoLog
-abstract public class VisionModule implements Runnable, LoggableInputs {
+// @AutoLog
+abstract public class VisionModule implements Runnable {
     protected AprilTagFieldLayout aprilTagFieldLayout;
     protected final PhotonPoseEstimator frontCameraPhotonPoseEstimator;
     protected final PhotonPoseEstimator rearCameraPhotonPoseEstimator;
-    private final AtomicReference<EstimatedRobotPose> atomicEstimatedRobotPose;
+    protected final AtomicReference<EstimatedRobotPose> atomicEstimatedRobotPose;
 
     protected PhotonCamera frontCamera;
     protected PhotonCamera rearCamera;
@@ -47,7 +47,7 @@ abstract public class VisionModule implements Runnable, LoggableInputs {
         try {
             this.aprilTagFieldLayout = aprilTagFields.loadAprilTagLayoutField();
             // aprilTagFieldLayout.setOrigin(this.originPosition);
-        } catch (IOException e) {
+        } catch (UncheckedIOException e) {
             DriverStation.reportError("Failed to load AprilTag Field Layout", e.getStackTrace());
         }
 
@@ -95,20 +95,12 @@ abstract public class VisionModule implements Runnable, LoggableInputs {
         processResults("REAR_CAMERA", getRearCameraResults(), this.rearCameraPhotonPoseEstimator);
     }
 
-    @Override
-    public void fromLog(LogTable table) {
-    }
-    
-    @Override
-    public void toLog(LogTable table) {
-    }
-
     /**
      * 
      */
     private void processResults(String camera, PhotonPipelineResult results, PhotonPoseEstimator poseEstimator) {
-        Logger.getInstance().recordOutput("Subsystems/Vision/" + camera + "/hasTargets", results.hasTargets());
-        Logger.getInstance().recordOutput("Subsystems/Vision/" + camera + "/TargetCount", results.hasTargets() ? results.getTargets().size() : 0);
+        Logger.recordOutput("Subsystems/Vision/" + camera + "/hasTargets", results.hasTargets());
+        Logger.recordOutput("Subsystems/Vision/" + camera + "/TargetCount", results.hasTargets() ? results.getTargets().size() : 0);
 
         if (!results.hasTargets() || (results.targets.size() > 1 && results.targets.get(0).getPoseAmbiguity() > VisionConstants.APRILTAG_AMBIGUITY_THRESHOLD)) {
             return;
@@ -118,7 +110,7 @@ abstract public class VisionModule implements Runnable, LoggableInputs {
         for (PhotonTrackedTarget target : results.getTargets()) {
             targetIds.add("" + target.getFiducialId());
         }
-        Logger.getInstance().recordOutput("Subsystems/Vision/" + camera + "/Target Ids", targetIds.toString());
+        Logger.recordOutput("Subsystems/Vision/" + camera + "/Target Ids", targetIds.toString());
 
         poseEstimator.update(results).ifPresent(estimatedRobotPose -> {
             var estimatedPose = estimatedRobotPose.estimatedPose;
@@ -130,14 +122,14 @@ abstract public class VisionModule implements Runnable, LoggableInputs {
             }
 
             EstimatedRobotPose pose = grabLatestEstimatedPose();
-            Logger.getInstance().recordOutput("Subsystems/Vision/" + camera + "/Pose", pose != null ? pose.estimatedPose : new Pose3d());
+            Logger.recordOutput("Subsystems/Vision/" + camera + "/Pose", pose != null ? pose.estimatedPose : new Pose3d());
         });
 
         if (results.hasTargets()) {
             PhotonTrackedTarget target = results.getBestTarget();
             
-            Logger.getInstance().recordOutput("Subsystems/Vision/" + camera + "/Last Target Id", String.format("%d", target.getFiducialId()));
-            Logger.getInstance().recordOutput("Subsystems/Vision/" + camera + "/Target Yaw", target.getYaw());
+            Logger.recordOutput("Subsystems/Vision/" + camera + "/Last Target Id", String.format("%d", target.getFiducialId()));
+            Logger.recordOutput("Subsystems/Vision/" + camera + "/Target Yaw", target.getYaw());
         }
     }
 

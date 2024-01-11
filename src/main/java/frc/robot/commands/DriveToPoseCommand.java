@@ -7,7 +7,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.util.ProfiledPIDController;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -15,7 +15,7 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 /**
  *
  */
-public class DriveToPoseCommand extends CommandBase {
+public class DriveToPoseCommand extends Command {
     private final SwerveDriveSubsystem swerveDrive;
     private final Supplier<Pose2d> poseProvider;
     private final Pose2d goalPose;
@@ -44,7 +44,7 @@ public class DriveToPoseCommand extends CommandBase {
     public void end(boolean interrupted) {
         this.swerveDrive.stop();
             
-        Logger.getInstance().recordOutput("Commands/Active Command", "");
+        Logger.recordOutput("Commands/Active Command", "");
     }
 
     @Override
@@ -70,7 +70,7 @@ public class DriveToPoseCommand extends CommandBase {
         this.yController.setGoal(this.goalPose.getY());
         this.omegaController.setGoal(this.goalPose.getRotation().getRadians());
         
-        Logger.getInstance().recordOutput("Commands/Active Command", this.getName());
+        Logger.recordOutput("Commands/Active Command", this.getName());
     }
 
     @Override

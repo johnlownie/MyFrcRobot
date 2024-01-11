@@ -7,7 +7,7 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
@@ -17,7 +17,7 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
  * Translation is specified on the field-relative coordinate system. The Y-axis runs parallel to the alliance wall, left
  * is positive. The X-axis runs down field toward the opposing alliance wall, away from the alliance wall is positive.
  */
-public class TeleopDriveCommand extends CommandBase {
+public class TeleopDriveCommand extends Command {
     private final SwerveDriveSubsystem swerveDrive;
     private final Supplier<Rotation2d> robotAngleSupplier;
     private final DoubleSupplier translationXSupplier;
@@ -50,7 +50,7 @@ public class TeleopDriveCommand extends CommandBase {
     public void end(boolean interrupted) {
         this.swerveDrive.stop();
 
-        Logger.getInstance().recordOutput("Commands/Active Command", "");
+        Logger.recordOutput("Commands/Active Command", "");
     }
 
     @Override
@@ -62,14 +62,14 @@ public class TeleopDriveCommand extends CommandBase {
 
         this.swerveDrive.drive(xVelocity, yVelocity, rVelocity, angle, true);
 
-        Logger.getInstance().recordOutput("Commands/TeleopDriveCommand/xVelocity", xVelocity);
-        Logger.getInstance().recordOutput("Commands/TeleopDriveCommand/yVelocity", yVelocity);
-        Logger.getInstance().recordOutput("Commands/TeleopDriveCommand/rVelocity", rVelocity);
-        Logger.getInstance().recordOutput("Commands/TeleopDriveCommand/angle", angle.getDegrees());
+        Logger.recordOutput("Commands/TeleopDriveCommand/xVelocity", xVelocity);
+        Logger.recordOutput("Commands/TeleopDriveCommand/yVelocity", yVelocity);
+        Logger.recordOutput("Commands/TeleopDriveCommand/rVelocity", rVelocity);
+        Logger.recordOutput("Commands/TeleopDriveCommand/angle", angle.getDegrees());
     }
     
     @Override
     public void initialize() {
-        Logger.getInstance().recordOutput("Commands/Active Command", this.getName());
+        Logger.recordOutput("Commands/Active Command", this.getName());
     }
 }

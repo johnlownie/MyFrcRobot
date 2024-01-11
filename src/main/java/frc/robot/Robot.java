@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.NoSuchElementException;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -14,11 +16,13 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.MechanismConstants;
 import frc.robot.Constants.RobotConstants;
-import frc.robot.containers.ChargedUpContainer;
+import frc.robot.containers.CrescendoContainer;
 import frc.robot.containers.RobotContainer;
 import frc.robot.containers.SimulatorContainer;
 import frc.robot.utils.Alert;
@@ -36,7 +40,7 @@ import frc.robot.utils.Alert.AlertType;
  */
 public class Robot extends LoggedRobot {
     private RobotContainer robotContainer;
-    private Alliance alliance = Alliance.Invalid;
+    private Alliance alliance = Alliance.Blue;
     private int location = 0;
     private Command autonomousCommand;
 
@@ -48,7 +52,7 @@ public class Robot extends LoggedRobot {
     public Robot() {
         super(RobotConstants.LOOP_PERIOD_SECS);
     }
-
+    
     /**
      * This function is run when the robot is first started up and should be used
      * for any
@@ -58,45 +62,41 @@ public class Robot extends LoggedRobot {
     public void robotInit() {
         // from AdvantageKit Robot Configuration docs
         // (https://github.com/Mechanical-Advantage/AdvantageKit/blob/main/docs/START-LOGGING.md#robot-configuration)
-
-        Logger logger = Logger.getInstance();
-
-        // Log build stats
-        logger.recordMetadata("Robot", RobotConstants.getRobot().toString());
-        logger.recordMetadata("BatteryName", BatteryTracker.scanBattery(1.0));
-        logger.recordMetadata("TuningMode", Boolean.toString(RobotConstants.TUNING_MODE));
-        logger.recordMetadata("RuntimeType", getRuntimeType().toString());
-        logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
-        logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
-        logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-        logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
-        logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-
+        Logger.recordMetadata("ProjectName", "2024 Crescendo"); // Set a metadata value
+        Logger.recordMetadata("Robot", RobotConstants.getRobot().toString());
+        Logger.recordMetadata("BatteryName", BatteryTracker.scanBattery(1.0));
+        Logger.recordMetadata("TuningMode", Boolean.toString(RobotConstants.TUNING_MODE));
+        Logger.recordMetadata("RuntimeType", getRuntimeType().toString());
+        Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
+        Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+        Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+        Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+        Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+        
         String gitDirty = "Unknown";
         switch (BuildConstants.DIRTY) {
             case 0:
-                gitDirty = "All changes committed";
-                break;
+            gitDirty = "All changes committed";
+            break;
             case 1:
-                gitDirty = "Uncomitted changes";
-                break;
+            gitDirty = "Uncomitted changes";
+            break;
         }
-        logger.recordMetadata("GitDirty", gitDirty);
-
+        Logger.recordMetadata("GitDirty", gitDirty);
+        
         // Set robotContainer
         switch (RobotConstants.getMode()) {
             case REAL:
                 // Provide log data over the network, viewable in Advantage Scope.
-                logger.addDataReceiver(new WPILOGWriter("/media/sda1"));
-                logger.addDataReceiver(new NT4Publisher());
-                LoggedPowerDistribution.getInstance();
-
-                this.robotContainer = new ChargedUpContainer();
+                Logger.addDataReceiver(new WPILOGWriter("/media/sda1"));
+                Logger.addDataReceiver(new NT4Publisher());
+                new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+                
+                this.robotContainer = new CrescendoContainer();
                 break;
-      
+            
             case SIM:
-                logger.addDataReceiver(new WPILOGWriter(""));
-                logger.addDataReceiver(new NT4Publisher());
+                Logger.addDataReceiver(new NT4Publisher());
 
                 this.robotContainer = new SimulatorContainer();
                 break;
@@ -108,8 +108,8 @@ public class Robot extends LoggedRobot {
                 // Save replay results to a new log with the "_sim" suffix
                 setUseTiming(false);
                 String path = LogFileUtil.findReplayLog();
-                logger.setReplaySource(new WPILOGReader(path));
-                logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(path, "_sim")));
+                Logger.setReplaySource(new WPILOGReader(path));
+                Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(path, "_sim")));
 
                 this.robotContainer = new SimulatorContainer();
                 break;
@@ -117,12 +117,12 @@ public class Robot extends LoggedRobot {
 
         // Start logging! No more data receivers, replay sources, or metadata values may
         // be added.
-        logger.start();
+        Logger.start();
 
         // Alternative logging of scheduled commands
-        CommandScheduler.getInstance().onCommandInitialize(command -> Logger.getInstance().recordOutput("Commands/Command initialized", command.getName()));
-        CommandScheduler.getInstance().onCommandInterrupt(command -> Logger.getInstance().recordOutput("Commands/Command interrupted", command.getName()));
-        CommandScheduler.getInstance().onCommandFinish(command -> Logger.getInstance().recordOutput("Commands/Command finished", command.getName()));
+        CommandScheduler.getInstance().onCommandInitialize(command -> Logger.recordOutput("Commands/Command initialized", command.getName()));
+        CommandScheduler.getInstance().onCommandInterrupt(command -> Logger.recordOutput("Commands/Command interrupted", command.getName()));
+        CommandScheduler.getInstance().onCommandFinish(command -> Logger.recordOutput("Commands/Command finished", command.getName()));
 
         checkDriverStationUpdate();
     }
@@ -147,9 +147,9 @@ public class Robot extends LoggedRobot {
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
 
-        logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
+        logReceiverQueueAlert.set(Logger.getReceiverQueueFault());
 
-        Logger.getInstance().recordOutput("Mechanisms/Visualization", MechanismConstants.CANVAS);
+        Logger.recordOutput("Mechanisms/Visualization", MechanismConstants.CANVAS);
     }
 
     /**
@@ -241,21 +241,24 @@ public class Robot extends LoggedRobot {
     }
 
     /**
-     * Checks the driverstation alliance. We have have to check repeatedly because
-     * we don't know when the
-     * driverstation/FMS will connect, and the alliance can change at any time in
-     * the shop.
+     * Checks the driverstation alliance. We have have to check repeatedly because we don't know when the
+     * driverstation/FMS will connect, and the alliance can change at any time in the shop.
      */
     private void checkDriverStationUpdate() {
         // https://www.chiefdelphi.com/t/getalliance-always-returning-red/425782/27
-        Alliance currentAlliance = DriverStation.getAlliance();
-        int currentLocation = DriverStation.getLocation();
+        try {
 
-        // If we have data, and have a new alliance from last time
-        if (DriverStation.isDSAttached() && (currentAlliance.compareTo(this.alliance) != 0 || currentLocation != this.location)) {
-            this.robotContainer.onAllianceChanged(currentAlliance, currentLocation);
-            this.alliance = currentAlliance;
-            this.location = currentLocation;
-        }
+            Alliance currentAlliance = DriverStation.getAlliance().get();
+
+            int currentLocation = DriverStation.getLocation().getAsInt();
+            
+            // If we have data, and have a new alliance from last time
+            if (DriverStation.isDSAttached() && (currentAlliance.compareTo(this.alliance) != 0 || currentLocation != this.location)) {
+                this.robotContainer.onAllianceChanged(currentAlliance, currentLocation);
+                this.alliance = currentAlliance;
+                this.location = currentLocation;
+            }
+
+        } catch (NoSuchElementException e) { }
     }
 }

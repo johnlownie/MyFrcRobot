@@ -12,14 +12,14 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.util.ProfiledPIDController;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.modules.vision.VisionModule;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
-public class DriveToBestTagCommand extends CommandBase {
+public class DriveToBestTagCommand extends Command {
     private final SwerveDriveSubsystem swerveDrive;
     private final VisionModule visionModule;
     private final Supplier<Pose2d> poseProvider;
@@ -56,7 +56,7 @@ public class DriveToBestTagCommand extends CommandBase {
     public void end(boolean interrupted) {
         this.swerveDrive.stop();
             
-        Logger.getInstance().recordOutput("Commands/Active Command", "");
+        Logger.recordOutput("Commands/Active Command", "");
     }
 
     @Override
@@ -104,7 +104,7 @@ public class DriveToBestTagCommand extends CommandBase {
         this.yController.setGoal(goalPose.getY());
         this.omegaController.setGoal(goalPose.getRotation().getRadians());
         
-        Logger.getInstance().recordOutput("Commands/Active Command", this.getName());
+        Logger.recordOutput("Commands/Active Command", this.getName());
     }
 
     /**

@@ -34,19 +34,19 @@ public class PneumaticSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        Logger.getInstance().recordOutput("Subsystems/Pneumatics/Model", this.pneumaticHub.getModuleNumber());
-        Logger.getInstance().recordOutput("Subsystems/Pneumatics/Config", this.pneumaticHub.getCompressorConfigType().toString());
-        Logger.getInstance().recordOutput("Subsystems/Pneumatics/Current", this.pneumaticHub.getCompressorCurrent());
-        Logger.getInstance().recordOutput("Subsystems/Pneumatics/5VRegulatedVoltage", this.pneumaticHub.get5VRegulatedVoltage());
-        Logger.getInstance().recordOutput("Subsystems/Pneumatics/InputVoltage", this.pneumaticHub.getInputVoltage());
-        Logger.getInstance().recordOutput("Subsystems/Pneumatics/Brownout Fault", this.pneumaticHub.getFaults().Brownout);
-        Logger.getInstance().recordOutput("Subsystems/Pneumatics/Hardware Fault", this.pneumaticHub.getFaults().HardwareFault);
-        Logger.getInstance().recordOutput("Subsystems/Pneumatics/Compressor Open Fault", this.pneumaticHub.getFaults().CompressorOpen);
-        Logger.getInstance().recordOutput("Subsystems/Pneumatics/Compressor Over Current Fault", this.pneumaticHub.getFaults().CompressorOverCurrent);
+        Logger.recordOutput("Subsystems/Pneumatics/Model", this.pneumaticHub.getModuleNumber());
+        Logger.recordOutput("Subsystems/Pneumatics/Config", this.pneumaticHub.getCompressorConfigType().toString());
+        Logger.recordOutput("Subsystems/Pneumatics/Current", this.pneumaticHub.getCompressorCurrent());
+        Logger.recordOutput("Subsystems/Pneumatics/5VRegulatedVoltage", this.pneumaticHub.get5VRegulatedVoltage());
+        Logger.recordOutput("Subsystems/Pneumatics/InputVoltage", this.pneumaticHub.getInputVoltage());
+        Logger.recordOutput("Subsystems/Pneumatics/Brownout Fault", this.pneumaticHub.getFaults().Brownout);
+        Logger.recordOutput("Subsystems/Pneumatics/Hardware Fault", this.pneumaticHub.getFaults().HardwareFault);
+        Logger.recordOutput("Subsystems/Pneumatics/Compressor Open Fault", this.pneumaticHub.getFaults().CompressorOpen);
+        Logger.recordOutput("Subsystems/Pneumatics/Compressor Over Current Fault", this.pneumaticHub.getFaults().CompressorOverCurrent);
         
         for (int channel_id : PneumaticConstants.IN_USE_CHANNELS) {
-            Logger.getInstance().recordOutput("Subsystems/Pneumatics/AnalogVoltage [" + channel_id + "]", this.pneumaticHub.getAnalogVoltage(channel_id));
-            Logger.getInstance().recordOutput("Subsystems/Pneumatics/Pressure [" + channel_id + "]", this.pneumaticHub.getPressure(channel_id));
+            Logger.recordOutput("Subsystems/Pneumatics/AnalogVoltage [" + channel_id + "]", this.pneumaticHub.getAnalogVoltage(channel_id));
+            Logger.recordOutput("Subsystems/Pneumatics/Pressure [" + channel_id + "]", this.pneumaticHub.getPressure(channel_id));
 
             boolean fault = false;
             switch (channel_id) {
@@ -55,7 +55,7 @@ public class PneumaticSubsystem extends SubsystemBase {
                 case 14: fault = this.pneumaticHub.getFaults().Channel14Fault; break;
                 case 15: fault = this.pneumaticHub.getFaults().Channel15Fault; break;
             }
-            Logger.getInstance().recordOutput("Subsystems/Pneumatics/Fault [" + channel_id + "]", fault);
+            Logger.recordOutput("Subsystems/Pneumatics/Fault [" + channel_id + "]", fault);
         }
     }
 }

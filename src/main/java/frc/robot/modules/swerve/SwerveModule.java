@@ -13,10 +13,10 @@ import frc.robot.Constants.SwerveModuleConstants;
 /**
  * 
  */
-@AutoLog
-abstract public class SwerveModule implements LoggableInputs {
-    private int module_id;
-    private double last_angle;
+// @AutoLog
+abstract public class SwerveModule {
+    protected int module_id;
+    protected double last_angle;
 
     protected double driveSetpointMPS = 0.0;
     protected double driveSetpointPercentage = 0.0;
@@ -136,49 +136,49 @@ abstract public class SwerveModule implements LoggableInputs {
     abstract public void reseedSteerMotorOffset();
     abstract public void updatePositions();
 
-    /**
-     * Logging
-     */
-    @Override
-    public void fromLog(LogTable table) {
-        this.driveAppliedPercentage = table.getDouble("Mod" + module_id + "/DriveAppliedPercentage", this.driveAppliedPercentage);
-        this.driveAppliedVolts = table.getDouble("Mod" + module_id + "/DriveAppliedVolts", this.driveAppliedVolts);
-        this.driveDistanceMeters = table.getDouble("Mod" + module_id + "/DriveDistanceMeters", this.driveDistanceMeters);
-        this.drivePositionDegrees = table.getDouble("Mod" + module_id + "/DrivePositionDeg", this.drivePositionDegrees);
-        this.driveVelocityMetersPerSecond = table.getDouble("Mod" + module_id + "/DriveVelocityMPS", this.driveVelocityMetersPerSecond);
-        this.driveAcceleration = table.getDouble("Mod" + module_id + "/DriveAccelerationMPS^2", this.driveAcceleration);
-        this.driveCurrentAmps = table.getDoubleArray("Mod" + module_id + "/DriveCurrentAmps", this.driveCurrentAmps);
-        this.driveTempCelsius = table.getDoubleArray("Mod" + module_id + "/DriveTempCelsius", this.driveTempCelsius);
+    // /**
+    //  * Logging
+    //  */
+    // @Override
+    // public void fromLog(LogTable table) {
+    //     this.driveAppliedPercentage = table.get("Mod" + module_id + "/DriveAppliedPercentage", this.driveAppliedPercentage);
+    //     this.driveAppliedVolts = table.get("Mod" + module_id + "/DriveAppliedVolts", this.driveAppliedVolts);
+    //     this.driveDistanceMeters = table.get("Mod" + module_id + "/DriveDistanceMeters", this.driveDistanceMeters);
+    //     this.drivePositionDegrees = table.get("Mod" + module_id + "/DrivePositionDeg", this.drivePositionDegrees);
+    //     this.driveVelocityMetersPerSecond = table.get("Mod" + module_id + "/DriveVelocityMPS", this.driveVelocityMetersPerSecond);
+    //     this.driveAcceleration = table.get("Mod" + module_id + "/DriveAccelerationMPS^2", this.driveAcceleration);
+    //     this.driveCurrentAmps = table.get("Mod" + module_id + "/DriveCurrentAmps", this.driveCurrentAmps);
+    //     this.driveTempCelsius = table.get("Mod" + module_id + "/DriveTempCelsius", this.driveTempCelsius);
 
-        this.turnAbsolutePositionDeg = table.getDouble("Mod" + module_id + "/TurnAbsolutePositionDeg", this.turnAbsolutePositionDeg);
-        this.turnAppliedPercentage = table.getDouble("Mod" + module_id + "/TurnAppliedPercentage", this.turnAppliedPercentage);
-        this.turnAppliedVolts = table.getDouble("Mod" + module_id + "/TurnAppliedVolts", this.turnAppliedVolts);
-        this.turnPositionDeg = table.getDouble("Mod" + module_id + "/TurnPositionDeg", this.turnPositionDeg);
-        this.turnVelocityRevPerMin = table.getDouble("Mod" + module_id + "/TurnVelocityRevPerMin", this.turnVelocityRevPerMin);
-        this.turnCurrentAmps = table.getDoubleArray("Mod" + module_id + "/TurnCurrentAmps", this.turnCurrentAmps);
-        this.turnTempCelsius = table.getDoubleArray("Mod" + module_id + "/TurnTempCelsius", this.turnTempCelsius);
-    }
+    //     this.turnAbsolutePositionDeg = table.get("Mod" + module_id + "/TurnAbsolutePositionDeg", this.turnAbsolutePositionDeg);
+    //     this.turnAppliedPercentage = table.get("Mod" + module_id + "/TurnAppliedPercentage", this.turnAppliedPercentage);
+    //     this.turnAppliedVolts = table.get("Mod" + module_id + "/TurnAppliedVolts", this.turnAppliedVolts);
+    //     this.turnPositionDeg = table.get("Mod" + module_id + "/TurnPositionDeg", this.turnPositionDeg);
+    //     this.turnVelocityRevPerMin = table.get("Mod" + module_id + "/TurnVelocityRevPerMin", this.turnVelocityRevPerMin);
+    //     this.turnCurrentAmps = table.get("Mod" + module_id + "/TurnCurrentAmps", this.turnCurrentAmps);
+    //     this.turnTempCelsius = table.get("Mod" + module_id + "/TurnTempCelsius", this.turnTempCelsius);
+    // }
   
-    @Override
-    public void toLog(LogTable table) {
-        table.put("Mod" + module_id + "/DriveSetpointMPS", this.driveSetpointMPS);
-        table.put("Mod" + module_id + "/DriveSetpointPercentage", this.driveSetpointPercentage);
-        table.put("Mod" + module_id + "/DriveAppliedPercentage", this.driveAppliedPercentage);
-        table.put("Mod" + module_id + "/DriveAppliedVolts", this.driveAppliedVolts);
-        table.put("Mod" + module_id + "/DriveDistanceMeters", this.driveDistanceMeters);
-        table.put("Mod" + module_id + "/DrivePositionDeg", this.drivePositionDegrees);
-        table.put("Mod" + module_id + "/DriveVelocityMPS", this.driveVelocityMetersPerSecond);
-        table.put("Mod" + module_id + "/DriveAccelerationMPS", this.driveAcceleration);
-        table.put("Mod" + module_id + "/DriveCurrentAmps", this.driveCurrentAmps);
-        table.put("Mod" + module_id + "/DriveTempCelsius", this.driveTempCelsius);
+    // @Override
+    // public void toLog(LogTable table) {
+    //     table.put("Mod" + module_id + "/DriveSetpointMPS", this.driveSetpointMPS);
+    //     table.put("Mod" + module_id + "/DriveSetpointPercentage", this.driveSetpointPercentage);
+    //     table.put("Mod" + module_id + "/DriveAppliedPercentage", this.driveAppliedPercentage);
+    //     table.put("Mod" + module_id + "/DriveAppliedVolts", this.driveAppliedVolts);
+    //     table.put("Mod" + module_id + "/DriveDistanceMeters", this.driveDistanceMeters);
+    //     table.put("Mod" + module_id + "/DrivePositionDeg", this.drivePositionDegrees);
+    //     table.put("Mod" + module_id + "/DriveVelocityMPS", this.driveVelocityMetersPerSecond);
+    //     table.put("Mod" + module_id + "/DriveAccelerationMPS", this.driveAcceleration);
+    //     table.put("Mod" + module_id + "/DriveCurrentAmps", this.driveCurrentAmps);
+    //     table.put("Mod" + module_id + "/DriveTempCelsius", this.driveTempCelsius);
 
-        table.put("Mod" + module_id + "/TurnSetpointDegrees", this.turnSetpointDegrees);
-        table.put("Mod" + module_id + "/TurnAbsolutePositionDeg", this.turnAbsolutePositionDeg);
-        table.put("Mod" + module_id + "/TurnAppliedPercentage", this.turnAppliedPercentage);
-        table.put("Mod" + module_id + "/TurnAppliedVolts", this.turnAppliedVolts);
-        table.put("Mod" + module_id + "/TurnPositionDeg", this.turnPositionDeg);
-        table.put("Mod" + module_id + "/TurnVelocityRevPerMin", this.turnVelocityRevPerMin);
-        table.put("Mod" + module_id + "/TurnCurrentAmps", this.turnCurrentAmps);
-        table.put("Mod" + module_id + "/TurnTempCelsius", this.turnTempCelsius);
-    }
+    //     table.put("Mod" + module_id + "/TurnSetpointDegrees", this.turnSetpointDegrees);
+    //     table.put("Mod" + module_id + "/TurnAbsolutePositionDeg", this.turnAbsolutePositionDeg);
+    //     table.put("Mod" + module_id + "/TurnAppliedPercentage", this.turnAppliedPercentage);
+    //     table.put("Mod" + module_id + "/TurnAppliedVolts", this.turnAppliedVolts);
+    //     table.put("Mod" + module_id + "/TurnPositionDeg", this.turnPositionDeg);
+    //     table.put("Mod" + module_id + "/TurnVelocityRevPerMin", this.turnVelocityRevPerMin);
+    //     table.put("Mod" + module_id + "/TurnCurrentAmps", this.turnCurrentAmps);
+    //     table.put("Mod" + module_id + "/TurnTempCelsius", this.turnTempCelsius);
+    // }
 }

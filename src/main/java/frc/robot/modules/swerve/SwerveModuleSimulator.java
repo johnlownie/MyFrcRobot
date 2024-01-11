@@ -1,5 +1,6 @@
 package frc.robot.modules.swerve;
 
+import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
@@ -88,8 +89,8 @@ public class SwerveModuleSimulator extends SwerveModule {
             this.driveAppliedVolts = MathUtil.clamp(ffOutput + pidOutput, -12.0, 12.0);
             this.driveMotor.setInputVoltage(this.driveAppliedVolts);
 
-            Logger.getInstance().recordOutput("Subsystems/SwerveDrive/SwerveModuleSimulator[" + getModuleId() + "]/Drive FF Output", ffOutput);
-            Logger.getInstance().recordOutput("Subsystems/SwerveDrive/SwerveModuleSimulator[" + getModuleId() + "]/Drive PID Output", pidOutput);
+            Logger.recordOutput("Subsystems/SwerveDrive/SwerveModuleSimulator[" + getModuleId() + "]/Drive FF Output", ffOutput);
+            Logger.recordOutput("Subsystems/SwerveDrive/SwerveModuleSimulator[" + getModuleId() + "]/Drive PID Output", pidOutput);
         }
     }
 
@@ -168,7 +169,7 @@ public class SwerveModuleSimulator extends SwerveModule {
         applyTurnSettings();
         applyDriveSettings();
   
-        Logger.getInstance().processInputs("SwerveModuleSimulator", this);
+        // Logger.processInputs("SwerveModuleSimulator", this);
     }
 
     /**

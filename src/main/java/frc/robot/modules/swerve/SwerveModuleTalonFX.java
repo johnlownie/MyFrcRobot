@@ -1,5 +1,7 @@
 package frc.robot.modules.swerve;
 
+import org.littletonrobotics.junction.AutoLog;
+
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;

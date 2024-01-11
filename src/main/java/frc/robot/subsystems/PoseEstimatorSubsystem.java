@@ -5,8 +5,6 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 
-import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -134,17 +132,17 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
             Pose2d pose2d = visionPose.estimatedPose.toPose2d();
             
             // this.swerveDrivePoseEstimator.addVisionMeasurement(pose2d, visionPose.timestampSeconds);
-            Logger.getInstance().recordOutput("Subsystems/PoseEstimator/VisionPose", pose2d);
+            Logger.recordOutput("Subsystems/PoseEstimator/VisionPose", pose2d);
         }
         
         // Update pose estimator with drivetrain sensors
         this.swerveDrivePoseEstimator.updateWithTime(Timer.getFPGATimestamp(), getRotation(), getModulePositions());
         
         // log poses, 3D geometry, and swerve module states, gyro offset
-        Logger.getInstance().recordOutput("Subsystems/PoseEstimator/Robot", getCurrentPose());
-        Logger.getInstance().recordOutput("Subsystems/PoseEstimator/RobotNoGyro", this.estimatedPoseWithoutGyro);
-        Logger.getInstance().recordOutput("Subsystems/PoseEstimator/Rotation", getRotation().getDegrees());
-        Logger.getInstance().recordOutput("Subsystems/PoseEstimator/3DFieldPose", new Pose3d(getCurrentPose()));
+        Logger.recordOutput("Subsystems/PoseEstimator/Robot", getCurrentPose());
+        Logger.recordOutput("Subsystems/PoseEstimator/RobotNoGyro", this.estimatedPoseWithoutGyro);
+        Logger.recordOutput("Subsystems/PoseEstimator/Rotation", getRotation().getDegrees());
+        Logger.recordOutput("Subsystems/PoseEstimator/3DFieldPose", new Pose3d(getCurrentPose()));
     }
 
     /**
@@ -163,14 +161,14 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
      *
      * @param state the specified PathPlanner state to which is set the odometry
      */
-    public void resetOdometry(PathPlannerState state) {
-        this.estimatedPoseWithoutGyro = new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation);
-        this.swerveDrivePoseEstimator.resetPosition(
-            getRotation(), 
-            getModulePositions(), 
-            new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation)
-        );
-    }
+    // public void resetOdometry(PathPlannerState state) {
+        // this.estimatedPoseWithoutGyro = new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation);
+        // this.swerveDrivePoseEstimator.resetPosition(
+            // getRotation(), 
+            // getModulePositions(), 
+            // new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation)
+        // );
+    // }
 
     /**
      * Sets the alliance. This is used to configure the origin of the AprilTag map

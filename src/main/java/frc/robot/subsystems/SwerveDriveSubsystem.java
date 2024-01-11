@@ -171,16 +171,16 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         }
 
         // log poses, 3D geometry, and swerve module states, gyro offset
-        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Gyro/isConnected", this.gyro.isConnected());
-        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Gyro/PositionDeg", this.gyro.getPositionDeg());
-        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Gyro/Acceleration", this.gyro.getAcceleration());
-        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Gyro/VelocityDegPerSec", this.gyro.getVelocityDegPerSec());
-        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Gyro/gyroOffset", this.gyroOffset);
-        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Field Oriented", this.isFieldRelative);
-        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Is OpenLoop", this.isOpenLoop);
-        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Actual Module States", getModuleStates());
-        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Desired Speeds", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.toString() : "");
-        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Actual Speeds", getChassisSpeeds().toString());
+        Logger.recordOutput("Subsystems/SwerveDrive/Gyro/isConnected", this.gyro.isConnected());
+        Logger.recordOutput("Subsystems/SwerveDrive/Gyro/PositionDeg", this.gyro.getPositionDeg());
+        Logger.recordOutput("Subsystems/SwerveDrive/Gyro/Acceleration", this.gyro.getAcceleration());
+        Logger.recordOutput("Subsystems/SwerveDrive/Gyro/VelocityDegPerSec", this.gyro.getVelocityDegPerSec());
+        Logger.recordOutput("Subsystems/SwerveDrive/Gyro/gyroOffset", this.gyroOffset);
+        Logger.recordOutput("Subsystems/SwerveDrive/Field Oriented", this.isFieldRelative);
+        Logger.recordOutput("Subsystems/SwerveDrive/Is OpenLoop", this.isOpenLoop);
+        Logger.recordOutput("Subsystems/SwerveDrive/Actual Module States", getModuleStates());
+        Logger.recordOutput("Subsystems/SwerveDrive/Desired Speeds", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.toString() : "");
+        Logger.recordOutput("Subsystems/SwerveDrive/Actual Speeds", getChassisSpeeds().toString());
 
         // Always reset desiredChassisSpeeds to null to prevent latching to the last state (aka motor safety)!!
         this.desiredChassisSpeeds = null;
@@ -234,7 +234,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             swerveModule.setDesiredState(states[swerveModule.getModuleId()], false, false);
         }
 
-        Logger.getInstance().recordOutput("PathPlanner/Desired Module States", states);
+        Logger.recordOutput("PathPlanner/Desired Module States", states);
     }
 
     /**
@@ -248,7 +248,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             swerveModule.setDesiredState(states[swerveModule.getModuleId()], isOpenLoop, forceAngle);
         }
 
-        Logger.getInstance().recordOutput("Subsystems/SwerveDrive/Desired Module States", states);
+        Logger.recordOutput("Subsystems/SwerveDrive/Desired Module States", states);
     }
 
     /**

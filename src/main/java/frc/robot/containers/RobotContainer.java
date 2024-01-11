@@ -15,8 +15,6 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.util.Timer;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.autonomous.AutonomousBuilder;
-import frc.robot.commands.DeployGamePieceMidCommand;
 import frc.robot.commands.DriveFromBestTagCommand;
 import frc.robot.commands.DriveFromPoseCommand;
 import frc.robot.commands.DriveToBestTagCommand;
@@ -25,8 +23,6 @@ import frc.robot.controls.XBoxControlBindings;
 import frc.robot.modules.gyro.GyroModule;
 import frc.robot.modules.swerve.SwerveModule;
 import frc.robot.modules.vision.VisionModule;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.DrawerSubsystem;
 import frc.robot.subsystems.PneumaticSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -37,7 +33,6 @@ import frc.robot.utils.AllianceFlipUtil;
  */
 abstract public class RobotContainer {
    /* Autonomous */
-    protected AutonomousBuilder autonomousBuilder;
 
     /* Commands */
     protected TeleopDriveCommand teleopDriveCommand;
@@ -52,8 +47,6 @@ abstract public class RobotContainer {
     protected VisionModule visionModule;
 
     /* Subsystems */
-    protected ArmSubsystem armSubsystem;
-    protected DrawerSubsystem drawerSubsystem;
     protected PneumaticSubsystem pneumaticSubsystem;
     protected PoseEstimatorSubsystem poseEstimator;
     protected SwerveDriveSubsystem swerveDrive;
@@ -91,34 +84,6 @@ abstract public class RobotContainer {
             trigger -> trigger.onTrue(runOnce(() -> this.swerveDrive.setDefaultCommand(this.teleopDriveCommand))
                 .andThen(new ScheduleCommand(this.teleopDriveCommand))));
 
-        // drive to tag, strafe, and deploy cone
-        this.driverController.driveToPoleLeft().ifPresent(
-            trigger -> trigger.onTrue(
-                new DriveToBestTagCommand(this.swerveDrive, this.visionModule, this.poseEstimator::getCurrentPose, false)
-                .andThen(
-                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, FieldConstants.POLE_STRAFE_DISTANCE, 0.0)
-                    .andThen(
-                        new DeployGamePieceMidCommand(this.armSubsystem)
-                        .until(this.driverController.driverWantsControl())
-                    )
-                    .until(this.driverController.driverWantsControl())
-                )
-                .until(this.driverController.driverWantsControl())
-            )
-        );
-
-        // drive to tag, strafe, and deploy cone
-        this.driverController.driveToPoleRight().ifPresent(
-            trigger -> trigger.onTrue(
-                new DriveFromBestTagCommand(this.swerveDrive, this.visionModule, this.poseEstimator::getCurrentPose, new Translation3d(0.76, -FieldConstants.POLE_STRAFE_DISTANCE, 0.0), false)
-                .andThen(
-                    new DeployGamePieceMidCommand(this.armSubsystem)
-                    .until(this.driverController.driverWantsControl())
-                )
-                .until(this.driverController.driverWantsControl())
-            )
-        );
-
         // reset the robot pose
         this.driverController.resetPose().ifPresent(trigger -> trigger.onTrue(runOnce(this.poseEstimator::resetFieldPosition)));
 
@@ -134,82 +99,6 @@ abstract public class RobotContainer {
         ));
 
         /* Operator Buttons */
-
-        // drive to tag, strafe, and deploy cone
-        this.operatorController.driveToStationLeft().ifPresent(
-            trigger -> trigger.onTrue(
-                new DriveToBestTagCommand(this.swerveDrive, this.visionModule, this.poseEstimator::getCurrentPose, true)
-                .andThen(
-                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, FieldConstants.STATION_STRAFE_DISTANCE, 0.0)
-                    .andThen(
-                        runOnce(this.drawerSubsystem::extendAndWait)
-                        .andThen(
-                            new WaitUntilCommand(this.drawerSubsystem::hasGamePiece)
-                            .andThen(
-                                runOnce(this.drawerSubsystem::retract)
-                                .andThen(
-                                    runOnce(this.armSubsystem::closeGripper)
-                                )
-                            )
-                            .until(this.operatorController.operatorWantsControl())
-                        )
-                        .until(this.operatorController.operatorWantsControl())
-                    )
-                    .until(this.operatorController.operatorWantsControl())
-                )
-                .until(this.operatorController.operatorWantsControl())
-            )
-        );
-
-        // drive to tag, strafe, and deploy cone
-        this.operatorController.driveToStationRight().ifPresent(
-            trigger -> trigger.onTrue(
-                new DriveToBestTagCommand(this.swerveDrive, this.visionModule, this.poseEstimator::getCurrentPose, true)
-                .andThen(
-                    new DriveFromPoseCommand(this.swerveDrive, this.poseEstimator::getCurrentPose, 0.0, -FieldConstants.STATION_STRAFE_DISTANCE, 0.0)
-                    .andThen(
-                        runOnce(this.drawerSubsystem::extendAndWait)
-                        .andThen(
-                            new WaitUntilCommand(this.drawerSubsystem::hasGamePiece)
-                            .andThen(
-                                runOnce(this.drawerSubsystem::retract)
-                                .andThen(
-                                    runOnce(this.armSubsystem::closeGripper)
-                                )
-                            )
-                            .until(this.operatorController.operatorWantsControl())
-                        )
-                        .until(this.operatorController.operatorWantsControl())
-                    )
-                    .until(this.operatorController.operatorWantsControl())
-                )
-                .until(this.operatorController.operatorWantsControl())
-            )
-        );
-
-        this.operatorController.closeGripper()
-            .ifPresent(trigger -> trigger.onTrue(
-                runOnce(this.armSubsystem::closeGripper)
-            )
-        );
-
-        this.operatorController.openGripper()
-            .ifPresent(trigger -> trigger.onTrue(
-                runOnce(this.armSubsystem::openGripper)
-            )
-        );
-
-        this.operatorController.extendDrawer()
-            .ifPresent(trigger -> trigger.onTrue(
-                runOnce(this.drawerSubsystem::extend)
-            )
-        );
-
-        this.operatorController.retractDrawer()
-            .ifPresent(trigger -> trigger.onTrue(
-                runOnce(this.drawerSubsystem::retract)
-            )
-        );
     }
 
     /**
@@ -217,7 +106,7 @@ abstract public class RobotContainer {
      */
     protected void configureDashboard() {
         ShuffleboardTab tab = Shuffleboard.getTab("Driver");
-        this.autonomousBuilder.addDashboardWidgets(tab);
+        // this.autonomousBuilder.addDashboardWidgets(tab);
     }
 
     /**
@@ -239,7 +128,8 @@ abstract public class RobotContainer {
      * 
      */
     public Command getAutonomousCommand() {
-        return this.autonomousBuilder.getAutonomousCommand();
+        // return this.autonomousBuilder.getAutonomousCommand();
+        return null;
     }
         
     /**
