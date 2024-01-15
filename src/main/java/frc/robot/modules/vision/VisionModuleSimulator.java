@@ -1,18 +1,23 @@
 package frc.robot.modules.vision;
 
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
-import frc.lib.photonvision.SimVisionSystem;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants.VisionConstants;
 
 /**
  * 
  */
 public class VisionModuleSimulator extends VisionModule {
-    private SimVisionSystem frontSimVisionSystem;
-    private SimVisionSystem rearSimVisionSystem;
+    private PhotonCameraSim frontCameraSim;
+    private PhotonCameraSim rearCameraSim;
+    private VisionSystemSim frontVisionSystemSim;
+    private VisionSystemSim rearVisionSystemSim;
 
     /**
      * 
@@ -20,33 +25,29 @@ public class VisionModuleSimulator extends VisionModule {
     public VisionModuleSimulator(AprilTagFields aprilTagFields) {
         super(aprilTagFields);
         
-        this.frontSimVisionSystem = new SimVisionSystem(VisionConstants.FRONT_CAMERA_NAME, VisionConstants.DIAGONAL_FOV, VisionConstants.ROBOT_TO_FRONT_CAMERA, 9000, VisionConstants.IMG_WIDTH, VisionConstants.IMG_HEIGHT, 0);
-        this.rearSimVisionSystem = new SimVisionSystem(VisionConstants.REAR_CAMERA_NAME, VisionConstants.DIAGONAL_FOV, VisionConstants.ROBOT_TO_REAR_CAMERA, 9000, VisionConstants.IMG_WIDTH, VisionConstants.IMG_HEIGHT, 0);
+        SimCameraProperties simCameraProperties = new SimCameraProperties();
+        simCameraProperties.setCalibration(VisionConstants.IMG_WIDTH, VisionConstants.IMG_HEIGHT, Rotation2d.fromDegrees(VisionConstants.DIAGONAL_FOV));
+        simCameraProperties.setCalibError(0.35, 0.10);
+        simCameraProperties.setFPS(15);
+        simCameraProperties.setAvgLatencyMs(50);
+        simCameraProperties.setLatencyStdDevMs(15);
         
-        setTargets();
-    }
-    
-    @Override
-    protected PhotonPipelineResult getFrontCameraResults() {
-        return this.frontSimVisionSystem.cam.getLatestResult();
-    }
-    
-    @Override
-    protected PhotonPipelineResult getRearCameraResults() {
-        return this.rearSimVisionSystem.cam.getLatestResult();
+        this.frontCameraSim = new PhotonCameraSim(this.frontCamera, simCameraProperties);
+        this.frontCameraSim.enableDrawWireframe(true);
+        this.frontVisionSystemSim = new VisionSystemSim(VisionConstants.FRONT_CAMERA_NAME);
+        this.frontVisionSystemSim.addAprilTags(aprilTagFieldLayout);
+        this.frontVisionSystemSim.addCamera(this.frontCameraSim, VisionConstants.ROBOT_TO_FRONT_CAMERA);
+
+        this.rearCameraSim = new PhotonCameraSim(this.rearCamera, simCameraProperties);
+        this.rearCameraSim.enableDrawWireframe(true);
+        this.rearVisionSystemSim = new VisionSystemSim(VisionConstants.REAR_CAMERA_NAME);
+        this.rearVisionSystemSim.addAprilTags(aprilTagFieldLayout);
+        this.rearVisionSystemSim.addCamera(this.rearCameraSim, VisionConstants.ROBOT_TO_REAR_CAMERA);
     }
 
     @Override
     protected void processFrame(Pose2d pose) {
-        this.frontSimVisionSystem.processFrame(pose);
-        this.rearSimVisionSystem.processFrame(pose);
-    }
-
-    /**
-     * 
-     */
-    private void setTargets() {
-        this.frontSimVisionSystem.addVisionTargets(this.aprilTagFieldLayout);
-        this.rearSimVisionSystem.addVisionTargets(this.aprilTagFieldLayout);
+        this.frontVisionSystemSim.update(pose);
+        this.rearVisionSystemSim.update(pose);
     }
 }

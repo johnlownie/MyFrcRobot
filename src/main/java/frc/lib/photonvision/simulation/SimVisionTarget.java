@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 PhotonVision
+ * Copyright (c) PhotonVision
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,10 +22,14 @@
  * SOFTWARE.
  */
 
-package frc.lib.photonvision;
+package frc.lib.photonvision.simulation;
 
 import edu.wpi.first.math.geometry.Pose3d;
 
+/**
+ * @deprecated Use {@link VisionTargetSim} instead
+ */
+@Deprecated
 public class SimVisionTarget {
     public Pose3d targetPose;
     public double targetWidthMeters;
@@ -34,14 +38,11 @@ public class SimVisionTarget {
     public int targetID;
 
     /**
-     * Describes a vision target located somewhere on the field that your
-     * SimVisionSystem can detect.
+     * Describes a vision target located somewhere on the field that your SimVisionSystem can detect.
      *
-     * @param targetPos          Pose3d of the target in field-relative coordinates
-     * @param targetWidthMeters  Width of the outer bounding box of the target in
-     *                           meters.
-     * @param targetHeightMeters Pair Height of the outer bounding box of the target
-     *                           in meters.
+     * @param targetPos Pose3d of the target in field-relative coordinates
+     * @param targetWidthMeters Width of the outer bounding box of the target in meters.
+     * @param targetHeightMeters Pair Height of the outer bounding box of the target in meters.
      */
     public SimVisionTarget(
             Pose3d targetPos, double targetWidthMeters, double targetHeightMeters, int targetID) {

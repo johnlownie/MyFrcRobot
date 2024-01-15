@@ -69,8 +69,23 @@ abstract public class VisionModule implements Runnable {
         return results.hasTargets() ? results.getBestTarget() : null;
     }
 
-    abstract protected PhotonPipelineResult getFrontCameraResults();
-    abstract protected PhotonPipelineResult getRearCameraResults();
+    /**
+     * 
+     */
+    public PhotonPipelineResult getFrontCameraResults() {
+        return this.frontCamera.getLatestResult();
+    }
+ 
+    /**
+     * 
+     */
+    public PhotonPipelineResult getRearCameraResults() {
+        return this.rearCamera.getLatestResult();
+    }
+ 
+    /**
+     * 
+     */
     abstract protected void processFrame(Pose2d pose);
 
     /**
@@ -83,6 +98,9 @@ abstract public class VisionModule implements Runnable {
         return this.atomicEstimatedRobotPose.getAndSet(null);
     }
     
+    /**
+     * 
+     */
     @Override
     public void run() {
         if (this.frontCameraPhotonPoseEstimator == null || this.rearCameraPhotonPoseEstimator == null || this.rearCamera == null || RobotState.isAutonomous()) {
@@ -90,7 +108,7 @@ abstract public class VisionModule implements Runnable {
         }
         
         processFrame(this.poseSupplier.get());
-
+        
         processResults("FRONT_CAMERA", getFrontCameraResults(), this.frontCameraPhotonPoseEstimator);
         processResults("REAR_CAMERA", getRearCameraResults(), this.rearCameraPhotonPoseEstimator);
     }

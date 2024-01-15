@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-package frc.lib.photonvision;
+package frc.lib.photonvision.simulation;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.numbers.N1;
@@ -35,11 +35,15 @@ import java.util.List;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonTargetSortMode;
-import org.photonvision.common.dataflow.structures.Packet;
 import org.photonvision.common.networktables.NTTopicSet;
+import org.photonvision.targeting.MultiTargetPNPResult;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+/**
+ * @deprecated Use {@link PhotonCameraSim} instead
+ */
+@Deprecated
 @SuppressWarnings("unused")
 public class SimPhotonCamera {
     NTTopicSet ts = new NTTopicSet();
@@ -49,36 +53,31 @@ public class SimPhotonCamera {
     /**
      * Constructs a Simulated PhotonCamera from a root table.
      *
-     * @param instance   The NetworkTableInstance to pull data from. This can be a
-     *                   custom instance in
-     *                   simulation, but should *usually* be the default NTInstance
-     *                   from
-     *                   NetworkTableInstance::getDefault
+     * @param instance The NetworkTableInstance to pull data from. This can be a custom instance in
+     *     simulation, but should *usually* be the default NTInstance from
+     *     NetworkTableInstance::getDefault
      * @param cameraName The name of the camera, as seen in the UI.
      */
     public SimPhotonCamera(NetworkTableInstance instance, String cameraName) {
         ts.removeEntries();
-        ts.subTable = instance.getTable("photonvision").getSubTable(cameraName);
+        ts.subTable = instance.getTable(PhotonCamera.kTableName).getSubTable(cameraName);
         ts.updateEntries();
     }
 
     /**
-     * Publishes the camera intrinsics matrix. The matrix should be in the form:
-     * spotless:off
-     * fx 0 cx
-     * 0 fy cy
-     * 0 0 1
-     * 
+     * Publishes the camera intrinsics matrix. The matrix should be in the form: spotless:off
+     * fx  0   cx
+     * 0   fy  cy
+     * 0   0   1
      * @param cameraMatrix The cam matrix
-     *                     spotless:on
+     * spotless:on
      */
     public void setCameraIntrinsicsMat(Matrix<N3, N3> cameraMatrix) {
         ts.cameraIntrinsicsPublisher.set(cameraMatrix.getData());
     }
 
     /**
-     * Publishes the camera distortion matrix. The matrix should be in the form [k1
-     * k2 p1 p2 k3]. See
+     * Publishes the camera distortion matrix. The matrix should be in the form [k1 k2 p1 p2 k3]. See
      * more: https://docs.opencv.org/3.4/d4/d94/tutorial_camera_calibration.html
      *
      * @param distortionMat The distortion mat
@@ -100,7 +99,7 @@ public class SimPhotonCamera {
      * Simulate one processed frame of vision data, putting one result to NT.
      *
      * @param latencyMillis Latency of the provided frame
-     * @param targets       Each target detected
+     * @param targets Each target detected
      */
     public void submitProcessedFrame(double latencyMillis, PhotonTrackedTarget... targets) {
         submitProcessedFrame(latencyMillis, Arrays.asList(targets));
@@ -110,8 +109,8 @@ public class SimPhotonCamera {
      * Simulate one processed frame of vision data, putting one result to NT.
      *
      * @param latencyMillis Latency of the provided frame
-     * @param sortMode      Order in which to sort targets
-     * @param targets       Each target detected
+     * @param sortMode Order in which to sort targets
+     * @param targets Each target detected
      */
     public void submitProcessedFrame(
             double latencyMillis, PhotonTargetSortMode sortMode, PhotonTrackedTarget... targets) {
@@ -122,7 +121,7 @@ public class SimPhotonCamera {
      * Simulate one processed frame of vision data, putting one result to NT.
      *
      * @param latencyMillis Latency of the provided frame
-     * @param targetList    List of targets detected
+     * @param targetList List of targets detected
      */
     public void submitProcessedFrame(double latencyMillis, List<PhotonTrackedTarget> targetList) {
         submitProcessedFrame(latencyMillis, null, targetList);
@@ -132,8 +131,8 @@ public class SimPhotonCamera {
      * Simulate one processed frame of vision data, putting one result to NT.
      *
      * @param latencyMillis Latency of the provided frame
-     * @param sortMode      Order in which to sort targets
-     * @param targetList    List of targets detected
+     * @param sortMode Order in which to sort targets
+     * @param targetList List of targets detected
      */
     public void submitProcessedFrame(
             double latencyMillis, PhotonTargetSortMode sortMode, List<PhotonTrackedTarget> targetList) {
@@ -143,10 +142,10 @@ public class SimPhotonCamera {
             targetList.sort(sortMode.getComparator());
         }
 
-        PhotonPipelineResult newResult = new PhotonPipelineResult(latencyMillis, targetList);
-        var newPacket = new Packet(newResult.getPacketSize());
-        newResult.populatePacket(newPacket);
-        ts.rawBytesEntry.set(newPacket.getData());
+        PhotonPipelineResult newResult =
+                new PhotonPipelineResult(latencyMillis, targetList, new MultiTargetPNPResult());
+
+        ts.resultPublisher.set(newResult, newResult.getPacketSize());
 
         boolean hasTargets = newResult.hasTargets();
         ts.hasTargetEntry.set(hasTargets);
@@ -154,7 +153,7 @@ public class SimPhotonCamera {
             ts.targetPitchEntry.set(0.0);
             ts.targetYawEntry.set(0.0);
             ts.targetAreaEntry.set(0.0);
-            ts.targetPoseEntry.set(new double[] { 0.0, 0.0, 0.0 });
+            ts.targetPoseEntry.set(new double[] {0.0, 0.0, 0.0});
             ts.targetSkewEntry.set(0.0);
         } else {
             var bestTarget = newResult.getBestTarget();
@@ -166,7 +165,7 @@ public class SimPhotonCamera {
 
             var transform = bestTarget.getBestCameraToTarget();
             double[] poseData = {
-                    transform.getX(), transform.getY(), transform.getRotation().toRotation2d().getDegrees()
+                transform.getX(), transform.getY(), transform.getRotation().toRotation2d().getDegrees()
             };
             ts.targetPoseEntry.set(poseData);
         }
