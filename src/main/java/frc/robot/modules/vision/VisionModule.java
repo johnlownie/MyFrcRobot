@@ -1,8 +1,8 @@
 package frc.robot.modules.vision;
 
-import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -17,11 +17,12 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.RobotState;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.VisionConstants;
@@ -30,11 +31,11 @@ import frc.robot.Constants.VisionConstants;
  * 
  */
 // @AutoLog
-abstract public class VisionModule implements Runnable {
-    protected AprilTagFieldLayout aprilTagFieldLayout;
+public class VisionModule implements Runnable {
     protected final PhotonPoseEstimator frontCameraPhotonPoseEstimator;
     protected final PhotonPoseEstimator rearCameraPhotonPoseEstimator;
-    protected final AtomicReference<EstimatedRobotPose> atomicEstimatedRobotPose;
+    protected final AtomicReference<EstimatedRobotPose> atomicFrontEstimatedRobotPose;
+    protected final AtomicReference<EstimatedRobotPose> atomicRearEstimatedRobotPose;
 
     protected PhotonCamera frontCamera;
     protected PhotonCamera rearCamera;
@@ -43,21 +44,31 @@ abstract public class VisionModule implements Runnable {
     /**
      * 
      */
-    public VisionModule(AprilTagFields aprilTagFields) {
-        try {
-            this.aprilTagFieldLayout = aprilTagFields.loadAprilTagLayoutField();
-            // aprilTagFieldLayout.setOrigin(this.originPosition);
-        } catch (UncheckedIOException e) {
-            DriverStation.reportError("Failed to load AprilTag Field Layout", e.getStackTrace());
-        }
-
+    public VisionModule() {
         this.frontCamera = new PhotonCamera(VisionConstants.FRONT_CAMERA_NAME);
         this.rearCamera = new PhotonCamera(VisionConstants.REAR_CAMERA_NAME);
 
-        this.frontCameraPhotonPoseEstimator = new PhotonPoseEstimator(this.aprilTagFieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, this.frontCamera, VisionConstants.ROBOT_TO_FRONT_CAMERA);
-        this.rearCameraPhotonPoseEstimator = new PhotonPoseEstimator(this.aprilTagFieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, this.rearCamera, VisionConstants.ROBOT_TO_REAR_CAMERA);
+        this.frontCameraPhotonPoseEstimator = new PhotonPoseEstimator(VisionConstants.TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, this.frontCamera, VisionConstants.ROBOT_TO_FRONT_CAMERA);
+        this.frontCameraPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
 
-        this.atomicEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
+        this.rearCameraPhotonPoseEstimator = new PhotonPoseEstimator(VisionConstants.TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, this.rearCamera, VisionConstants.ROBOT_TO_REAR_CAMERA);
+        this.rearCameraPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
+
+        this.atomicFrontEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
+        this.atomicRearEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
+        this.poseSupplier = null;
+    }
+
+    @Override
+    public void run() {
+        if (this.frontCameraPhotonPoseEstimator == null || this.rearCameraPhotonPoseEstimator == null || this.poseSupplier == null || this.rearCamera == null || RobotState.isAutonomous()) {
+            return;
+        }
+
+        processFrame(this.poseSupplier.get());
+        
+        processResults("FRONT_CAMERA", getFrontCameraResults(), this.frontCameraPhotonPoseEstimator, this.atomicFrontEstimatedRobotPose);
+        processResults("REAR_CAMERA", getRearCameraResults(), this.rearCameraPhotonPoseEstimator, this.atomicFrontEstimatedRobotPose);
     }
 
     /**
@@ -70,23 +81,47 @@ abstract public class VisionModule implements Runnable {
     }
 
     /**
+     * The standard deviations of the estimated pose from {@link #getEstimatedGlobalPose()}, for use
+     * with {@link edu.wpi.first.math.estimator.SwerveDrivePoseEstimator SwerveDrivePoseEstimator}.
+     * This should only be used when there are targets visible.
+     *
+     * @param estimatedPose The estimated pose to guess standard deviations for.
+     */
+    public Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose) {
+        Matrix<N3, N1> estimatedStdDevs = VisionConstants.SINGLE_TAG_STD_DEVS;
+        List<PhotonTrackedTarget> targets = getFrontCameraResults().getTargets();
+        int numTags = 0;
+        double avgDist = 0;
+        
+        for (PhotonTrackedTarget target : targets) {
+            Optional<Pose3d> tagPose = this.frontCameraPhotonPoseEstimator.getFieldTags().getTagPose(target.getFiducialId());
+            
+            if (tagPose.isEmpty()) continue;
+            
+            avgDist += tagPose.get().toPose2d().getTranslation().getDistance(estimatedPose.getTranslation());
+            numTags++;
+        }
+        if (numTags == 0) return estimatedStdDevs;
+        
+        // Decrease std devs if multiple targets are visible
+        if (numTags > 1) estimatedStdDevs = VisionConstants.MULTI_TAG_STD_DEVS;
+        
+        // Increase std devs based on (average) distance
+        avgDist /= numTags;
+        if (numTags == 1 && avgDist > 4)
+            estimatedStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+        else 
+            estimatedStdDevs = estimatedStdDevs.times(1 + (avgDist * avgDist / 30));
+
+        return estimatedStdDevs;
+    }
+
+    /**
      * 
      */
-    public PhotonPipelineResult getFrontCameraResults() {
+    protected PhotonPipelineResult getFrontCameraResults() {
         return this.frontCamera.getLatestResult();
     }
- 
-    /**
-     * 
-     */
-    public PhotonPipelineResult getRearCameraResults() {
-        return this.rearCamera.getLatestResult();
-    }
- 
-    /**
-     * 
-     */
-    abstract protected void processFrame(Pose2d pose);
 
     /**
      * Gets the latest robot pose. Calling this will only return the pose once. If it returns a non-null value, it is a
@@ -94,29 +129,33 @@ abstract public class VisionModule implements Runnable {
      * This pose will always be for the BLUE alliance. It must be flipped if the current alliance is RED.
      * @return latest estimated pose
      */
-    public EstimatedRobotPose grabLatestEstimatedPose() {
-        return this.atomicEstimatedRobotPose.getAndSet(null);
-    }
-    
-    /**
-     * 
-     */
-    @Override
-    public void run() {
-        if (this.frontCameraPhotonPoseEstimator == null || this.rearCameraPhotonPoseEstimator == null || this.rearCamera == null || RobotState.isAutonomous()) {
-            return;
-        }
-        
-        processFrame(this.poseSupplier.get());
-        
-        processResults("FRONT_CAMERA", getFrontCameraResults(), this.frontCameraPhotonPoseEstimator);
-        processResults("REAR_CAMERA", getRearCameraResults(), this.rearCameraPhotonPoseEstimator);
+    public EstimatedRobotPose getFrontLatestEstimatedPose() {
+        return this.atomicFrontEstimatedRobotPose.getAndSet(null);
     }
 
     /**
      * 
      */
-    private void processResults(String camera, PhotonPipelineResult results, PhotonPoseEstimator poseEstimator) {
+    protected PhotonPipelineResult getRearCameraResults() {
+        return this.rearCamera.getLatestResult();
+    }
+    
+    /**
+     * 
+     */
+    public EstimatedRobotPose getRearLatestEstimatedPose() {
+        return this.atomicRearEstimatedRobotPose.getAndSet(null);
+    }
+ 
+    /**
+     * Only used in simulation
+     */
+    protected void processFrame(Pose2d pose) {}
+
+    /**
+     * 
+     */
+    private void processResults(String camera, PhotonPipelineResult results, PhotonPoseEstimator poseEstimator, AtomicReference<EstimatedRobotPose> atomicEstimatedRobotPose) {
         Logger.recordOutput("Subsystems/Vision/" + camera + "/hasTargets", results.hasTargets());
         Logger.recordOutput("Subsystems/Vision/" + camera + "/TargetCount", results.hasTargets() ? results.getTargets().size() : 0);
 
@@ -124,32 +163,38 @@ abstract public class VisionModule implements Runnable {
             return;
         }
 
+        poseEstimator.update(results).ifPresent(estimatedRobotPose -> {
+            Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
+
+            // Make sure the measurement is on the field
+            if (estimatedPose.getX() > 0.0 && estimatedPose.getX() <= FieldConstants.LENGTH_METERS
+                && estimatedPose.getY() > 0.0 && estimatedPose.getY() <= FieldConstants.WIDTH_METERS) {
+                atomicEstimatedRobotPose.set(estimatedRobotPose);
+                Logger.recordOutput("Subsystems/Vision/" + camera + "/Pose", estimatedRobotPose.estimatedPose);
+            }
+        });
+
+        Logger.recordOutput("Subsystems/Vision/" + camera + "/hasTargets", results.hasTargets());
+        Logger.recordOutput("Subsystems/Vision/" + camera + "/TargetCount", results.hasTargets() ? results.getTargets().size() : 0);
+
         List<String> targetIds = new ArrayList<String>();
         for (PhotonTrackedTarget target : results.getTargets()) {
             targetIds.add("" + target.getFiducialId());
         }
         Logger.recordOutput("Subsystems/Vision/" + camera + "/Target Ids", targetIds.toString());
 
-        poseEstimator.update(results).ifPresent(estimatedRobotPose -> {
-            var estimatedPose = estimatedRobotPose.estimatedPose;
-
-            // Make sure the measurement is on the field
-            if (estimatedPose.getX() > 0.0 && estimatedPose.getX() <= FieldConstants.LENGTH_METERS
-                && estimatedPose.getY() > 0.0 && estimatedPose.getY() <= FieldConstants.WIDTH_METERS) {
-              this.atomicEstimatedRobotPose.set(estimatedRobotPose);
-            }
-
-            EstimatedRobotPose pose = grabLatestEstimatedPose();
-            Logger.recordOutput("Subsystems/Vision/" + camera + "/Pose", pose != null ? pose.estimatedPose : new Pose3d());
-        });
-
         if (results.hasTargets()) {
             PhotonTrackedTarget target = results.getBestTarget();
             
-            Logger.recordOutput("Subsystems/Vision/" + camera + "/Last Target Id", String.format("%d", target.getFiducialId()));
+            Logger.recordOutput("Subsystems/Vision/" + camera + "/Best Target Id", String.format("%d", target.getFiducialId()));
             Logger.recordOutput("Subsystems/Vision/" + camera + "/Target Yaw", target.getYaw());
         }
     }
+
+    /**
+     * Only used in simulation
+     */
+    public void resetFieldPosition(Pose2d pose2d) {}
 
     /**
      * Getters and Setters

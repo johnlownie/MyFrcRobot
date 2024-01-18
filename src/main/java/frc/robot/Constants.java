@@ -1,5 +1,9 @@
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -7,6 +11,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -129,18 +135,6 @@ public final class Constants {
     public static final class MechanismConstants {
         public static final double CANVAS_SIZE_METERS = Units.inchesToMeters(60);
         public static final Mechanism2d CANVAS = new Mechanism2d(CANVAS_SIZE_METERS, CANVAS_SIZE_METERS, new Color8Bit(Color.kLightGray));
-
-    }
-
-    /**
-     * 
-     */
-    public static class ArmConstants {
-        public static final int ANGLE_DRAWER_PICKUP = -40;
-        public static final int ANGLE_DEPLOY_LOW = 225;
-        public static final int ANGLE_DEPLOY_MID = 180;
-        public static final int ANGLE_DEPLOY_HIGH = 135;
-        public static final int ANGLE_GROUND_PICKUP = 255;
     }
 
     /**
@@ -162,20 +156,55 @@ public final class Constants {
      * 
      */
     public static final class SwerveModuleConstants {
-        public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 * (1 / MK4I_L2.DRIVE_GEAR_RATIO) * MK4I_L2.WHEEL_DIAMETER_METERS * Math.PI;
-        public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = (MAX_VELOCITY_METERS_PER_SECOND / Math.hypot(DriveTrainConstants.TRACK_WIDTH_METERS / 2.0, DriveTrainConstants.TRACK_WIDTH_METERS / 2.0));
+        public static final double ANGLE_CURRENT_LIMIT = 25;
+        public static final double ANGLE_CURRENT_THRESHOLD = 40;
+        public static final double ANGLE_TIME_THRESHOLD = 0.1;
 
-        public static final class MK4I_L2 {
-            public static final double WHEEL_DIAMETER_METERS = 0.10033;
-            public static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER_METERS * Math.PI;
-            public static final double DRIVE_GEAR_RATIO = 1 / ((14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0));
-            public static final boolean DRIVE_MOTOR_INVERTED = true;
-            public static final double ANGLE_GEAR_RATIO = 1 / ((14.0 / 50.0) * (10.0 / 60.0));
-            public static final boolean ANGLE_MOTOR_INVERTED = true;
+        public static final double DRIVE_CURRENT_LIMIT = 35;
+        public static final double DRIVE_CURRENT_THRESHOLD = 60;
+        public static final double DRIVE_TIME_THRESHOLD = 0.1;
 
-            public static final double TICKS_PER_ROTATION = 2048.0;
-            public static final boolean CAN_CODER_INVERTED = false;
-            public static final int CAN_TIMEOUT_MS = 250;
+        public static final double STATOR_CURRENT_LIMIT = 20;
+
+        public static final double CANCODER_UPDATE_FREQUENCY = 100;
+
+        public static final double OPEN_LOOP_RAMP = 0.25;
+        public static final double CLOSED_LOOP_RAMP = 0.0;
+
+        public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.5;
+        public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 10.0;
+
+        /* Module Specific Constants */
+        /* Front Left Module - Module 0 */
+        public static final class Mod0 { //TODO: This must be tuned to specific robot
+            public static final int DRIVE_MOTOR_ID = 11;
+            public static final int ANGLE_MOTOR_ID = 12;
+            public static final int CANCODER_ID = 1;
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(0.0);
+        }
+
+        /* Front Right Module - Module 1 */
+        public static final class Mod1 { //TODO: This must be tuned to specific robot
+            public static final int DRIVE_MOTOR_ID = 31;
+            public static final int ANGLE_MOTOR_ID = 32;
+            public static final int CANCODER_ID = 3;
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(0.0);
+        }
+        
+        /* Back Left Module - Module 2 */
+        public static final class Mod2 { //TODO: This must be tuned to specific robot
+            public static final int DRIVE_MOTOR_ID = 21;
+            public static final int ANGLE_MOTOR_ID = 22;
+            public static final int CANCODER_ID = 2;
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(0.0);
+        }
+
+        /* Back Right Module - Module 3 */
+        public static final class Mod3 { //TODO: This must be tuned to specific robot
+            public static final int DRIVE_MOTOR_ID = 41;
+            public static final int ANGLE_MOTOR_ID = 42;
+            public static final int CANCODER_ID = 4;
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(0.0);
         }
     }
 
@@ -208,6 +237,14 @@ public final class Constants {
      * 
      */
     public static class VisionConstants {
+        // The layout of the AprilTags on the field
+        public static final AprilTagFieldLayout TAG_FIELD_LAYOUT = AprilTagFields.kDefaultField.loadAprilTagLayoutField();
+
+        // The standard deviations of our vision estimated poses, which affect correction rate
+        // (Fake values. Experiment and determine estimation noise on an actual robot.)
+        public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
+        public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
+
         public static final String FRONT_CAMERA_NAME = "FRONT_CAMERA";
         public static final Transform3d FRONT_CAMERA_TO_ROBOT = new Transform3d(
             new Translation3d(0.0, 0.0, -0.5), // cam mounted center of robot, half meter up

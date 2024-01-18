@@ -1,10 +1,13 @@
 package frc.robot.containers;
 
-import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.Constants.DriveTrainConstants;
+import frc.robot.Constants.SwerveModuleConstants.Mod0;
+import frc.robot.Constants.SwerveModuleConstants.Mod1;
+import frc.robot.Constants.SwerveModuleConstants.Mod2;
+import frc.robot.Constants.SwerveModuleConstants.Mod3;
 import frc.robot.modules.gyro.GyroModuleNavx;
-import frc.robot.modules.swerve.SwerveModuleTalonFX;
-import frc.robot.modules.vision.VisionModulePhotonVision;
+import frc.robot.modules.swerve.SwerveModule;
+import frc.robot.modules.vision.VisionModule;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
@@ -18,14 +21,14 @@ public class CrescendoContainer extends RobotContainer {
     public CrescendoContainer() {
         super();
 
-        SwerveModuleTalonFX frontLeftModule  = new SwerveModuleTalonFX(0, 11, 12, 1, 183.603);
-        SwerveModuleTalonFX frontRightModule = new SwerveModuleTalonFX(1, 31, 32, 3, 235.107);
-        SwerveModuleTalonFX rearLeftModule   = new SwerveModuleTalonFX(2, 21, 22, 2, 299.001);
-        SwerveModuleTalonFX rearRightModule  = new SwerveModuleTalonFX(3, 41, 42, 4, 231.152);
+        SwerveModule frontLeftModule  = new SwerveModule(0, Mod0.DRIVE_MOTOR_ID, Mod0.ANGLE_MOTOR_ID, Mod0.CANCODER_ID, Mod0.ANGLE_OFFSET);
+        SwerveModule frontRightModule = new SwerveModule(1, Mod1.DRIVE_MOTOR_ID, Mod1.ANGLE_MOTOR_ID, Mod1.CANCODER_ID, Mod1.ANGLE_OFFSET);
+        SwerveModule rearLeftModule   = new SwerveModule(2, Mod2.DRIVE_MOTOR_ID, Mod2.ANGLE_MOTOR_ID, Mod2.CANCODER_ID, Mod2.ANGLE_OFFSET);
+        SwerveModule rearRightModule  = new SwerveModule(3, Mod3.DRIVE_MOTOR_ID, Mod3.ANGLE_MOTOR_ID, Mod3.CANCODER_ID, Mod3.ANGLE_OFFSET);
 
-        this.swerveModules = new SwerveModuleTalonFX[] { frontLeftModule, frontRightModule, rearLeftModule, rearRightModule};
+        this.swerveModules = new SwerveModule[] { frontLeftModule, frontRightModule, rearLeftModule, rearRightModule};
         this.gyroModule = new GyroModuleNavx();
-        this.visionModule = new VisionModulePhotonVision(AprilTagFields.k2024Crescendo);
+        this.visionModule = new VisionModule();
         
         this.swerveDrive = new SwerveDriveSubsystem(this.swerveModules, DriveTrainConstants.SWERVE_DRIVE_KINEMATICS, this.gyroModule);
         this.poseEstimator = new PoseEstimatorSubsystem(this.swerveDrive::getModulePositions, this.swerveDrive::getRotation, this.visionModule);

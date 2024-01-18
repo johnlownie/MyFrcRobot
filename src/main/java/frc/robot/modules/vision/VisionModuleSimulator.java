@@ -5,7 +5,6 @@ import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants.VisionConstants;
@@ -22,8 +21,8 @@ public class VisionModuleSimulator extends VisionModule {
     /**
      * 
      */
-    public VisionModuleSimulator(AprilTagFields aprilTagFields) {
-        super(aprilTagFields);
+    public VisionModuleSimulator() {
+        super();
         
         SimCameraProperties simCameraProperties = new SimCameraProperties();
         simCameraProperties.setCalibration(VisionConstants.IMG_WIDTH, VisionConstants.IMG_HEIGHT, Rotation2d.fromDegrees(VisionConstants.DIAGONAL_FOV));
@@ -33,21 +32,27 @@ public class VisionModuleSimulator extends VisionModule {
         simCameraProperties.setLatencyStdDevMs(15);
         
         this.frontCameraSim = new PhotonCameraSim(this.frontCamera, simCameraProperties);
-        this.frontCameraSim.enableDrawWireframe(true);
+
         this.frontVisionSystemSim = new VisionSystemSim(VisionConstants.FRONT_CAMERA_NAME);
-        this.frontVisionSystemSim.addAprilTags(aprilTagFieldLayout);
+        this.frontVisionSystemSim.addAprilTags(VisionConstants.TAG_FIELD_LAYOUT);
         this.frontVisionSystemSim.addCamera(this.frontCameraSim, VisionConstants.ROBOT_TO_FRONT_CAMERA);
 
         this.rearCameraSim = new PhotonCameraSim(this.rearCamera, simCameraProperties);
-        this.rearCameraSim.enableDrawWireframe(true);
+
         this.rearVisionSystemSim = new VisionSystemSim(VisionConstants.REAR_CAMERA_NAME);
-        this.rearVisionSystemSim.addAprilTags(aprilTagFieldLayout);
+        this.rearVisionSystemSim.addAprilTags(VisionConstants.TAG_FIELD_LAYOUT);
         this.rearVisionSystemSim.addCamera(this.rearCameraSim, VisionConstants.ROBOT_TO_REAR_CAMERA);
     }
 
     @Override
-    protected void processFrame(Pose2d pose) {
-        this.frontVisionSystemSim.update(pose);
-        this.rearVisionSystemSim.update(pose);
+    protected void processFrame(Pose2d pose2d) {
+        this.frontVisionSystemSim.update(pose2d);
+        this.rearVisionSystemSim.update(pose2d);
+    }
+    
+    @Override
+    public void resetFieldPosition(Pose2d pose2d) {
+        this.frontVisionSystemSim.resetRobotPose(pose2d);
+        this.rearVisionSystemSim.resetRobotPose(pose2d);
     }
 }

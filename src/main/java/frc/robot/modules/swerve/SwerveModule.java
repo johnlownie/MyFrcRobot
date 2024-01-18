@@ -1,184 +1,236 @@
 package frc.robot.modules.swerve;
 
 import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.lib.util.CTREModuleState;
+
+import frc.lib.util.COTSTalonFXSwerveConstants;
 import frc.robot.Constants.SwerveModuleConstants;
+import frc.robot.utils.Conversions;
+import frc.robot.utils.LoggedTunableNumber;
 
 /**
  * 
  */
-// @AutoLog
-abstract public class SwerveModule {
-    protected int module_id;
-    protected double last_angle;
+public class SwerveModule {
+    /* Drive Motor PID Values */
+    private final double DRIVE_KP = 0.05;
+    private final double DRIVE_KI = 0.0;
+    private final double DRIVE_KD = 0.0;
 
-    protected double driveSetpointMPS = 0.0;
-    protected double driveSetpointPercentage = 0.0;
-    protected double turnSetpointDegrees = 0.0;
+    /* Drive Motor Characterization Values */
+    private final double DRIVE_KS = 0.32 / 12.0;
+    private final double DRIVE_KV = 1.51 / 12.0;
+    private final double DRIVE_KA = 0.27 / 12.0;
 
-    /* Calculated input values */
-    protected double driveAcceleration = 0.0;
-    protected double driveAppliedPercentage = 0.0;
-    protected double driveAppliedVolts = 0.0;
-    protected double driveDistanceMeters = 0.0;
-    protected double drivePositionDegrees = 0.0;
-    protected double drivePreviousTimestamp = 0.0;
-    protected double drivePreviousVelocityMPS = 0.0;
-    protected double driveVelocityMetersPerSecond = 0.0;
-    protected double[] driveCurrentAmps = new double[] {};
-    protected double[] driveTempCelsius = new double[] {};
+    // Not sure what these represent, but smaller is faster
+    private final double MOTION_MAGIC_VELOCITY = .125;
+    private final double MOTION_MAGIC_ACCELERATION = .0625;
 
-    protected double turnAbsolutePositionDeg = 0.0;
-    protected double turnAppliedPercentage = 0.0;
-    protected double turnAppliedVolts = 0.0;
-    protected double turnPositionDeg = 0.0;
-    protected double turnVelocityRevPerMin = 0.0;
-    protected double[] turnCurrentAmps = new double[] {};
-    protected double[] turnTempCelsius = new double[] {};
+    // Default S
+    public static final COTSTalonFXSwerveConstants CHOSEN_MODULE = COTSTalonFXSwerveConstants.SDS.MK4i.Falcon500(COTSTalonFXSwerveConstants.SDS.MK4i.driveRatios.L2);
+
+    /* Drive motor control requests */
+    private final DutyCycleOut driveDutyCycle = new DutyCycleOut(0);
+    private final VelocityVoltage driveVelocity = new VelocityVoltage(0);
+
+    /* Angle motor control requests */
+    private final PositionVoltage anglePosition = new PositionVoltage(0);
+
+    private final SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
+
+    /* Tunable PID */
+    private final LoggedTunableNumber driveKp = new LoggedTunableNumber("Drive/DriveKp", DRIVE_KP);
+    private final LoggedTunableNumber driveKi = new LoggedTunableNumber("Drive/DriveKi", DRIVE_KI);
+    private final LoggedTunableNumber driveKd = new LoggedTunableNumber("Drive/DriveKd", DRIVE_KD);
+
+    private final LoggedTunableNumber angleKp = new LoggedTunableNumber("Drive/TurnKp", CHOSEN_MODULE.angleKP);
+    private final LoggedTunableNumber angleKi = new LoggedTunableNumber("Drive/TurnKi", CHOSEN_MODULE.angleKI);
+    private final LoggedTunableNumber angleKd = new LoggedTunableNumber("Drive/TurnKd", CHOSEN_MODULE.angleKD);
+
+    /* Motors */
+    protected final int module_id;
+    protected final TalonFX angleMotor;
+    protected final TalonFX driveMotor;
+ 
+    protected final CANcoder encoder;
+
+    protected final Rotation2d angleOffset;
 
     /**
      * 
      */
-    public SwerveModule(int module_id) {
+    public SwerveModule(int module_id, int drive_motor_id, int angle_motor_id, int can_coder_id, Rotation2d angleOffset) {
         this.module_id = module_id;
-        this.last_angle = getState().angle.getDegrees();
-    }
-
-    /**
-     *
-     */
-    public int getModuleId() { return this.module_id; }
-
-    /**
-     * 
-     */
-    public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(getStatePosition(), getStateRotation());
-    }
-
-    /**
-     * Get the current state of this swerve module.
-     *
-     * @return the current state of this swerve module
-     */
-    public SwerveModuleState getState() {
-        return new SwerveModuleState(this.driveVelocityMetersPerSecond, Rotation2d.fromDegrees(this.turnPositionDeg));
+        this.driveMotor = getDriveMotor(drive_motor_id);
+        this.angleMotor = getAngleMotor(angle_motor_id);
+        this.encoder = getEncoder(can_coder_id);
+        this.angleOffset = angleOffset;
     }
 
     /**
      * 
      */
-    public double getStatePosition() {
-        return this.driveDistanceMeters;
+    private TalonFX getAngleMotor(int motor_id) {
+        TalonFX motor = new TalonFX(motor_id);
+        TalonFXConfiguration talonFXConfiguration = getAngleMotorConfiguration();
+
+        motor.getConfigurator().apply(talonFXConfiguration);
+
+        return motor;
     }
 
     /**
      * 
      */
-    public Rotation2d getStateRotation() {
-        return Rotation2d.fromDegrees(this.turnPositionDeg);
+    private TalonFXConfiguration getAngleMotorConfiguration() {
+        TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
+
+        talonFXConfiguration.MotorOutput.Inverted = CHOSEN_MODULE.angleMotorInvert;
+        talonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+        talonFXConfiguration.Feedback.SensorToMechanismRatio = CHOSEN_MODULE.angleGearRatio;
+        talonFXConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
+
+        talonFXConfiguration.CurrentLimits.SupplyCurrentLimit = SwerveModuleConstants.ANGLE_CURRENT_LIMIT;
+        talonFXConfiguration.CurrentLimits.SupplyCurrentThreshold = SwerveModuleConstants.ANGLE_CURRENT_THRESHOLD;
+        talonFXConfiguration.CurrentLimits.SupplyTimeThreshold = SwerveModuleConstants.ANGLE_TIME_THRESHOLD;
+        talonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+        talonFXConfiguration.CurrentLimits.StatorCurrentLimit = SwerveModuleConstants.STATOR_CURRENT_LIMIT;
+        talonFXConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        talonFXConfiguration.Slot0.kP = angleKp.get();
+        talonFXConfiguration.Slot0.kI = angleKi.get();
+        talonFXConfiguration.Slot0.kD = angleKd.get();
+
+        // talonFXConfiguration.MotionMagic.MotionMagicCruiseVelocity = 2.0 / MOTION_MAGIC_VELOCITY / this.angleEncoderVelocityCoefficient;
+        // talonFXConfiguration.MotionMagic.MotionMagicAcceleration = (8.0 - 2.0) / MOTION_MAGIC_ACCELERATION / this.angleEncoderVelocityCoefficient;
+    
+        return talonFXConfiguration;
+    }
+    
+    /**
+     * 
+     */
+    private TalonFX getDriveMotor(int motor_id) {
+        TalonFX motor = new TalonFX(motor_id);
+        TalonFXConfiguration talonFXConfiguration = getDriveMotorConfiguration();
+
+        motor.getConfigurator().apply(talonFXConfiguration);
+
+        return motor;
     }
 
-    /*
-     * This is a custom optimize function, since default WPILib optimize assumes
-     * continuous controller which CTRE and Rev onboard is not
+    /**
+     * 
      */
-    public void setDesiredState(SwerveModuleState moduleState, boolean isOpenLoop, boolean forceAngle) {
-        moduleState = CTREModuleState.optimize(moduleState, getState().angle);
+    private TalonFXConfiguration getDriveMotorConfiguration() {
+        TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
 
-        if (isOpenLoop) {
-            double percentOuput = moduleState.speedMetersPerSecond / SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
-            setDrivePercentage(percentOuput);
+        talonFXConfiguration.MotorOutput.Inverted = CHOSEN_MODULE.driveMotorInvert;
+        talonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+        talonFXConfiguration.Feedback.SensorToMechanismRatio = CHOSEN_MODULE.driveGearRatio;
+
+        talonFXConfiguration.CurrentLimits.SupplyCurrentLimit = SwerveModuleConstants.DRIVE_CURRENT_LIMIT;
+        talonFXConfiguration.CurrentLimits.SupplyCurrentThreshold = SwerveModuleConstants.DRIVE_CURRENT_THRESHOLD;
+        talonFXConfiguration.CurrentLimits.SupplyTimeThreshold = SwerveModuleConstants.DRIVE_TIME_THRESHOLD;
+        talonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+        talonFXConfiguration.CurrentLimits.StatorCurrentLimit = SwerveModuleConstants.STATOR_CURRENT_LIMIT;
+        talonFXConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        talonFXConfiguration.Slot0.kP = driveKp.get();
+        talonFXConfiguration.Slot0.kI = driveKi.get();
+        talonFXConfiguration.Slot0.kD = driveKd.get();
+
+        talonFXConfiguration.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = SwerveModuleConstants.OPEN_LOOP_RAMP;
+        talonFXConfiguration.OpenLoopRamps.VoltageOpenLoopRampPeriod = SwerveModuleConstants.OPEN_LOOP_RAMP;
+
+        talonFXConfiguration.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = SwerveModuleConstants.CLOSED_LOOP_RAMP;
+        talonFXConfiguration.ClosedLoopRamps.VoltageClosedLoopRampPeriod = SwerveModuleConstants.CLOSED_LOOP_RAMP;
+
+        return talonFXConfiguration;
+    }
+
+    /**
+     * 
+     */
+    private CANcoder getEncoder(int can_coder_id) {
+        CANcoder canCoder = new CANcoder(can_coder_id);
+        CANcoderConfiguration canCoderConfiguration = getEncoderConfiguration();
+
+        canCoder.getConfigurator().apply(canCoderConfiguration);
+
+        canCoder.getPosition().setUpdateFrequency(SwerveModuleConstants.CANCODER_UPDATE_FREQUENCY);
+        canCoder.getVelocity().setUpdateFrequency(SwerveModuleConstants.CANCODER_UPDATE_FREQUENCY);
+
+        return canCoder;
+    }
+
+    /**
+     * 
+     */
+    private CANcoderConfiguration getEncoderConfiguration() {
+        CANcoderConfiguration canCoderConfiguration = new CANcoderConfiguration();
+        canCoderConfiguration.MagnetSensor.SensorDirection = CHOSEN_MODULE.cancoderInvert;
+
+        return canCoderConfiguration;
+    }
+
+    /**
+     * 
+     */
+    public SwerveModulePosition getPosition(){
+        return new SwerveModulePosition(
+            Conversions.rotationsToMeters(this.driveMotor.getPosition().getValue(), CHOSEN_MODULE.wheelCircumference), 
+            Rotation2d.fromRotations(this.angleMotor.getPosition().getValue())
+        );
+    }
+
+    public SwerveModuleState getState(){
+        return new SwerveModuleState(
+            Conversions.RPSToMPS(this.driveMotor.getVelocity().getValue(), CHOSEN_MODULE.wheelCircumference), 
+            Rotation2d.fromRotations(this.angleMotor.getPosition().getValue())
+        );
+    }
+
+    /**
+     * 
+     */
+    public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop){
+        desiredState = SwerveModuleState.optimize(desiredState, getState().angle); 
+        this.angleMotor.setControl(anglePosition.withPosition(desiredState.angle.getRotations()));
+        setSpeed(desiredState, isOpenLoop);
+    }
+
+    /**
+     * 
+     */
+    private void setSpeed(SwerveModuleState desiredState, boolean isOpenLoop){
+        if(isOpenLoop){
+            driveDutyCycle.Output = desiredState.speedMetersPerSecond / SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
+            this.driveMotor.setControl(driveDutyCycle);
         }
         else {
-            setDriveVelocity(moduleState.speedMetersPerSecond);
+            driveVelocity.Velocity = Conversions.MPSToRPS(desiredState.speedMetersPerSecond, CHOSEN_MODULE.wheelCircumference);
+            driveVelocity.FeedForward = this.feedForward.calculate(desiredState.speedMetersPerSecond);
+            this.driveMotor.setControl(driveVelocity);
         }
-
-        double angle = 0.0;
-        if (!forceAngle && Math.abs(moduleState.speedMetersPerSecond) <= (SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND * 0.01)) {
-            angle = this.last_angle;
-        }
-        else {
-            angle = moduleState.angle.getDegrees();
-        }
-
-        this.last_angle = angle;
-        setAnglePosition(this.last_angle);
     }
 
-    /**
-     * Set the drive motor to the specified voltage. This is only used for characterization via the
-     * FeedForwardCharacterization command. The module will be set to 0 degrees throughout the
-     * characterization; as a result, the wheels don't need to be clamped to hold them straight.
-     *
-     * @param voltage the specified voltage for the drive motor
-     */
-    public void setVoltageForCharacterization(double voltage) {
-        setAnglePosition(0.0);
-
-        this.last_angle = 0.0;
-        setDrivePercentage(voltage / 12.0);
-    }
-
-    abstract protected void applyDriveSettings();
-    abstract protected void applyTurnSettings();
-
-    abstract public void setAnglePosition(double degrees);
-    abstract protected void setDrivePercentage(double percentage);
-    abstract protected void setDriveVelocity(double velocity);
-
-    abstract public void reseedSteerMotorOffset();
-    abstract public void updatePositions();
-
-    // /**
-    //  * Logging
-    //  */
-    // @Override
-    // public void fromLog(LogTable table) {
-    //     this.driveAppliedPercentage = table.get("Mod" + module_id + "/DriveAppliedPercentage", this.driveAppliedPercentage);
-    //     this.driveAppliedVolts = table.get("Mod" + module_id + "/DriveAppliedVolts", this.driveAppliedVolts);
-    //     this.driveDistanceMeters = table.get("Mod" + module_id + "/DriveDistanceMeters", this.driveDistanceMeters);
-    //     this.drivePositionDegrees = table.get("Mod" + module_id + "/DrivePositionDeg", this.drivePositionDegrees);
-    //     this.driveVelocityMetersPerSecond = table.get("Mod" + module_id + "/DriveVelocityMPS", this.driveVelocityMetersPerSecond);
-    //     this.driveAcceleration = table.get("Mod" + module_id + "/DriveAccelerationMPS^2", this.driveAcceleration);
-    //     this.driveCurrentAmps = table.get("Mod" + module_id + "/DriveCurrentAmps", this.driveCurrentAmps);
-    //     this.driveTempCelsius = table.get("Mod" + module_id + "/DriveTempCelsius", this.driveTempCelsius);
-
-    //     this.turnAbsolutePositionDeg = table.get("Mod" + module_id + "/TurnAbsolutePositionDeg", this.turnAbsolutePositionDeg);
-    //     this.turnAppliedPercentage = table.get("Mod" + module_id + "/TurnAppliedPercentage", this.turnAppliedPercentage);
-    //     this.turnAppliedVolts = table.get("Mod" + module_id + "/TurnAppliedVolts", this.turnAppliedVolts);
-    //     this.turnPositionDeg = table.get("Mod" + module_id + "/TurnPositionDeg", this.turnPositionDeg);
-    //     this.turnVelocityRevPerMin = table.get("Mod" + module_id + "/TurnVelocityRevPerMin", this.turnVelocityRevPerMin);
-    //     this.turnCurrentAmps = table.get("Mod" + module_id + "/TurnCurrentAmps", this.turnCurrentAmps);
-    //     this.turnTempCelsius = table.get("Mod" + module_id + "/TurnTempCelsius", this.turnTempCelsius);
-    // }
-  
-    // @Override
-    // public void toLog(LogTable table) {
-    //     table.put("Mod" + module_id + "/DriveSetpointMPS", this.driveSetpointMPS);
-    //     table.put("Mod" + module_id + "/DriveSetpointPercentage", this.driveSetpointPercentage);
-    //     table.put("Mod" + module_id + "/DriveAppliedPercentage", this.driveAppliedPercentage);
-    //     table.put("Mod" + module_id + "/DriveAppliedVolts", this.driveAppliedVolts);
-    //     table.put("Mod" + module_id + "/DriveDistanceMeters", this.driveDistanceMeters);
-    //     table.put("Mod" + module_id + "/DrivePositionDeg", this.drivePositionDegrees);
-    //     table.put("Mod" + module_id + "/DriveVelocityMPS", this.driveVelocityMetersPerSecond);
-    //     table.put("Mod" + module_id + "/DriveAccelerationMPS", this.driveAcceleration);
-    //     table.put("Mod" + module_id + "/DriveCurrentAmps", this.driveCurrentAmps);
-    //     table.put("Mod" + module_id + "/DriveTempCelsius", this.driveTempCelsius);
-
-    //     table.put("Mod" + module_id + "/TurnSetpointDegrees", this.turnSetpointDegrees);
-    //     table.put("Mod" + module_id + "/TurnAbsolutePositionDeg", this.turnAbsolutePositionDeg);
-    //     table.put("Mod" + module_id + "/TurnAppliedPercentage", this.turnAppliedPercentage);
-    //     table.put("Mod" + module_id + "/TurnAppliedVolts", this.turnAppliedVolts);
-    //     table.put("Mod" + module_id + "/TurnPositionDeg", this.turnPositionDeg);
-    //     table.put("Mod" + module_id + "/TurnVelocityRevPerMin", this.turnVelocityRevPerMin);
-    //     table.put("Mod" + module_id + "/TurnCurrentAmps", this.turnCurrentAmps);
-    //     table.put("Mod" + module_id + "/TurnTempCelsius", this.turnTempCelsius);
-    // }
 }

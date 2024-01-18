@@ -150,6 +150,13 @@ abstract public class RobotContainer {
     /**
      * 
      */
+    public void resetFieldPosition() {
+        this.poseEstimator.resetFieldPosition();
+    }
+
+    /**
+     * 
+     */
     protected void setCommands() {
         this.teleopDriveCommand = new TeleopDriveCommand(
             this.swerveDrive,

@@ -1,49 +1,46 @@
 package frc.robot.utils;
 
-import frc.robot.Constants.SwerveModuleConstants.MK4I_L2;
-
 /**
  * 
  */
 public class Conversions {
     /**
-     * 
+     * @param wheelRPS      Wheel Velocity: (in Rotations per Second)
+     * @param circumference Wheel Circumference: (in Meters)
+     * @return Wheel Velocity: (in Meters per Second)
      */
-    public static double degreesTo(double degrees, double gear_ratio) {
-        return degrees / (360.0 / (gear_ratio * MK4I_L2.TICKS_PER_ROTATION));
-    }
-    
-    /**
-     * 
-     */
-    public static double toDegrees(double position, double gear_ratio) {
-        return position * (360.0 / (gear_ratio * MK4I_L2.TICKS_PER_ROTATION));
+    public static double RPSToMPS(double wheelRPS, double circumference) {
+        double wheelMPS = wheelRPS * circumference;
+        return wheelMPS;
     }
 
     /**
-     * 
+     * @param wheelMPS      Wheel Velocity: (in Meters per Second)
+     * @param circumference Wheel Circumference: (in Meters)
+     * @return Wheel Velocity: (in Rotations per Second)
      */
-    public static double toMeters(double position, double gear_ratio) {
-        double motorRotations = position / MK4I_L2.TICKS_PER_ROTATION;
-        double wheelRotations = motorRotations / gear_ratio;
-
-        return wheelRotations * MK4I_L2.WHEEL_CIRCUMFERENCE;
+    public static double MPSToRPS(double wheelMPS, double circumference) {
+        double wheelRPS = wheelMPS / circumference;
+        return wheelRPS;
     }
 
     /**
-     * 
+     * @param wheelRotations Wheel Position: (in Rotations)
+     * @param circumference  Wheel Circumference: (in Meters)
+     * @return Wheel Distance: (in Meters)
      */
-    public static double toMPS(double velocity, double gear_ratio) {
-        double wheelRPM = toRPM(velocity, gear_ratio);
-        return wheelRPM * MK4I_L2.WHEEL_CIRCUMFERENCE / 60;
+    public static double rotationsToMeters(double wheelRotations, double circumference) {
+        double wheelMeters = wheelRotations * circumference;
+        return wheelMeters;
     }
 
     /**
-     * 
+     * @param wheelMeters   Wheel Distance: (in Meters)
+     * @param circumference Wheel Circumference: (in Meters)
+     * @return Wheel Position: (in Rotations)
      */
-    public static double toRPM(double velocity, double gear_ratio) {
-        double motorRPM = velocity * 600.0 / MK4I_L2.TICKS_PER_ROTATION;
-
-        return motorRPM / gear_ratio;
+    public static double metersToRotations(double wheelMeters, double circumference) {
+        double wheelRotations = wheelMeters / circumference;
+        return wheelRotations;
     }
 }

@@ -6,6 +6,7 @@ import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -15,6 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -127,12 +129,12 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
             this.estimatedPoseWithoutGyro = this.estimatedPoseWithoutGyro.exp(twist);
         }
     
-        // this.visionModule.periodic();
-        EstimatedRobotPose visionPose = this.visionModule.grabLatestEstimatedPose();
+        // this.visionModule.process();
+        EstimatedRobotPose visionPose = this.visionModule.getFrontLatestEstimatedPose();
         if (visionPose != null) {
             Pose2d pose2d = visionPose.estimatedPose.toPose2d();
-            
-            // this.swerveDrivePoseEstimator.addVisionMeasurement(pose2d, visionPose.timestampSeconds);
+            Matrix<N3, N1> estimatedStdDevs = this.visionModule.getEstimationStdDevs(pose2d);
+            this.swerveDrivePoseEstimator.addVisionMeasurement(pose2d, visionPose.timestampSeconds, estimatedStdDevs);
             Logger.recordOutput("Subsystems/PoseEstimator/VisionPose", pose2d);
         }
         
@@ -151,7 +153,9 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
      * what "forward" is for field oriented driving.
      */
     public void resetFieldPosition() {
-        setCurrentPose(new Pose2d());
+        Pose2d pose2d = new Pose2d(1, 1, new Rotation2d());
+        setCurrentPose(pose2d);
+        this.visionModule.resetFieldPosition(pose2d);
     }
 
     /**

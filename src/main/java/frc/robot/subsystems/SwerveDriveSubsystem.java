@@ -167,7 +167,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         // update and log the swerve module position
         for (SwerveModule swerveModule : this.swerveModules) {
-            swerveModule.updatePositions();
+            // swerveModule.updatePositions();
         }
 
         // log poses, 3D geometry, and swerve module states, gyro offset
@@ -190,13 +190,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      * Reseeds the Talon FX steer motors from their CANCoder absolute position. Workaround for "dead wheel"
      */
     public void reseedSteerMotorOffsets() {
-        Arrays.stream(this.swerveModules).forEach(SwerveModule::reseedSteerMotorOffset);
+        // Arrays.stream(this.swerveModules).forEach(SwerveModule::reseedSteerMotorOffset);
     }
 
     /** Runs forwards at the commanded voltage. */
     public void runCharacterizationVolts(double volts) {
         for (SwerveModule swerveModule : swerveModules) {
-            swerveModule.setVoltageForCharacterization(volts);
+            // swerveModule.setVoltageForCharacterization(volts);
         }
     }
     
@@ -231,7 +231,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND);
 
         for (SwerveModule swerveModule : this.swerveModules) {
-            swerveModule.setDesiredState(states[swerveModule.getModuleId()], false, false);
+            // swerveModule.setDesiredState(states[swerveModule.getModuleId()], false, false);
         }
 
         Logger.recordOutput("PathPlanner/Desired Module States", states);
@@ -245,7 +245,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND);
 
         for (SwerveModule swerveModule : this.swerveModules) {
-            swerveModule.setDesiredState(states[swerveModule.getModuleId()], isOpenLoop, forceAngle);
+            // swerveModule.setDesiredState(states[swerveModule.getModuleId()], isOpenLoop, forceAngle);
         }
 
         Logger.recordOutput("Subsystems/SwerveDrive/Desired Module States", states);

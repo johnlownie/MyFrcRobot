@@ -1,17 +1,23 @@
 package frc.robot.modules.swerve;
 
+import java.time.LocalDateTime;
+
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
+
+import com.ctre.phoenix6.sim.CANcoderSimState;
+import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.lib.util.Timer;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SwerveModuleConstants;
-import frc.robot.Constants.SwerveModuleConstants.MK4I_L2;
 import frc.robot.utils.LoggedTunableNumber;
 
 /**
@@ -33,184 +39,20 @@ public class SwerveModuleSimulator extends SwerveModule {
     private final double DRIVE_KV = 0.40126 / 12.0; // 0.133240;
     private final double DRIVE_KA = 0.0225;  // 0.0;
 
-    /* Tunable PID */
-    private final LoggedTunableNumber driveKp = new LoggedTunableNumber("Drive/DriveKp", DRIVE_KP);
-    private final LoggedTunableNumber driveKi = new LoggedTunableNumber("Drive/DriveKi", DRIVE_KI);
-    private final LoggedTunableNumber driveKd = new LoggedTunableNumber("Drive/DriveKd", DRIVE_KD);
+    /* Simulated Motors */
+    private TalonFXSimState driveSimState;
+    private TalonFXSimState angleSimState;
 
-    private final LoggedTunableNumber turnKp = new LoggedTunableNumber("Drive/TurnKp", TURN_KP);
-    private final LoggedTunableNumber turnKi = new LoggedTunableNumber("Drive/TurnKi", TURN_KI);
-    private final LoggedTunableNumber turnKd = new LoggedTunableNumber("Drive/TurnKd", TURN_KD);
-
-    /* Motors */
-    private FlywheelSim driveMotor;
-    private FlywheelSim turnMotor;
-
-    private PIDController driveController;
-    private PIDController turnController;
-    
-    private SimpleMotorFeedforward feedForward;
-    private double turnAbsolutePositionRadians = Math.random() * 2.0 * Math.PI;
-    private double turnRelativePositionRadians = 0.0;
-
-    private boolean isOpenLoop;
+    private final CANcoderSimState canCoderSimState;
 
     /**
      * 
      */
-    public SwerveModuleSimulator(int module_id) {
-        super(module_id);
+    public SwerveModuleSimulator(int module_id, int drive_motor_id, int angle_motor_id, int can_coder_id, Rotation2d angle_offset_degrees) {
+        super(module_id, drive_motor_id, angle_motor_id, can_coder_id, angle_offset_degrees);
 
-        this.driveMotor = getDriveMotor();
-        this.turnMotor = getTurnMotor();
-
-        this.driveController = new PIDController(driveKp.get(), driveKi.get(), driveKd.get());
-        this.turnController = new PIDController(turnKp.get(), turnKi.get(), turnKd.get());
-
-        this.feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
-        this.isOpenLoop = true;
-    }
-
-    /**
-     * 
-     */
-    @Override
-    protected void applyDriveSettings() {
-        if (isOpenLoop) {
-            this.driveController.reset();
-            this.driveAppliedVolts = MathUtil.clamp(this.driveSetpointPercentage * 12.0, -12.0, 12.0);
-            this.driveMotor.setInputVoltage(this.driveAppliedVolts);
-        }
-        else {
-            double velocityRadiansPerSecond = this.driveSetpointMPS * (2.0 * Math.PI) / (MK4I_L2.WHEEL_CIRCUMFERENCE);
-            double ffOutput = this.feedForward.calculate(velocityRadiansPerSecond); 
-            double pidOutput =  this.driveController.calculate(this.driveVelocityMetersPerSecond, velocityRadiansPerSecond);
-            
-            this.driveAppliedVolts = MathUtil.clamp(ffOutput + pidOutput, -12.0, 12.0);
-            this.driveMotor.setInputVoltage(this.driveAppliedVolts);
-
-            Logger.recordOutput("Subsystems/SwerveDrive/SwerveModuleSimulator[" + getModuleId() + "]/Drive FF Output", ffOutput);
-            Logger.recordOutput("Subsystems/SwerveDrive/SwerveModuleSimulator[" + getModuleId() + "]/Drive PID Output", pidOutput);
-        }
-    }
-
-    /**
-     * 
-     */
-    @Override
-    protected void applyTurnSettings() {
-        double pidOutput = this.turnController.calculate(this.turnRelativePositionRadians, this.turnSetpointDegrees * (Math.PI / 180.0));
-
-        this.turnAppliedVolts = MathUtil.clamp(pidOutput, -12.0, 12.0);
-        this.turnMotor.setInputVoltage(this.turnAppliedVolts);
-    }
-
-    /**
-     * 
-     */
-    private FlywheelSim getDriveMotor() {
-        FlywheelSim motor = new FlywheelSim(DCMotor.getFalcon500(1), SwerveModuleConstants.MK4I_L2.DRIVE_GEAR_RATIO, 0.025);
-
-        return motor;
-    }
-
-    /**
-     * 
-     */
-    private FlywheelSim getTurnMotor() {
-        FlywheelSim motor = new FlywheelSim(DCMotor.getFalcon500(1), SwerveModuleConstants.MK4I_L2.ANGLE_GEAR_RATIO, 0.004096955);
-
-        return motor;
-    }
-
-    @Override
-    public void reseedSteerMotorOffset() {
-    }
-
-    @Override
-    public void setAnglePosition(double degrees) {
-        this.turnSetpointDegrees = degrees;
-    }
-
-    @Override
-    public void setDriveVelocity(double velocity) {
-        this.driveSetpointMPS = velocity;
-        this.isOpenLoop = false;
-    }
-
-    @Override
-    protected void setDrivePercentage(double percentage) {
-        this.driveSetpointPercentage = percentage;
-        this.isOpenLoop = true;
-    }
-    
-    /**
-     * 
-     */
-    @Override
-    public void updatePositions() {
-        if (RobotConstants.TUNING_MODE) {
-            if (driveKp.hasChanged(hashCode()) || driveKi.hasChanged(hashCode()) || driveKd.hasChanged(hashCode())) {
-                this.driveController.setPID(driveKp.get(), driveKi.get(), driveKd.get());
-            }
-            
-            if (turnKp.hasChanged(hashCode()) || turnKi.hasChanged(hashCode()) || turnKd.hasChanged(hashCode())) {
-                this.turnController.setPID(turnKp.get(), turnKi.get(), turnKd.get());
-            }
-        }
-
-        // update the motors
-        this.driveMotor.update(RobotConstants.LOOP_PERIOD_SECS);
-        this.turnMotor.update(RobotConstants.LOOP_PERIOD_SECS);
-
-        updateTurnPosition();
-        updateDrivePosition();
-
-        applyTurnSettings();
-        applyDriveSettings();
-  
-        // Logger.processInputs("SwerveModuleSimulator", this);
-    }
-
-    /**
-     * 
-     */
-    private void updateDrivePosition() {
-        this.drivePositionDegrees = this.drivePositionDegrees + (this.driveMotor.getAngularVelocityRadPerSec() * RobotConstants.LOOP_PERIOD_SECS * (180.0 / Math.PI));
-        this.driveDistanceMeters = this.driveDistanceMeters + (this.driveMotor.getAngularVelocityRadPerSec() * RobotConstants.LOOP_PERIOD_SECS * (MK4I_L2.WHEEL_CIRCUMFERENCE / (2.0 * Math.PI)));
-        this.driveVelocityMetersPerSecond = this.driveMotor.getAngularVelocityRadPerSec() * (MK4I_L2.WHEEL_CIRCUMFERENCE / (2.0 * Math.PI));
-        
-        this.driveAppliedPercentage = this.driveAppliedVolts / 12.0;
-        this.driveCurrentAmps = new double[] {Math.abs(this.driveMotor.getCurrentDrawAmps())};
-        this.driveTempCelsius = new double[] {};
-        
-        this.driveAcceleration = (this.driveVelocityMetersPerSecond - this.drivePreviousVelocityMPS) / (Timer.getFPGATimestamp() - this.drivePreviousTimestamp);
-        this.drivePreviousVelocityMPS = this.driveVelocityMetersPerSecond;
-        this.drivePreviousTimestamp = Timer.getFPGATimestamp();
-    }
-
-    /**
-     * 
-     */
-    private void updateTurnPosition() {
-        double angleDiffRadians = this.turnMotor.getAngularVelocityRadPerSec() * RobotConstants.LOOP_PERIOD_SECS;
-        this.turnRelativePositionRadians += angleDiffRadians;
-        this.turnAbsolutePositionRadians += angleDiffRadians;
-
-        while (this.turnAbsolutePositionRadians < 0) {
-            this.turnAbsolutePositionRadians += 2.0 * Math.PI;
-        }
-
-        while (turnAbsolutePositionRadians > 2.0 * Math.PI) {
-            this.turnAbsolutePositionRadians -= 2.0 * Math.PI;
-        }
-
-        this.turnAbsolutePositionDeg = this.turnAbsolutePositionRadians * (180.0 / Math.PI);
-        this.turnPositionDeg = this.turnRelativePositionRadians * (180.0 / Math.PI);
-        this.turnVelocityRevPerMin = this.turnMotor.getAngularVelocityRadPerSec() * (60.0 / (2.0 * Math.PI));
-
-        this.turnAppliedPercentage = this.turnAppliedVolts / 12.0;
-        this.turnCurrentAmps = new double[] {Math.abs(this.turnMotor.getCurrentDrawAmps())};
-        this.turnTempCelsius = new double[] {};
+        this.driveSimState = this.driveMotor.getSimState();
+        this.angleSimState = this.angleMotor.getSimState();
+        this.canCoderSimState = this.encoder.getSimState();
     }
 }

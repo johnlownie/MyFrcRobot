@@ -173,6 +173,8 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         checkDriverStationUpdate();
 
+        this.robotContainer.resetFieldPosition();
+
         this.autonomousCommand = this.robotContainer.getAutonomousCommand();
 
         // schedule the autonomous command
