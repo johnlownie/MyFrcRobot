@@ -174,6 +174,8 @@ public final class Constants {
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.5;
         public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 10.0;
 
+        public static final double TICKS_PER_ROTATION = 2048.0;
+
         /* Module Specific Constants */
         /* Front Left Module - Module 0 */
         public static final class Mod0 { //TODO: This must be tuned to specific robot

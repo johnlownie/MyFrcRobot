@@ -162,12 +162,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         // Set the swerve module states
         if (this.desiredChassisSpeeds != null) {
             SwerveModuleState[] desiredStates = this.swerveDriveKinematics.toSwerveModuleStates(desiredChassisSpeeds);
-            setModuleStates(desiredStates, this.isOpenLoop, false);
+            setModuleStates(desiredStates, this.isOpenLoop);
         }
 
         // update and log the swerve module position
         for (SwerveModule swerveModule : this.swerveModules) {
-            // swerveModule.updatePositions();
+            swerveModule.updatePositions();
         }
 
         // log poses, 3D geometry, and swerve module states, gyro offset
@@ -227,45 +227,45 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      *
      * @param states the specified swerve module state for each swerve module
      */
-    public void setModuleStates(SwerveModuleState[] states) {
+    public void setModuleStates(SwerveModuleState[] states, boolean isOpenLoop) {
         SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND);
 
         for (SwerveModule swerveModule : this.swerveModules) {
-            // swerveModule.setDesiredState(states[swerveModule.getModuleId()], false, false);
-        }
-
-        Logger.recordOutput("PathPlanner/Desired Module States", states);
-    }
-
-    /**
-     * Sets the states of the modules.
-     * @param states array of states. Must be ordered frontLeft, frontRight, backLeft, backRight
-     */
-    public void setModuleStates(SwerveModuleState[] states, boolean isOpenLoop, boolean forceAngle) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND);
-
-        for (SwerveModule swerveModule : this.swerveModules) {
-            // swerveModule.setDesiredState(states[swerveModule.getModuleId()], isOpenLoop, forceAngle);
+            swerveModule.setDesiredState(states[swerveModule.getModuleId()], isOpenLoop);
         }
 
         Logger.recordOutput("Subsystems/SwerveDrive/Desired Module States", states);
     }
 
     /**
+     * Sets the states of the modules.
+     * @param states array of states. Must be ordered frontLeft, frontRight, backLeft, backRight
+     */
+    // public void setModuleStates(SwerveModuleState[] states, boolean isOpenLoop, boolean forceAngle) {
+    //     SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND);
+
+    //     for (SwerveModule swerveModule : this.swerveModules) {
+    //         // swerveModule.setDesiredState(states[swerveModule.getModuleId()], isOpenLoop, forceAngle);
+    //     }
+
+    //     Logger.recordOutput("Subsystems/SwerveDrive/Desired Module States", states);
+    // }
+
+    /**
      * Sets the swerve modules in the x-stance orientation. In this orientation the wheels are aligned
      * to make an 'X'. This makes it more difficult for other robots to push the robot, which is
      * useful when shooting.
      */
-    public void setXStance() {
-        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
-        SwerveModuleState[] states = this.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds, new Translation2d(0.0, 0.0));
-        states[0].angle = new Rotation2d(Math.PI / 2 - Math.atan(DriveTrainConstants.TRACK_WIDTH_METERS / DriveTrainConstants.WHEEL_BASE_METERS));
-        states[1].angle = new Rotation2d(Math.PI / 2 + Math.atan(DriveTrainConstants.TRACK_WIDTH_METERS / DriveTrainConstants.WHEEL_BASE_METERS));
-        states[2].angle = new Rotation2d(Math.PI / 2 + Math.atan(DriveTrainConstants.TRACK_WIDTH_METERS / DriveTrainConstants.WHEEL_BASE_METERS));
-        states[3].angle = new Rotation2d(3.0 / 2.0 * Math.PI - Math.atan(DriveTrainConstants.TRACK_WIDTH_METERS / DriveTrainConstants.WHEEL_BASE_METERS));
+    // public void setXStance() {
+    //     ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+    //     SwerveModuleState[] states = this.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds, new Translation2d(0.0, 0.0));
+    //     states[0].angle = new Rotation2d(Math.PI / 2 - Math.atan(DriveTrainConstants.TRACK_WIDTH_METERS / DriveTrainConstants.WHEEL_BASE_METERS));
+    //     states[1].angle = new Rotation2d(Math.PI / 2 + Math.atan(DriveTrainConstants.TRACK_WIDTH_METERS / DriveTrainConstants.WHEEL_BASE_METERS));
+    //     states[2].angle = new Rotation2d(Math.PI / 2 + Math.atan(DriveTrainConstants.TRACK_WIDTH_METERS / DriveTrainConstants.WHEEL_BASE_METERS));
+    //     states[3].angle = new Rotation2d(3.0 / 2.0 * Math.PI - Math.atan(DriveTrainConstants.TRACK_WIDTH_METERS / DriveTrainConstants.WHEEL_BASE_METERS));
 
-        setModuleStates(states, true, true);
-    }
+    //     setModuleStates(states, true, true);
+    // }
 
     /**
      * 

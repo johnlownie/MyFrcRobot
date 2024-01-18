@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 import frc.lib.util.COTSTalonFXSwerveConstants;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.utils.Conversions;
 import frc.robot.utils.LoggedTunableNumber;
@@ -69,6 +70,11 @@ public class SwerveModule {
     protected final CANcoder encoder;
 
     protected final Rotation2d angleOffset;
+
+    /* Variables */
+    private double angleAbsolutePositionDeg;
+    private double anglePositionDeg;
+    private double angleVelocityRevPerMin;
 
     /**
      * 
@@ -195,17 +201,24 @@ public class SwerveModule {
     /**
      * 
      */
+    public int getModuleId() {
+        return this.module_id;
+    }
+
+    /**
+     * 
+     */
     public SwerveModulePosition getPosition(){
         return new SwerveModulePosition(
             Conversions.rotationsToMeters(this.driveMotor.getPosition().getValue(), CHOSEN_MODULE.wheelCircumference), 
-            Rotation2d.fromRotations(this.angleMotor.getPosition().getValue())
+                Rotation2d.fromRotations(this.angleMotor.getPosition().getValue())
         );
     }
 
     public SwerveModuleState getState(){
         return new SwerveModuleState(
             Conversions.RPSToMPS(this.driveMotor.getVelocity().getValue(), CHOSEN_MODULE.wheelCircumference), 
-            Rotation2d.fromRotations(this.angleMotor.getPosition().getValue())
+                Rotation2d.fromRotations(this.angleMotor.getPosition().getValue())
         );
     }
 
@@ -233,4 +246,59 @@ public class SwerveModule {
         }
     }
 
+    public void updatePositions() {
+        // if (RobotConstants.TUNING_MODE) {
+        //     if (driveKp.hasChanged(hashCode()) || driveKi.hasChanged(hashCode()) || driveKd.hasChanged(hashCode())) {
+        //         this.driveMotor.config_kP(SLOT_INDEX, this.driveKp.get());
+        //         this.driveMotor.config_kI(SLOT_INDEX, this.driveKi.get());
+        //         this.driveMotor.config_kD(SLOT_INDEX, this.driveKd.get());
+        //     }
+            
+        //     if (angleKp.hasChanged(hashCode()) || angleKi.hasChanged(hashCode()) || angleKd.hasChanged(hashCode())) {
+        //         this.angleMotor.config_kP(SLOT_INDEX, this.angleKp.get());
+        //         this.angleMotor.config_kI(SLOT_INDEX, this.angleKi.get());
+        //         this.angleMotor.config_kD(SLOT_INDEX, this.angleKd.get());
+        //     }
+        // }
+
+        updateAnglePosition();
+        updateDrivePosition();
+    }
+
+    /**
+     * 
+     */
+    protected void updateAnglePosition() {
+        this.angleAbsolutePositionDeg = this.encoder.getAbsolutePosition().getValueAsDouble();
+        this.anglePositionDeg = Conversions.toDegrees(this.angleMotor.getPosition().getValueAsDouble(), CHOSEN_MODULE.angleGearRatio);
+        this.angleVelocityRevPerMin = Conversions.toRPM(this.angleMotor.getVelocity().getValueAsDouble(), CHOSEN_MODULE.angleGearRatio);
+
+        // this.turnAppliedPercentage = this.angleMotor.getMotorOutputPercent();
+        // this.turnCurrentAmps = new double[] { this.turnMotor.getStatorCurrent()};
+        // this.turnTempCelsius = new double[] { this.turnMotor.getTemperature()};
+    }
+
+    /**
+     * 
+     */
+    protected void updateDrivePosition() {
+        // this.drivePositionDegrees = Conversions.toDegrees(this.driveMotor.getSelectedSensorPosition(), MK4I_L2.DRIVE_GEAR_RATIO);
+        // this.driveDistanceMeters = Conversions.toMeters(this.driveMotor.getSelectedSensorPosition(), MK4I_L2.DRIVE_GEAR_RATIO);
+        // this.driveVelocityMetersPerSecond = Conversions.toMPS(this.driveMotor.getSelectedSensorVelocity(), MK4I_L2.DRIVE_GEAR_RATIO);
+    
+        // this.driveAppliedPercentage = this.driveMotor.getMotorOutputPercent();
+        // this.driveCurrentAmps = new double[] { this.driveMotor.getStatorCurrent() };
+        // this.driveTempCelsius = new double[] { this.driveMotor.getTemperature() };
+    }
+
+    /**
+     * Getters and Setters
+     */
+    public double getAngleAbsolutePositionDeg() { return this.angleAbsolutePositionDeg; }
+    public double getAnglePositionDeg() { return this.anglePositionDeg; }
+    public double getAngleVelocityRevPerMin() { return this.angleVelocityRevPerMin; }
+    
+    public void setAngleAbsolutePositionDeg(double angleAbsolutePositionDeg) { this.angleAbsolutePositionDeg = angleAbsolutePositionDeg; }
+    public void setAnglePositionDeg(double anglePositionDeg) { this.anglePositionDeg = anglePositionDeg; }
+    public void setAngleVelocityRevPerMin(double angleVelocityRevPerMin) { this.angleVelocityRevPerMin = angleVelocityRevPerMin; }
 }

@@ -93,10 +93,10 @@ abstract public class RobotContainer {
                 .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)));
 
         // X-Stance Pose
-        this.driverController.xStance().ifPresent(trigger -> trigger.onTrue(
-            run(this.swerveDrive::setXStance)
-            .until(this.driverController.driverWantsControl())
-        ));
+        // this.driverController.xStance().ifPresent(trigger -> trigger.onTrue(
+        //     run(this.swerveDrive::setXStance)
+        //     .until(this.driverController.driverWantsControl())
+        // ));
 
         /* Operator Buttons */
     }

@@ -1,19 +1,11 @@
 package frc.robot.utils;
 
+import frc.robot.Constants.SwerveModuleConstants;
+
 /**
  * 
  */
 public class Conversions {
-    /**
-     * @param wheelRPS      Wheel Velocity: (in Rotations per Second)
-     * @param circumference Wheel Circumference: (in Meters)
-     * @return Wheel Velocity: (in Meters per Second)
-     */
-    public static double RPSToMPS(double wheelRPS, double circumference) {
-        double wheelMPS = wheelRPS * circumference;
-        return wheelMPS;
-    }
-
     /**
      * @param wheelMPS      Wheel Velocity: (in Meters per Second)
      * @param circumference Wheel Circumference: (in Meters)
@@ -25,13 +17,13 @@ public class Conversions {
     }
 
     /**
-     * @param wheelRotations Wheel Position: (in Rotations)
-     * @param circumference  Wheel Circumference: (in Meters)
-     * @return Wheel Distance: (in Meters)
+     * @param wheelRPS      Wheel Velocity: (in Rotations per Second)
+     * @param circumference Wheel Circumference: (in Meters)
+     * @return Wheel Velocity: (in Meters per Second)
      */
-    public static double rotationsToMeters(double wheelRotations, double circumference) {
-        double wheelMeters = wheelRotations * circumference;
-        return wheelMeters;
+    public static double RPSToMPS(double wheelRPS, double circumference) {
+        double wheelMPS = wheelRPS * circumference;
+        return wheelMPS;
     }
 
     /**
@@ -42,5 +34,31 @@ public class Conversions {
     public static double metersToRotations(double wheelMeters, double circumference) {
         double wheelRotations = wheelMeters / circumference;
         return wheelRotations;
+    }
+
+    /**
+     * @param wheelRotations Wheel Position: (in Rotations)
+     * @param circumference  Wheel Circumference: (in Meters)
+     * @return Wheel Distance: (in Meters)
+     */
+    public static double rotationsToMeters(double wheelRotations, double circumference) {
+        double wheelMeters = wheelRotations * circumference;
+        return wheelMeters;
+    }
+    
+    /**
+     * 
+     */
+    public static double toDegrees(double position, double gear_ratio) {
+        return position * (360.0 / (gear_ratio * SwerveModuleConstants.TICKS_PER_ROTATION));
+    }
+
+    /**
+     * 
+     */
+    public static double toRPM(double velocity, double gear_ratio) {
+        double motorRPM = velocity * 600.0 / SwerveModuleConstants.TICKS_PER_ROTATION;
+
+        return motorRPM / gear_ratio;
     }
 }
