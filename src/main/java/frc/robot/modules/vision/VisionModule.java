@@ -6,8 +6,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 import org.photonvision.EstimatedRobotPose;
@@ -30,7 +28,6 @@ import frc.robot.Constants.VisionConstants;
 /**
  * 
  */
-// @AutoLog
 public class VisionModule implements Runnable {
     protected final PhotonPoseEstimator frontCameraPhotonPoseEstimator;
     protected final PhotonPoseEstimator rearCameraPhotonPoseEstimator;

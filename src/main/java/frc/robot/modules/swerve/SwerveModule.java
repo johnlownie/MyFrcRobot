@@ -1,8 +1,7 @@
 package frc.robot.modules.swerve;
 
-import org.littletonrobotics.junction.AutoLog;
-
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -16,7 +15,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-
+import edu.wpi.first.wpilibj.DutyCycle;
 import frc.lib.util.COTSTalonFXSwerveConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SwerveModuleConstants;
@@ -45,7 +44,7 @@ public class SwerveModule {
     public static final COTSTalonFXSwerveConstants CHOSEN_MODULE = COTSTalonFXSwerveConstants.SDS.MK4i.Falcon500(COTSTalonFXSwerveConstants.SDS.MK4i.driveRatios.L2);
 
     /* Drive motor control requests */
-    private final DutyCycleOut driveDutyCycle = new DutyCycleOut(0);
+    protected final DutyCycleOut driveDutyCycle = new DutyCycleOut(0);
     private final VelocityVoltage driveVelocity = new VelocityVoltage(0);
 
     /* Angle motor control requests */
@@ -72,9 +71,10 @@ public class SwerveModule {
     protected final Rotation2d angleOffset;
 
     /* Variables */
-    private double angleAbsolutePositionDeg;
-    private double anglePositionDeg;
-    private double angleVelocityRevPerMin;
+    protected double angleAbsolutePositionDeg;
+    protected double anglePositionDeg;
+    protected double angleVelocityRevPerMin;
+    protected double angleLastAngle;
 
     /**
      * 
@@ -226,40 +226,73 @@ public class SwerveModule {
      * 
      */
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop){
-        desiredState = SwerveModuleState.optimize(desiredState, getState().angle); 
-        this.angleMotor.setControl(anglePosition.withPosition(desiredState.angle.getRotations()));
-        setSpeed(desiredState, isOpenLoop);
+        desiredState = SwerveModuleState.optimize(desiredState, getState().angle);
+
+        setAngleState(desiredState);
+        setDriveState(desiredState, isOpenLoop);
     }
 
     /**
      * 
      */
-    private void setSpeed(SwerveModuleState desiredState, boolean isOpenLoop){
+    protected void setAngleState(SwerveModuleState desiredState) {
+        setAngleVoltage(this.anglePosition.withPosition(desiredState.angle.getRotations()));
+    }
+
+    /**
+     * 
+     */
+    protected void setAngleVoltage(PositionVoltage positionVoltage) {
+        this.angleMotor.setControl(positionVoltage);
+    }
+
+    /**
+     * 
+     */
+    protected void setDriveState(SwerveModuleState desiredState, boolean isOpenLoop){
         if(isOpenLoop){
-            driveDutyCycle.Output = desiredState.speedMetersPerSecond / SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
-            this.driveMotor.setControl(driveDutyCycle);
+            this.driveDutyCycle.Output = desiredState.speedMetersPerSecond / SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
+            setDriveVoltage(driveDutyCycle);
         }
         else {
-            driveVelocity.Velocity = Conversions.MPSToRPS(desiredState.speedMetersPerSecond, CHOSEN_MODULE.wheelCircumference);
-            driveVelocity.FeedForward = this.feedForward.calculate(desiredState.speedMetersPerSecond);
-            this.driveMotor.setControl(driveVelocity);
+            this.driveVelocity.Velocity = Conversions.MPSToRPS(desiredState.speedMetersPerSecond, CHOSEN_MODULE.wheelCircumference);
+            this.driveVelocity.FeedForward = this.feedForward.calculate(desiredState.speedMetersPerSecond);
+            setDriveVelocity(driveVelocity);
         }
     }
 
+    /**
+     * 
+     */
+    protected void setDriveVelocity(VelocityVoltage velocityVoltage) {
+        this.driveMotor.setControl(velocityVoltage);
+    }
+
+    /**
+     * 
+     */
+    protected void setDriveVoltage(DutyCycleOut dutyCycleOut) {
+        this.driveMotor.setControl(dutyCycleOut);
+    }
+
     public void updatePositions() {
-        // if (RobotConstants.TUNING_MODE) {
-        //     if (driveKp.hasChanged(hashCode()) || driveKi.hasChanged(hashCode()) || driveKd.hasChanged(hashCode())) {
-        //         this.driveMotor.config_kP(SLOT_INDEX, this.driveKp.get());
-        //         this.driveMotor.config_kI(SLOT_INDEX, this.driveKi.get());
-        //         this.driveMotor.config_kD(SLOT_INDEX, this.driveKd.get());
-        //     }
+        if (RobotConstants.TUNING_MODE) {
+            if (driveKp.hasChanged(hashCode()) || driveKi.hasChanged(hashCode()) || driveKd.hasChanged(hashCode())) {
+                Slot0Configs slot0Configs = new Slot0Configs();
+                slot0Configs.kP = this.driveKp.get();
+                slot0Configs.kI = this.driveKi.get();
+                slot0Configs.kD = this.driveKd.get();
+                this.driveMotor.getConfigurator().refresh(slot0Configs);
+            }
             
-        //     if (angleKp.hasChanged(hashCode()) || angleKi.hasChanged(hashCode()) || angleKd.hasChanged(hashCode())) {
-        //         this.angleMotor.config_kP(SLOT_INDEX, this.angleKp.get());
-        //         this.angleMotor.config_kI(SLOT_INDEX, this.angleKi.get());
-        //         this.angleMotor.config_kD(SLOT_INDEX, this.angleKd.get());
-        //     }
-        // }
+            if (angleKp.hasChanged(hashCode()) || angleKi.hasChanged(hashCode()) || angleKd.hasChanged(hashCode())) {
+                Slot0Configs slot0Configs = new Slot0Configs();
+                slot0Configs.kP = this.angleKp.get();
+                slot0Configs.kI = this.angleKi.get();
+                slot0Configs.kD = this.angleKd.get();
+                this.angleMotor.getConfigurator().refresh(slot0Configs);
+            }
+        }
 
         updateAnglePosition();
         updateDrivePosition();

@@ -1,11 +1,10 @@
 package frc.robot.modules.swerve;
 
-import java.time.LocalDateTime;
-
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
@@ -13,11 +12,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.lib.util.Timer;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SwerveModuleConstants;
+import frc.robot.utils.Conversions;
 import frc.robot.utils.LoggedTunableNumber;
 
 /**
@@ -70,7 +71,6 @@ public class SwerveModuleSimulator extends SwerveModule {
 
     private double driveAppliedVolts = 0.0;
     private double driveSetpointMPS = 0.0;
-    private double driveSetpointPercentage = 0.0;
     private double driveVelocityMetersPerSecond = 0.0;
 
     private boolean isOpenLoop;
@@ -101,7 +101,7 @@ public class SwerveModuleSimulator extends SwerveModule {
         double pidOutput = this.angleController.calculate(this.angleRelativePositionRadians, this.angleSetpointDegrees * (Math.PI / 180.0));
 
         this.angleAppliedVolts = MathUtil.clamp(pidOutput, -12.0, 12.0);
-        this.angleMotor.setVoltage(this.angleAppliedVolts);
+        this.angleMotorSim.setInputVoltage(this.angleAppliedVolts);
     }
 
     /**
@@ -110,8 +110,8 @@ public class SwerveModuleSimulator extends SwerveModule {
     private void applyDriveSettings() {
         if (isOpenLoop) {
             this.driveController.reset();
-            this.driveAppliedVolts = MathUtil.clamp(this.driveSetpointPercentage * 12.0, -12.0, 12.0);
-            this.driveMotor.setVoltage(this.driveAppliedVolts);
+            this.driveAppliedVolts = MathUtil.clamp(this.driveDutyCycle.Output * 12.0, -12.0, 12.0);
+            this.driveMotorSim.setInputVoltage(this.driveAppliedVolts);
         }
         else {
             double velocityRadiansPerSecond = this.driveSetpointMPS * (2.0 * Math.PI) / (CHOSEN_MODULE.wheelCircumference);
@@ -125,12 +125,43 @@ public class SwerveModuleSimulator extends SwerveModule {
             Logger.recordOutput("Subsystems/SwerveDrive/SwerveModuleSimulator[" + getModuleId() + "]/Drive PID Output", pidOutput);
         }
     }
+
+    /**
+     * 
+     */
+    @Override
+    protected void setAngleVoltage(PositionVoltage positionVoltage) {
+        super.setAngleVoltage(positionVoltage);
+
+        this.angleMotorSim.setInputVoltage(positionVoltage.Position);
+    }
+
+    /**
+     * 
+     */
+    protected void setDriveVelocity(VelocityVoltage velocityVoltage) {
+        super.setDriveVelocity(velocityVoltage);
+
+        this.driveMotorSim.setInputVoltage(velocityVoltage.FeedForward);
+    }
+
+    /**
+     * 
+     */
+    protected void setDriveVoltage(DutyCycleOut dutyCycleOut) {
+        super.setDriveVoltage(dutyCycleOut);
+
+        this.driveMotorSim.setInputVoltage(dutyCycleOut.Output);
+    }
     
     /**
      * 
      */
     @Override
     public void updatePositions() {
+        // update the simulated motors
+        this.angleMotorSim.update(RobotConstants.LOOP_PERIOD_SECS);
+        this.driveMotorSim.update(RobotConstants.LOOP_PERIOD_SECS);
 
         super.updateAnglePosition();
         super.updateDrivePosition();
