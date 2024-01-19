@@ -174,9 +174,6 @@ public class VisionModule implements Runnable {
             }
         });
 
-        Logger.recordOutput("Subsystems/Vision/" + camera + "/hasTargets", results.hasTargets());
-        Logger.recordOutput("Subsystems/Vision/" + camera + "/TargetCount", results.hasTargets() ? results.getTargets().size() : 0);
-
         List<String> targetIds = new ArrayList<String>();
         for (PhotonTrackedTarget target : results.getTargets()) {
             targetIds.add("" + target.getFiducialId());

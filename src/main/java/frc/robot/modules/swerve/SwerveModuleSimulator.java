@@ -39,6 +39,15 @@ public class SwerveModuleSimulator extends SwerveModule {
     private final double DRIVE_KV = 0.40126 / 12.0; // 0.133240;
     private final double DRIVE_KA = 0.0225;  // 0.0;
 
+    /* Tunable PID */
+    private final LoggedTunableNumber driveKp = new LoggedTunableNumber("Drive/DriveKp", DRIVE_KP);
+    private final LoggedTunableNumber driveKi = new LoggedTunableNumber("Drive/DriveKi", DRIVE_KI);
+    private final LoggedTunableNumber driveKd = new LoggedTunableNumber("Drive/DriveKd", DRIVE_KD);
+
+    private final LoggedTunableNumber turnKp = new LoggedTunableNumber("Drive/TurnKp", TURN_KP);
+    private final LoggedTunableNumber turnKi = new LoggedTunableNumber("Drive/TurnKi", TURN_KI);
+    private final LoggedTunableNumber turnKd = new LoggedTunableNumber("Drive/TurnKd", TURN_KD);
+
     private final SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
 
     /* Simulated Motors */
@@ -46,12 +55,25 @@ public class SwerveModuleSimulator extends SwerveModule {
     private FlywheelSim angleMotorSim;
 
     private PIDController driveController;
-    private PIDController turnController;
+    private PIDController angleController;
     
     private TalonFXSimState driveSimState;
     private TalonFXSimState angleSimState;
 
     private final CANcoderSimState canCoderSimState;
+
+    /* Local Variables */
+    private double angleAbsolutePositionRadians = Math.random() * 2.0 * Math.PI;
+    private double angleAppliedVolts = 0.0;
+    private double angleRelativePositionRadians = 0.0;
+    private double angleSetpointDegrees = 0.0;
+
+    private double driveAppliedVolts = 0.0;
+    private double driveSetpointMPS = 0.0;
+    private double driveSetpointPercentage = 0.0;
+    private double driveVelocityMetersPerSecond = 0.0;
+
+    private boolean isOpenLoop;
 
     /**
      * 
@@ -62,20 +84,24 @@ public class SwerveModuleSimulator extends SwerveModule {
         this.driveMotorSim = new FlywheelSim(DCMotor.getFalcon500(1), CHOSEN_MODULE.driveGearRatio, 0.025);
         this.angleMotorSim = new FlywheelSim(DCMotor.getFalcon500(1), CHOSEN_MODULE.angleGearRatio, 0.004096955);
 
+        this.driveController = new PIDController(driveKp.get(), driveKi.get(), driveKd.get());
+        this.angleController = new PIDController(turnKp.get(), turnKi.get(), turnKd.get());
+
         this.driveSimState = this.driveMotor.getSimState();
         this.angleSimState = this.angleMotor.getSimState();
         this.canCoderSimState = this.encoder.getSimState();
+
+        this.isOpenLoop = true;
     }
 
     /**
      * 
      */
-    @Override
-    protected void applyAngleSettings() {
-        double pidOutput = this.turnController.calculate(this.turnRelativePositionRadians, this.turnSetpointDegrees * (Math.PI / 180.0));
+    private void applyAngleSettings() {
+        double pidOutput = this.angleController.calculate(this.angleRelativePositionRadians, this.angleSetpointDegrees * (Math.PI / 180.0));
 
-        this.turnAppliedVolts = MathUtil.clamp(pidOutput, -12.0, 12.0);
-        this.turnMotor.setInputVoltage(this.turnAppliedVolts);
+        this.angleAppliedVolts = MathUtil.clamp(pidOutput, -12.0, 12.0);
+        this.angleMotor.setVoltage(this.angleAppliedVolts);
     }
 
     /**
@@ -85,18 +111,18 @@ public class SwerveModuleSimulator extends SwerveModule {
         if (isOpenLoop) {
             this.driveController.reset();
             this.driveAppliedVolts = MathUtil.clamp(this.driveSetpointPercentage * 12.0, -12.0, 12.0);
-            this.driveMotor.setInputVoltage(this.driveAppliedVolts);
+            this.driveMotor.setVoltage(this.driveAppliedVolts);
         }
         else {
-            double velocityRadiansPerSecond = this.driveSetpointMPS * (2.0 * Math.PI) / (MK4I_L2.WHEEL_CIRCUMFERENCE);
+            double velocityRadiansPerSecond = this.driveSetpointMPS * (2.0 * Math.PI) / (CHOSEN_MODULE.wheelCircumference);
             double ffOutput = this.feedForward.calculate(velocityRadiansPerSecond); 
             double pidOutput =  this.driveController.calculate(this.driveVelocityMetersPerSecond, velocityRadiansPerSecond);
             
             this.driveAppliedVolts = MathUtil.clamp(ffOutput + pidOutput, -12.0, 12.0);
-            this.driveMotor.setInputVoltage(this.driveAppliedVolts);
+            this.driveMotor.setVoltage(this.driveAppliedVolts);
 
-            Logger.getInstance().recordOutput("Subsystems/SwerveDrive/SwerveModuleSimulator[" + getModuleId() + "]/Drive FF Output", ffOutput);
-            Logger.getInstance().recordOutput("Subsystems/SwerveDrive/SwerveModuleSimulator[" + getModuleId() + "]/Drive PID Output", pidOutput);
+            Logger.recordOutput("Subsystems/SwerveDrive/SwerveModuleSimulator[" + getModuleId() + "]/Drive FF Output", ffOutput);
+            Logger.recordOutput("Subsystems/SwerveDrive/SwerveModuleSimulator[" + getModuleId() + "]/Drive PID Output", pidOutput);
         }
     }
     

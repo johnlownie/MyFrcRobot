@@ -264,7 +264,7 @@ public final class Constants {
 
         // for simulation only
         public static final double DIAGONAL_FOV = 70;
-        public static final int IMG_WIDTH = 640;
-        public static final int IMG_HEIGHT = 480;
+        public static final int IMG_WIDTH = 800;
+        public static final int IMG_HEIGHT = 600;
     }
  }
