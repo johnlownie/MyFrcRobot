@@ -2,6 +2,7 @@ package frc.robot.modules.swerve;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -12,6 +13,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
@@ -31,9 +33,9 @@ public class SwerveModuleSimulator extends SwerveModule {
     private final double DRIVE_KD = 0.0;
 
     /* Simulated Turn Motor PID Values */
-    private final double TURN_KP = 12.0;
-    private final double TURN_KI = 0.0;
-    private final double TURN_KD = 0.0;
+    private final double ANGLE_KP = 12.0;
+    private final double ANGLE_KI = 0.0;
+    private final double ANGLE_KD = 0.0;
 
     /* Simulated Drive Motor Characterization Values */
     private final double DRIVE_KS = 0.0545;  // 0.116970;
@@ -45,9 +47,9 @@ public class SwerveModuleSimulator extends SwerveModule {
     private final LoggedTunableNumber driveKi = new LoggedTunableNumber("Drive/DriveKi", DRIVE_KI);
     private final LoggedTunableNumber driveKd = new LoggedTunableNumber("Drive/DriveKd", DRIVE_KD);
 
-    private final LoggedTunableNumber turnKp = new LoggedTunableNumber("Drive/TurnKp", TURN_KP);
-    private final LoggedTunableNumber turnKi = new LoggedTunableNumber("Drive/TurnKi", TURN_KI);
-    private final LoggedTunableNumber turnKd = new LoggedTunableNumber("Drive/TurnKd", TURN_KD);
+    private final LoggedTunableNumber angleKp = new LoggedTunableNumber("Drive/TurnKp", ANGLE_KP);
+    private final LoggedTunableNumber angleKi = new LoggedTunableNumber("Drive/TurnKi", ANGLE_KI);
+    private final LoggedTunableNumber angleKd = new LoggedTunableNumber("Drive/TurnKd", ANGLE_KD);
 
     private final SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
 
@@ -63,18 +65,6 @@ public class SwerveModuleSimulator extends SwerveModule {
 
     private final CANcoderSimState canCoderSimState;
 
-    /* Local Variables */
-    private double angleAbsolutePositionRadians = Math.random() * 2.0 * Math.PI;
-    private double angleAppliedVolts = 0.0;
-    private double angleRelativePositionRadians = 0.0;
-    private double angleSetpointDegrees = 0.0;
-
-    private double driveAppliedVolts = 0.0;
-    private double driveSetpointMPS = 0.0;
-    private double driveVelocityMetersPerSecond = 0.0;
-
-    private boolean isOpenLoop;
-
     /**
      * 
      */
@@ -85,45 +75,33 @@ public class SwerveModuleSimulator extends SwerveModule {
         this.angleMotorSim = new FlywheelSim(DCMotor.getFalcon500(1), CHOSEN_MODULE.angleGearRatio, 0.004096955);
 
         this.driveController = new PIDController(driveKp.get(), driveKi.get(), driveKd.get());
-        this.angleController = new PIDController(turnKp.get(), turnKi.get(), turnKd.get());
+        this.angleController = new PIDController(angleKp.get(), angleKi.get(), angleKd.get());
 
         this.driveSimState = this.driveMotor.getSimState();
         this.angleSimState = this.angleMotor.getSimState();
         this.canCoderSimState = this.encoder.getSimState();
-
-        this.isOpenLoop = true;
     }
 
     /**
      * 
      */
-    private void applyAngleSettings() {
-        double pidOutput = this.angleController.calculate(this.angleRelativePositionRadians, this.angleSetpointDegrees * (Math.PI / 180.0));
-
-        this.angleAppliedVolts = MathUtil.clamp(pidOutput, -12.0, 12.0);
-        this.angleMotorSim.setInputVoltage(this.angleAppliedVolts);
+    @Override
+    public SwerveModulePosition getPosition() {
+        return new SwerveModulePosition(
+            Conversions.RPSToMPS(this.driveMotorSim.getAngularVelocityRPM(), CHOSEN_MODULE.wheelCircumference), 
+            Rotation2d.fromRotations(this.angleMotorSim.getAngularVelocityRadPerSec())
+        );
     }
 
     /**
      * 
      */
-    private void applyDriveSettings() {
-        if (isOpenLoop) {
-            this.driveController.reset();
-            this.driveAppliedVolts = MathUtil.clamp(this.driveDutyCycle.Output * 12.0, -12.0, 12.0);
-            this.driveMotorSim.setInputVoltage(this.driveAppliedVolts);
-        }
-        else {
-            double velocityRadiansPerSecond = this.driveSetpointMPS * (2.0 * Math.PI) / (CHOSEN_MODULE.wheelCircumference);
-            double ffOutput = this.feedForward.calculate(velocityRadiansPerSecond); 
-            double pidOutput =  this.driveController.calculate(this.driveVelocityMetersPerSecond, velocityRadiansPerSecond);
-            
-            this.driveAppliedVolts = MathUtil.clamp(ffOutput + pidOutput, -12.0, 12.0);
-            this.driveMotor.setVoltage(this.driveAppliedVolts);
-
-            Logger.recordOutput("Subsystems/SwerveDrive/SwerveModuleSimulator[" + getModuleId() + "]/Drive FF Output", ffOutput);
-            Logger.recordOutput("Subsystems/SwerveDrive/SwerveModuleSimulator[" + getModuleId() + "]/Drive PID Output", pidOutput);
-        }
+    @Override
+    public SwerveModuleState getState() {
+        return new SwerveModuleState(
+            Conversions.RADToMPS(this.driveMotorSim.getAngularVelocityRadPerSec(), CHOSEN_MODULE.wheelCircumference), 
+            Rotation2d.fromRotations(this.angleMotorSim.getAngularVelocityRadPerSec())
+        );
     }
 
     /**
@@ -139,19 +117,23 @@ public class SwerveModuleSimulator extends SwerveModule {
     /**
      * 
      */
+    @Override
     protected void setDriveVelocity(VelocityVoltage velocityVoltage) {
         super.setDriveVelocity(velocityVoltage);
 
-        this.driveMotorSim.setInputVoltage(velocityVoltage.FeedForward);
+        double voltage = MathUtil.clamp(velocityVoltage.FeedForward, -12.0, 12.0);
+        this.driveMotorSim.setInputVoltage(voltage);
     }
 
     /**
      * 
      */
+    @Override
     protected void setDriveVoltage(DutyCycleOut dutyCycleOut) {
         super.setDriveVoltage(dutyCycleOut);
-
-        this.driveMotorSim.setInputVoltage(dutyCycleOut.Output);
+        
+        double voltage = MathUtil.clamp(dutyCycleOut.Output * 12.0, -12.0, 12.0);
+        this.driveMotorSim.setInputVoltage(voltage);
     }
     
     /**
@@ -163,12 +145,22 @@ public class SwerveModuleSimulator extends SwerveModule {
         this.angleMotorSim.update(RobotConstants.LOOP_PERIOD_SECS);
         this.driveMotorSim.update(RobotConstants.LOOP_PERIOD_SECS);
 
-        super.updateAnglePosition();
-        super.updateDrivePosition();
-
-        applyAngleSettings();
-        applyDriveSettings();
-  
-        // Logger.getInstance().processInputs("SwerveModuleSimulator", this);
+        if (RobotConstants.TUNING_MODE) {
+            if (driveKp.hasChanged(hashCode()) || driveKi.hasChanged(hashCode()) || driveKd.hasChanged(hashCode())) {
+                Slot0Configs slot0Configs = new Slot0Configs();
+                slot0Configs.kP = this.driveKp.get();
+                slot0Configs.kI = this.driveKi.get();
+                slot0Configs.kD = this.driveKd.get();
+                this.driveMotor.getConfigurator().refresh(slot0Configs);
+            }
+            
+            if (angleKp.hasChanged(hashCode()) || angleKi.hasChanged(hashCode()) || angleKd.hasChanged(hashCode())) {
+                Slot0Configs slot0Configs = new Slot0Configs();
+                slot0Configs.kP = this.angleKp.get();
+                slot0Configs.kI = this.angleKi.get();
+                slot0Configs.kD = this.angleKd.get();
+                this.angleMotor.getConfigurator().refresh(slot0Configs);
+            }
+        }
     }
 }

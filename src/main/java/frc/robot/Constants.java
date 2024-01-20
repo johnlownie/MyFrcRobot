@@ -247,7 +247,7 @@ public final class Constants {
         public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
         public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
 
-        public static final String FRONT_CAMERA_NAME = "FRONT_CAMERA";
+        public static final String FRONT_CAMERA_NAME = "camera1";
         public static final Transform3d FRONT_CAMERA_TO_ROBOT = new Transform3d(
             new Translation3d(0.0, 0.0, -0.5), // cam mounted center of robot, half meter up
             new Rotation3d(0, 0, 0));

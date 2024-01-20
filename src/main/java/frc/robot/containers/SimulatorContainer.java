@@ -8,6 +8,7 @@ import frc.robot.Constants.SwerveModuleConstants.Mod3;
 import frc.robot.modules.gyro.GyroModuleSimulator;
 import frc.robot.modules.swerve.SwerveModule;
 import frc.robot.modules.swerve.SwerveModuleSimulator;
+import frc.robot.modules.vision.VisionModule;
 import frc.robot.modules.vision.VisionModuleSimulator;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -30,6 +31,7 @@ public class SimulatorContainer extends RobotContainer {
         this.swerveModules = new SwerveModuleSimulator[] { frontLeftModule, frontRightModule, rearLeftModule, rearRightModule};
         this.gyroModule = new GyroModuleSimulator();
         this.visionModule = new VisionModuleSimulator();
+        // this.visionModule = new VisionModule();
         
         this.swerveDrive = new SwerveDriveSubsystem(this.swerveModules, DriveTrainConstants.SWERVE_DRIVE_KINEMATICS, this.gyroModule);
         this.poseEstimator = new PoseEstimatorSubsystem(this.swerveDrive::getModulePositions, this.swerveDrive::getRotation, this.visionModule);

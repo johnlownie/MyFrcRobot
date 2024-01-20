@@ -1,5 +1,7 @@
 package frc.robot.modules.swerve;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -208,17 +210,20 @@ public class SwerveModule {
     /**
      * 
      */
-    public SwerveModulePosition getPosition(){
+    public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            Conversions.rotationsToMeters(this.driveMotor.getPosition().getValue(), CHOSEN_MODULE.wheelCircumference), 
+            Conversions.RPSToMPS(this.driveMotor.getPosition().getValue(), CHOSEN_MODULE.wheelCircumference), 
                 Rotation2d.fromRotations(this.angleMotor.getPosition().getValue())
         );
     }
 
-    public SwerveModuleState getState(){
+    /**
+     * 
+     */
+    public SwerveModuleState getState() {
         return new SwerveModuleState(
-            Conversions.RPSToMPS(this.driveMotor.getVelocity().getValue(), CHOSEN_MODULE.wheelCircumference), 
-                Rotation2d.fromRotations(this.angleMotor.getPosition().getValue())
+            Conversions.velocityMPS(this.driveMotor.getVelocity().getValue(), CHOSEN_MODULE.wheelCircumference), 
+            Rotation2d.fromRotations(this.angleMotor.getPosition().getValue())
         );
     }
 
@@ -249,8 +254,8 @@ public class SwerveModule {
     /**
      * 
      */
-    protected void setDriveState(SwerveModuleState desiredState, boolean isOpenLoop){
-        if(isOpenLoop){
+    protected void setDriveState(SwerveModuleState desiredState, boolean isOpenLoop) {
+        if(isOpenLoop) {
             this.driveDutyCycle.Output = desiredState.speedMetersPerSecond / SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
             setDriveVoltage(driveDutyCycle);
         }
@@ -293,45 +298,5 @@ public class SwerveModule {
                 this.angleMotor.getConfigurator().refresh(slot0Configs);
             }
         }
-
-        updateAnglePosition();
-        updateDrivePosition();
     }
-
-    /**
-     * 
-     */
-    protected void updateAnglePosition() {
-        this.angleAbsolutePositionDeg = this.encoder.getAbsolutePosition().getValueAsDouble();
-        this.anglePositionDeg = Conversions.toDegrees(this.angleMotor.getPosition().getValueAsDouble(), CHOSEN_MODULE.angleGearRatio);
-        this.angleVelocityRevPerMin = Conversions.toRPM(this.angleMotor.getVelocity().getValueAsDouble(), CHOSEN_MODULE.angleGearRatio);
-
-        // this.turnAppliedPercentage = this.angleMotor.getMotorOutputPercent();
-        // this.turnCurrentAmps = new double[] { this.turnMotor.getStatorCurrent()};
-        // this.turnTempCelsius = new double[] { this.turnMotor.getTemperature()};
-    }
-
-    /**
-     * 
-     */
-    protected void updateDrivePosition() {
-        // this.drivePositionDegrees = Conversions.toDegrees(this.driveMotor.getSelectedSensorPosition(), MK4I_L2.DRIVE_GEAR_RATIO);
-        // this.driveDistanceMeters = Conversions.toMeters(this.driveMotor.getSelectedSensorPosition(), MK4I_L2.DRIVE_GEAR_RATIO);
-        // this.driveVelocityMetersPerSecond = Conversions.toMPS(this.driveMotor.getSelectedSensorVelocity(), MK4I_L2.DRIVE_GEAR_RATIO);
-    
-        // this.driveAppliedPercentage = this.driveMotor.getMotorOutputPercent();
-        // this.driveCurrentAmps = new double[] { this.driveMotor.getStatorCurrent() };
-        // this.driveTempCelsius = new double[] { this.driveMotor.getTemperature() };
-    }
-
-    /**
-     * Getters and Setters
-     */
-    public double getAngleAbsolutePositionDeg() { return this.angleAbsolutePositionDeg; }
-    public double getAnglePositionDeg() { return this.anglePositionDeg; }
-    public double getAngleVelocityRevPerMin() { return this.angleVelocityRevPerMin; }
-    
-    public void setAngleAbsolutePositionDeg(double angleAbsolutePositionDeg) { this.angleAbsolutePositionDeg = angleAbsolutePositionDeg; }
-    public void setAnglePositionDeg(double anglePositionDeg) { this.anglePositionDeg = anglePositionDeg; }
-    public void setAngleVelocityRevPerMin(double angleVelocityRevPerMin) { this.angleVelocityRevPerMin = angleVelocityRevPerMin; }
 }

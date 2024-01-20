@@ -37,13 +37,12 @@ public class Conversions {
     }
 
     /**
-     * @param wheelRotations Wheel Position: (in Rotations)
+     * @param velocityRadiansPerSecond
      * @param circumference  Wheel Circumference: (in Meters)
-     * @return Wheel Distance: (in Meters)
+     * @return Velocity:(in Meters Per Second)
      */
-    public static double rotationsToMeters(double wheelRotations, double circumference) {
-        double wheelMeters = wheelRotations * circumference;
-        return wheelMeters;
+    public static double RADToMPS(double velocityRadiansPerSecond, double circumference) {
+        return velocityRadiansPerSecond * (circumference / (2.0 * Math.PI));
     }
     
     /**
