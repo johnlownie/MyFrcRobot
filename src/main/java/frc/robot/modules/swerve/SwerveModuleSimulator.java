@@ -65,6 +65,15 @@ public class SwerveModuleSimulator extends SwerveModule {
 
     private final CANcoderSimState canCoderSimState;
 
+    /* Variables */
+    private double angleAbsolutePositionDeg;
+    private double anglePositionDeg = 0.0;
+    private double angleRelativePositionRadians = 0.0;
+    private double angleLastAngle;
+    
+    private double driveDistanceMeters = 0.0;
+    private double driveVelocityMetersPerSecond = 0.0;
+
     /**
      * 
      */
@@ -87,10 +96,12 @@ public class SwerveModuleSimulator extends SwerveModule {
      */
     @Override
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(
-            Conversions.RPSToMPS(this.driveMotorSim.getAngularVelocityRPM(), CHOSEN_MODULE.wheelCircumference), 
-            Rotation2d.fromRotations(this.angleMotorSim.getAngularVelocityRadPerSec())
-        );
+        return new SwerveModulePosition(this.driveDistanceMeters, Rotation2d.fromDegrees(this.anglePositionDeg));
+
+        // return new SwerveModulePosition(
+        //     Conversions.RPSToMPS(this.driveMotorSim.getAngularVelocityRPM(), CHOSEN_MODULE.wheelCircumference), 
+        //     Rotation2d.fromRotations(this.angleMotorSim.getAngularVelocityRadPerSec())
+        // );
     }
 
     /**
@@ -98,10 +109,12 @@ public class SwerveModuleSimulator extends SwerveModule {
      */
     @Override
     public SwerveModuleState getState() {
-        return new SwerveModuleState(
-            Conversions.RADToMPS(this.driveMotorSim.getAngularVelocityRadPerSec(), CHOSEN_MODULE.wheelCircumference), 
-            Rotation2d.fromRotations(this.angleMotorSim.getAngularVelocityRadPerSec())
-        );
+        return new SwerveModuleState(this.driveVelocityMetersPerSecond, Rotation2d.fromDegrees(this.anglePositionDeg));
+
+        // return new SwerveModuleState(
+        //     Conversions.RPSToMPS(this.driveMotorSim.getAngularVelocityRPM() / 60.0, CHOSEN_MODULE.wheelCircumference), 
+        //     Rotation2d.fromRotations(this.angleMotorSim.getAngularVelocityRadPerSec())
+        // );
     }
 
     /**
@@ -141,10 +154,6 @@ public class SwerveModuleSimulator extends SwerveModule {
      */
     @Override
     public void updatePositions() {
-        // update the simulated motors
-        this.angleMotorSim.update(RobotConstants.LOOP_PERIOD_SECS);
-        this.driveMotorSim.update(RobotConstants.LOOP_PERIOD_SECS);
-
         if (RobotConstants.TUNING_MODE) {
             if (driveKp.hasChanged(hashCode()) || driveKi.hasChanged(hashCode()) || driveKd.hasChanged(hashCode())) {
                 Slot0Configs slot0Configs = new Slot0Configs();
@@ -162,5 +171,16 @@ public class SwerveModuleSimulator extends SwerveModule {
                 this.angleMotor.getConfigurator().refresh(slot0Configs);
             }
         }
+
+        // update the simulated motors
+        this.angleMotorSim.update(RobotConstants.LOOP_PERIOD_SECS);
+        this.driveMotorSim.update(RobotConstants.LOOP_PERIOD_SECS);
+
+        double angleDiffRadians = this.angleMotorSim.getAngularVelocityRadPerSec() * RobotConstants.LOOP_PERIOD_SECS;
+        this.angleRelativePositionRadians += angleDiffRadians;
+        this.anglePositionDeg = this.anglePositionDeg * (180.0 / Math.PI);
+
+        this.driveVelocityMetersPerSecond = Conversions.RADToMPS(this.driveMotorSim.getAngularVelocityRadPerSec(), CHOSEN_MODULE.wheelCircumference);
+        this.driveDistanceMeters = this.driveDistanceMeters + (this.driveMotorSim.getAngularVelocityRadPerSec() * RobotConstants.LOOP_PERIOD_SECS * (CHOSEN_MODULE.wheelCircumference / (2.0 * Math.PI)));
     }
 }

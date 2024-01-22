@@ -72,12 +72,6 @@ public class SwerveModule {
 
     protected final Rotation2d angleOffset;
 
-    /* Variables */
-    protected double angleAbsolutePositionDeg;
-    protected double anglePositionDeg;
-    protected double angleVelocityRevPerMin;
-    protected double angleLastAngle;
-
     /**
      * 
      */
@@ -222,7 +216,7 @@ public class SwerveModule {
      */
     public SwerveModuleState getState() {
         return new SwerveModuleState(
-            Conversions.velocityMPS(this.driveMotor.getVelocity().getValue(), CHOSEN_MODULE.wheelCircumference), 
+            Conversions.RPSToMPS(this.driveMotor.getVelocity().getValue(), CHOSEN_MODULE.wheelCircumference), 
             Rotation2d.fromRotations(this.angleMotor.getPosition().getValue())
         );
     }
