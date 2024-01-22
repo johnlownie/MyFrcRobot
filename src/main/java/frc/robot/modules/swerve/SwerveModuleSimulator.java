@@ -69,10 +69,15 @@ public class SwerveModuleSimulator extends SwerveModule {
     private double angleAbsolutePositionDeg;
     private double anglePositionDeg = 0.0;
     private double angleRelativePositionRadians = 0.0;
+    private double angleSetpointDegrees = 0.0;
     private double angleLastAngle;
     
     private double driveDistanceMeters = 0.0;
+    private double driveSetpointPercentage = 0.0;
+    private double driveSetpointMPS = 0.0;
     private double driveVelocityMetersPerSecond = 0.0;
+    
+    private boolean isOpenLoop = false;
 
     /**
      * 
@@ -97,11 +102,6 @@ public class SwerveModuleSimulator extends SwerveModule {
     @Override
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(this.driveDistanceMeters, Rotation2d.fromDegrees(this.anglePositionDeg));
-
-        // return new SwerveModulePosition(
-        //     Conversions.RPSToMPS(this.driveMotorSim.getAngularVelocityRPM(), CHOSEN_MODULE.wheelCircumference), 
-        //     Rotation2d.fromRotations(this.angleMotorSim.getAngularVelocityRadPerSec())
-        // );
     }
 
     /**
@@ -110,43 +110,60 @@ public class SwerveModuleSimulator extends SwerveModule {
     @Override
     public SwerveModuleState getState() {
         return new SwerveModuleState(this.driveVelocityMetersPerSecond, Rotation2d.fromDegrees(this.anglePositionDeg));
-
-        // return new SwerveModuleState(
-        //     Conversions.RPSToMPS(this.driveMotorSim.getAngularVelocityRPM() / 60.0, CHOSEN_MODULE.wheelCircumference), 
-        //     Rotation2d.fromRotations(this.angleMotorSim.getAngularVelocityRadPerSec())
-        // );
     }
 
     /**
      * 
      */
     @Override
-    protected void setAngleVoltage(PositionVoltage positionVoltage) {
-        super.setAngleVoltage(positionVoltage);
+    protected void setAngleState(SwerveModuleState desiredState) {
+        super.setAngleState(desiredState);
 
-        this.angleMotorSim.setInputVoltage(positionVoltage.Position);
+        this.angleSetpointDegrees = desiredState.angle.getDegrees();
     }
 
     /**
      * 
      */
-    @Override
-    protected void setDriveVelocity(VelocityVoltage velocityVoltage) {
-        super.setDriveVelocity(velocityVoltage);
+    protected void setDriveState(SwerveModuleState desiredState, boolean isOpenLoop) {
+        super.setDriveState(desiredState, isOpenLoop);
+        this.isOpenLoop = isOpenLoop;
 
-        double voltage = MathUtil.clamp(velocityVoltage.FeedForward, -12.0, 12.0);
-        this.driveMotorSim.setInputVoltage(voltage);
+        if (isOpenLoop) {
+            this.driveSetpointPercentage = desiredState.speedMetersPerSecond / SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
+        }
+        else {
+            this.driveSetpointMPS = this.feedForward.calculate(desiredState.speedMetersPerSecond);
+        }
     }
 
     /**
      * 
      */
-    @Override
-    protected void setDriveVoltage(DutyCycleOut dutyCycleOut) {
-        super.setDriveVoltage(dutyCycleOut);
-        
-        double voltage = MathUtil.clamp(dutyCycleOut.Output * 12.0, -12.0, 12.0);
-        this.driveMotorSim.setInputVoltage(voltage);
+    private void applyAngleSettings() {
+        double pidOutput = this.angleController.calculate(this.angleRelativePositionRadians, Math.toRadians(this.angleSetpointDegrees));
+
+        double voltage = MathUtil.clamp(pidOutput, -12.0, 12.0);
+        this.angleMotorSim.setInputVoltage(voltage);
+    }
+
+    /**
+     * 
+     */
+    private void applyDriveSettings() {
+        if (this.isOpenLoop) {
+            this.driveController.reset();
+            double voltage = MathUtil.clamp(this.driveSetpointPercentage * 12.0, -12.0, 12.0);
+            this.driveMotorSim.setInputVoltage(voltage);
+            }
+        else {
+            double velocityRadiansPerSecond = this.driveSetpointMPS * (2.0 * Math.PI) / (CHOSEN_MODULE.wheelCircumference);
+            double ffOutput = this.feedForward.calculate(velocityRadiansPerSecond); 
+            double pidOutput =  this.driveController.calculate(this.driveVelocityMetersPerSecond, velocityRadiansPerSecond);
+            
+            double voltage = MathUtil.clamp(ffOutput + pidOutput, -12.0, 12.0);
+            this.driveMotorSim.setInputVoltage(voltage);
+        }
     }
     
     /**
@@ -178,9 +195,12 @@ public class SwerveModuleSimulator extends SwerveModule {
 
         double angleDiffRadians = this.angleMotorSim.getAngularVelocityRadPerSec() * RobotConstants.LOOP_PERIOD_SECS;
         this.angleRelativePositionRadians += angleDiffRadians;
-        this.anglePositionDeg = this.anglePositionDeg * (180.0 / Math.PI);
+        this.anglePositionDeg = this.angleRelativePositionRadians * (180.0 / Math.PI);
 
         this.driveVelocityMetersPerSecond = Conversions.RADToMPS(this.driveMotorSim.getAngularVelocityRadPerSec(), CHOSEN_MODULE.wheelCircumference);
         this.driveDistanceMeters = this.driveDistanceMeters + (this.driveMotorSim.getAngularVelocityRadPerSec() * RobotConstants.LOOP_PERIOD_SECS * (CHOSEN_MODULE.wheelCircumference / (2.0 * Math.PI)));
+
+        applyAngleSettings();
+        applyDriveSettings();
     }
 }

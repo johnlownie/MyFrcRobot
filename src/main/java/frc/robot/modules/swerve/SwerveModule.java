@@ -45,13 +45,6 @@ public class SwerveModule {
     // Default S
     public static final COTSTalonFXSwerveConstants CHOSEN_MODULE = COTSTalonFXSwerveConstants.SDS.MK4i.Falcon500(COTSTalonFXSwerveConstants.SDS.MK4i.driveRatios.L2);
 
-    /* Drive motor control requests */
-    protected final DutyCycleOut driveDutyCycle = new DutyCycleOut(0);
-    private final VelocityVoltage driveVelocity = new VelocityVoltage(0);
-
-    /* Angle motor control requests */
-    private final PositionVoltage anglePosition = new PositionVoltage(0);
-
     private final SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
 
     /* Tunable PID */
@@ -235,13 +228,7 @@ public class SwerveModule {
      * 
      */
     protected void setAngleState(SwerveModuleState desiredState) {
-        setAngleVoltage(this.anglePosition.withPosition(desiredState.angle.getRotations()));
-    }
-
-    /**
-     * 
-     */
-    protected void setAngleVoltage(PositionVoltage positionVoltage) {
+        PositionVoltage positionVoltage = new PositionVoltage(desiredState.angle.getRotations());
         this.angleMotor.setControl(positionVoltage);
     }
 
@@ -250,28 +237,16 @@ public class SwerveModule {
      */
     protected void setDriveState(SwerveModuleState desiredState, boolean isOpenLoop) {
         if(isOpenLoop) {
-            this.driveDutyCycle.Output = desiredState.speedMetersPerSecond / SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
-            setDriveVoltage(driveDutyCycle);
+            double output = desiredState.speedMetersPerSecond / SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
+            this.driveMotor.setControl(new DutyCycleOut(output));
         }
         else {
-            this.driveVelocity.Velocity = Conversions.MPSToRPS(desiredState.speedMetersPerSecond, CHOSEN_MODULE.wheelCircumference);
-            this.driveVelocity.FeedForward = this.feedForward.calculate(desiredState.speedMetersPerSecond);
-            setDriveVelocity(driveVelocity);
+            double velocity = Conversions.MPSToRPS(desiredState.speedMetersPerSecond, CHOSEN_MODULE.wheelCircumference);
+            VelocityVoltage velocityVoltage = new VelocityVoltage(velocity);
+            velocityVoltage.FeedForward = this.feedForward.calculate(desiredState.speedMetersPerSecond);
+
+            this.driveMotor.setControl(velocityVoltage);
         }
-    }
-
-    /**
-     * 
-     */
-    protected void setDriveVelocity(VelocityVoltage velocityVoltage) {
-        this.driveMotor.setControl(velocityVoltage);
-    }
-
-    /**
-     * 
-     */
-    protected void setDriveVoltage(DutyCycleOut dutyCycleOut) {
-        this.driveMotor.setControl(dutyCycleOut);
     }
 
     public void updatePositions() {

@@ -30,7 +30,7 @@ public final class Constants {
     public static final class RobotConstants {
         public static final double ROBOT_LENGTH = Units.inchesToMeters(34.50);
         public static final double LOOP_PERIOD_SECS = 0.02;
-        public static final boolean TUNING_MODE = true;
+        public static final boolean TUNING_MODE = false;
         
         // FIXME: update for various robots
         public enum Mode { REAL, REPLAY, SIM }
