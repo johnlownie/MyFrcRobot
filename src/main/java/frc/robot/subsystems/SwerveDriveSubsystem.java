@@ -81,6 +81,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     /**
      * 
      */
+    public void drive(ChassisSpeeds chassisSpeeds) {
+        drive(chassisSpeeds, true);
+    }
+
+    /**
+     * 
+     */
     public void drive(ChassisSpeeds chassisSpeeds, boolean isOpenLoop) {
         this.desiredChassisSpeeds = chassisSpeeds;
         this.isOpenLoop = isOpenLoop;

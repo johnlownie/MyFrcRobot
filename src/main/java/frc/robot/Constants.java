@@ -89,44 +89,18 @@ public final class Constants {
 
     public static class FieldConstants {
         // Page 4 & 5 of Layout & Marking Diagram manual (https://firstfrc.blob.core.windows.net/frc2023/FieldAssets/2023LayoutMarkingDiagram.pdf) 
-        public static final double LENGTH_METERS = Units.inchesToMeters(651.25);
-        public static final double WIDTH_METERS = Units.inchesToMeters(315.5);
+        public static final double LENGTH_METERS = Units.inchesToMeters(652.73);
+        public static final double WIDTH_METERS = Units.inchesToMeters(323.0);
 
         // AprilTag X + Rail distance = 40.45 + 14.28 (https://firstfrc.blob.core.windows.net/frc2023/FieldAssets/2023FieldDrawings-CHARGEDUPSpecific.pdf)
         public static final double POSE_X = Units.inchesToMeters(40.45 + 14.28) + (RobotConstants.ROBOT_LENGTH / 2);
         public static final double[] POSE_Y = { Units.inchesToMeters(174.19), Units.inchesToMeters(108.19), Units.inchesToMeters(42.19) };
-        public static final double POLE_STRAFE_DISTANCE = Units.inchesToMeters(22.0);
-        public static final double STATION_STRAFE_DISTANCE = Units.inchesToMeters(22.0);
 
         public static final Pose2d[] ALLIANCE_POSES = new Pose2d[] {
             new Pose2d(POSE_X, POSE_Y[0], Rotation2d.fromDegrees(0)),
             new Pose2d(POSE_X, POSE_Y[1], Rotation2d.fromDegrees(0)),
             new Pose2d(POSE_X, POSE_Y[2], Rotation2d.fromDegrees(0))
         };
-
-        public static final Pose2d[][] POLE_POSES = new Pose2d[][] {
-            new Pose2d[] {
-                new Pose2d(POSE_X, POSE_Y[0] + POLE_STRAFE_DISTANCE, Rotation2d.fromDegrees(0)),
-                new Pose2d(POSE_X, POSE_Y[0] - POLE_STRAFE_DISTANCE, Rotation2d.fromDegrees(0))
-            },
-            new Pose2d[] {
-                new Pose2d(POSE_X, POSE_Y[1] + POLE_STRAFE_DISTANCE, Rotation2d.fromDegrees(0)),
-                new Pose2d(POSE_X, POSE_Y[1] - POLE_STRAFE_DISTANCE, Rotation2d.fromDegrees(0))
-            },
-            new Pose2d[] {
-                new Pose2d(POSE_X, POSE_Y[2] + POLE_STRAFE_DISTANCE, Rotation2d.fromDegrees(0)),
-                new Pose2d(POSE_X, POSE_Y[2] - POLE_STRAFE_DISTANCE, Rotation2d.fromDegrees(0))
-            }
-        };
-
-        public static final Pose2d[] GAME_PIECE_POSES = new Pose2d[] {
-            new Pose2d(Units.inchesToMeters(253.54), Units.inchesToMeters(180.71), Rotation2d.fromDegrees(180)),
-            new Pose2d(Units.inchesToMeters(261.0), Units.inchesToMeters(132.19), Rotation2d.fromDegrees(180)),
-            new Pose2d(Units.inchesToMeters(261.0), Units.inchesToMeters( 84.19), Rotation2d.fromDegrees(0)),
-            new Pose2d(Units.inchesToMeters(261.0), Units.inchesToMeters( 36.19), Rotation2d.fromDegrees(0))
-        };
-        
-        public static final Pose2d CHARGE_STATION_EDGE = new Pose2d(POSE_X + Units.inchesToMeters(119.25), POSE_Y[1] + POLE_STRAFE_DISTANCE, Rotation2d.fromDegrees(0));
     }
 
     /**

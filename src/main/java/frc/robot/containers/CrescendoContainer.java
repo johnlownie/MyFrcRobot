@@ -35,8 +35,8 @@ public class CrescendoContainer extends RobotContainer {
 
         setCommands();
 
+        configureAutonomous();
         configureButtonBindings();
-        configureDashboard();
     }
 
     @Override

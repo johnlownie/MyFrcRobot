@@ -152,8 +152,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
      * Resets the position on the field to 0,0 0-degrees, with forward being downfield. This resets
      * what "forward" is for field oriented driving.
      */
-    public void resetFieldPosition() {
-        Pose2d pose2d = new Pose2d(1, 1, new Rotation2d());
+    public void resetPose(Pose2d pose2d) {
         setCurrentPose(pose2d);
         this.visionModule.resetFieldPosition(pose2d);
     }

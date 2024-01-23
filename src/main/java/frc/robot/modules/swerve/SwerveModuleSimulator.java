@@ -1,11 +1,6 @@
 package frc.robot.modules.swerve;
 
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
@@ -66,11 +61,9 @@ public class SwerveModuleSimulator extends SwerveModule {
     private final CANcoderSimState canCoderSimState;
 
     /* Variables */
-    private double angleAbsolutePositionDeg;
     private double anglePositionDeg = 0.0;
     private double angleRelativePositionRadians = 0.0;
     private double angleSetpointDegrees = 0.0;
-    private double angleLastAngle;
     
     private double driveDistanceMeters = 0.0;
     private double driveSetpointPercentage = 0.0;

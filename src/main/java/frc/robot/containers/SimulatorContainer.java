@@ -38,8 +38,8 @@ public class SimulatorContainer extends RobotContainer {
 
         setCommands();
 
+        configureAutonomous();
         configureButtonBindings();
-        configureDashboard();
     }
 
     /**
