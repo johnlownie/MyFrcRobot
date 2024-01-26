@@ -88,13 +88,13 @@ public final class Constants {
     }
 
     public static class FieldConstants {
-        // Page 4 & 5 of Layout & Marking Diagram manual (https://firstfrc.blob.core.windows.net/frc2023/FieldAssets/2023LayoutMarkingDiagram.pdf) 
+        // Page 4 & 5 of Layout & Marking Diagram manual (https://firstfrc.blob.core.windows.net/frc2024/FieldAssets/2024LayoutMarkingDiagram.pdf) 
         public static final double LENGTH_METERS = Units.inchesToMeters(652.73);
         public static final double WIDTH_METERS = Units.inchesToMeters(323.0);
 
-        // AprilTag X + Rail distance = 40.45 + 14.28 (https://firstfrc.blob.core.windows.net/frc2023/FieldAssets/2023FieldDrawings-CHARGEDUPSpecific.pdf)
-        public static final double POSE_X = Units.inchesToMeters(40.45 + 14.28) + (RobotConstants.ROBOT_LENGTH / 2);
-        public static final double[] POSE_Y = { Units.inchesToMeters(174.19), Units.inchesToMeters(108.19), Units.inchesToMeters(42.19) };
+        // Start center of robot 1.0 meters from wall)
+        public static final double POSE_X = Units.inchesToMeters(22.12) + (RobotConstants.ROBOT_LENGTH / 2);
+        public static final double[] POSE_Y = { 7.09, Units.inchesToMeters(108.19), Units.inchesToMeters(42.19) };
 
         public static final Pose2d[] ALLIANCE_POSES = new Pose2d[] {
             new Pose2d(POSE_X, POSE_Y[0], Rotation2d.fromDegrees(0)),
