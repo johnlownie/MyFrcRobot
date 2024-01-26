@@ -3,6 +3,7 @@
     "types": {
       "/AdvantageKit/RealOutputs/Mechanisms/Visualization": "Mechanism2d",
       "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Driver/Autonomous": "String Chooser",
       "/SmartDashboard/SendableChooser[0]": "String Chooser",
       "/SmartDashboard/VisionSystemSim-FRONT_CAMERA/Sim Field": "Field2d",
       "/SmartDashboard/VisionSystemSim-REAR_CAMERA/Sim Field": "Field2d",
