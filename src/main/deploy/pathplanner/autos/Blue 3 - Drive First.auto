@@ -1,0 +1,37 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.0,
+      "y": 2
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Blue3 - Center5"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Center5 - Shoot2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Shoot2 - Center4"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

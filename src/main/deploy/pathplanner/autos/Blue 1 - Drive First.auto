@@ -14,31 +14,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "A1P1"
+            "pathName": "Blue1 - Center1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "A1P2"
+            "pathName": "Center1 - Shoot1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "A1P3"
+            "pathName": "Shoot1 - Center2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "A1P4"
+            "pathName": "Center2 - Shoot1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "A1P5"
+            "pathName": "Shoot1 - Center3"
           }
         }
       ]
