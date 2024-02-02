@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.util.List;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -100,6 +102,20 @@ public final class Constants {
             new Pose2d(POSE_X, POSE_Y[0], Rotation2d.fromDegrees(0)),
             new Pose2d(POSE_X, POSE_Y[1], Rotation2d.fromDegrees(0)),
             new Pose2d(POSE_X, POSE_Y[2], Rotation2d.fromDegrees(0))
+        };
+
+        // relative to rear camera
+        public static final Translation3d[] SPEAKER_POSE_TRANSLATIONS = new Translation3d[] {
+            new Translation3d(Units.inchesToMeters(36.17 + (RobotConstants.ROBOT_LENGTH) / 2), Units.inchesToMeters(-41.75), 0.0),
+            new Translation3d(Units.inchesToMeters(36.17) + (RobotConstants.ROBOT_LENGTH / 2), 0.0, 0.0),
+            new Translation3d(Units.inchesToMeters(36.17 + (RobotConstants.ROBOT_LENGTH) / 2), Units.inchesToMeters(41.75), 0.0)
+        };
+
+        // relative to rear camera
+        public static final Rotation3d[] SPEAKER_POSE_ROTATIONS = new Rotation3d[] {
+            new Rotation3d(0.0, 0.0, Units.degreesToRadians(30)),
+            new Rotation3d(0.0, 0.0, 0.0),
+            new Rotation3d(0.0, 0.0, Units.degreesToRadians(-30))
         };
     }
 
@@ -223,13 +239,13 @@ public final class Constants {
 
         public static final String FRONT_CAMERA_NAME = "camera1";
         public static final Transform3d FRONT_CAMERA_TO_ROBOT = new Transform3d(
-            new Translation3d(0.0, 0.0, -0.5), // cam mounted center of robot, half meter up
+            new Translation3d(0.0, 0.0, -1.5), // cam mounted center of robot, half meter up
             new Rotation3d(0, 0, 0));
         public static final Transform3d ROBOT_TO_FRONT_CAMERA = FRONT_CAMERA_TO_ROBOT.inverse();
 
         public static final String REAR_CAMERA_NAME = "REAR_CAMERA";
         public static final Transform3d REAR_CAMERA_TO_ROBOT = new Transform3d(
-            new Translation3d(0.0, 0.0, -0.5), // cam mounted center of robot, half meter up
+            new Translation3d(0.0, 0.0, -1.5), // cam mounted center of robot, half meter up
             new Rotation3d(0, 0, Math.PI));
         public static final Transform3d ROBOT_TO_REAR_CAMERA = REAR_CAMERA_TO_ROBOT.inverse();
 

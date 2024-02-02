@@ -65,7 +65,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
         this.visionModule.setPoseSupplier(this::getCurrentPose);
         
         setSwerveDrivePoseEstimators();
-        startVisionThread();
+        // startVisionThread();
     }
 
     /**
@@ -129,7 +129,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
             this.estimatedPoseWithoutGyro = this.estimatedPoseWithoutGyro.exp(twist);
         }
     
-        // this.visionModule.process();
+        this.visionModule.process();
         EstimatedRobotPose visionPose = this.visionModule.getFrontLatestEstimatedPose();
         if (visionPose != null) {
             Pose2d pose2d = visionPose.estimatedPose.toPose2d();
@@ -248,8 +248,8 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
      */
     private void startVisionThread() {
         // Start PhotonVision thread
-        this.visionNotifier = new Notifier(this.visionModule);
-        this.visionNotifier.setName("PhotonRunnable");
-        this.visionNotifier.startPeriodic(0.02);
+        // this.visionNotifier = new Notifier(this.visionModule);
+        // this.visionNotifier.setName("PhotonRunnable");
+        // this.visionNotifier.startPeriodic(0.02);
     }
 }

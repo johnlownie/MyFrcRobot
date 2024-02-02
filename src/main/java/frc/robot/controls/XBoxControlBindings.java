@@ -24,28 +24,28 @@ public class XBoxControlBindings implements ControlBindings {
      */
 
     @Override
-    public Optional<Trigger> driveToCube() {
+    public Optional<Trigger> driveToAmp() {
         return Optional.of(this.driverController.povCenter());
     }
 
     @Override
-    public Optional<Trigger> driveToPoleLeft() {
-        return Optional.of(this.driverController.leftBumper());
+    public Optional<Trigger> driveToSpeakerRight() {
+        return Optional.of(this.driverController.povRight());
     }
 
     @Override
-    public Optional<Trigger> driveToPoleRight() {
-        return Optional.of(this.driverController.rightBumper());
+    public Optional<Trigger> driveToSpeakerCenter() {
+        return Optional.of(this.driverController.povUp());
+    }
+
+    @Override
+    public Optional<Trigger> driveToSpeakerLeft() {
+        return Optional.of(this.driverController.povLeft());
     }
 
     @Override
     public Optional<Trigger> driveTeleop() {
         return Optional.of(this.driverController.povDown());
-    }
-
-    @Override
-    public Optional<Trigger> driveType() {
-        return Optional.of(this.driverController.povUp());
     }
 
     @Override
@@ -66,35 +66,6 @@ public class XBoxControlBindings implements ControlBindings {
     /**
      * Operator Controls
      */
-     @Override
-     public Optional<Trigger> closeGripper() {
-         return Optional.of(this.operatorController.a());
-     }
-
-     @Override
-     public Optional<Trigger> driveToStationLeft() {
-         return Optional.of(this.operatorController.leftBumper());
-     }
- 
-     @Override
-     public Optional<Trigger> driveToStationRight() {
-         return Optional.of(this.operatorController.rightBumper());
-     }
- 
-     @Override
-     public Optional<Trigger> extendDrawer() {
-         return Optional.of(this.operatorController.x());
-     }
-  
-     @Override
-     public Optional<Trigger> openGripper() {
-         return Optional.of(this.operatorController.y());
-     }
-
-     @Override
-     public Optional<Trigger> retractDrawer() {
-         return Optional.of(this.operatorController.b());
-     }
  
      /**
       * 

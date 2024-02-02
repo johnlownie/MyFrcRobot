@@ -66,7 +66,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         this.gyro = gyro;
         zeroGyroscope();
         
-        this.isFieldRelative = false;
+        this.isFieldRelative = true;
         this.isOpenLoop = false;
 
         this.omegaController2.enableContinuousInput(-Math.PI, Math.PI);

@@ -29,7 +29,7 @@ import frc.robot.Constants.VisionConstants;
 /**
  * 
  */
-public class VisionModule implements Runnable {
+public class VisionModule { //implements Runnable {
     protected final PhotonPoseEstimator frontCameraPhotonPoseEstimator;
     protected final PhotonPoseEstimator rearCameraPhotonPoseEstimator;
     protected final AtomicReference<EstimatedRobotPose> atomicFrontEstimatedRobotPose;
@@ -58,8 +58,8 @@ public class VisionModule implements Runnable {
         this.poseSupplier = null;
     }
 
-    @Override
-    public void run() {
+    // @Override
+    public void process() {
         if (this.frontCameraPhotonPoseEstimator == null || this.rearCameraPhotonPoseEstimator == null || this.poseSupplier == null || this.rearCamera == null || RobotState.isAutonomous()) {
             return;
         }

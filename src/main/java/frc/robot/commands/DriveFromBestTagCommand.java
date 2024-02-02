@@ -36,11 +36,11 @@ public class DriveFromBestTagCommand extends Command {
     /**
      * 
      */
-    public DriveFromBestTagCommand(SwerveDriveSubsystem swerveDrive, VisionModule visionModule, Supplier<Pose2d> poseProvider, Translation3d translation, boolean fromFrontCamera) {
+    public DriveFromBestTagCommand(SwerveDriveSubsystem swerveDrive, VisionModule visionModule, Supplier<Pose2d> poseProvider, Translation3d translation, Rotation3d rotation, boolean fromFrontCamera) {
         this.swerveDrive = swerveDrive;
         this.visionModule = visionModule;
         this.poseProvider = poseProvider;
-        this.transformation = new Transform3d(translation, new Rotation3d(0.0, 0.0, fromFrontCamera ? Math.PI : 0.0));;
+        this.transformation = new Transform3d(translation, rotation);;
         this.fromFrontCamera = fromFrontCamera;
 
         this.xController.setTolerance(0.2);

@@ -118,14 +118,6 @@ abstract public class RobotContainer {
      */
     protected void configureButtonBindings() {
         /* Driver Buttons */
-        // switch from robot relative to field relative
-        this.driverController.driveType().ifPresent(trigger -> trigger.toggleOnTrue(
-            either(
-                runOnce(this.swerveDrive::disableFieldRelative, this.swerveDrive),
-                runOnce(this.swerveDrive::enableFieldRelative, this.swerveDrive),
-                this.swerveDrive::isFieldRelative)
-        ));
-
         // POV up for field oriented drive
         this.driverController.driveTeleop().ifPresent(
             trigger -> trigger.onTrue(runOnce(() -> this.swerveDrive.setDefaultCommand(this.teleopDriveCommand))
@@ -138,6 +130,63 @@ abstract public class RobotContainer {
         this.driverController.reseedSteerMotors()
             .ifPresent(trigger -> trigger.onTrue(this.swerveDrive.runOnce(this.swerveDrive::reseedSteerMotorOffsets)
                 .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)));
+
+        // 
+        this.driverController.driveToSpeakerRight()
+            .ifPresent(
+                trigger -> trigger.onTrue(
+                    new DriveFromBestTagCommand(
+                        this.swerveDrive,
+                        this.visionModule,
+                        this.poseEstimator::getCurrentPose,
+                        FieldConstants.SPEAKER_POSE_TRANSLATIONS[0],
+                        FieldConstants.SPEAKER_POSE_ROTATIONS[0],
+                        false)
+                    .andThen(
+                        // new DeployGamePieceMidCommand(this.armSubsystem)
+                        // .until(this.driverController.driverWantsControl())
+                    )
+                    .until(this.driverController.driverWantsControl())
+                )
+            );
+
+        // 
+        this.driverController.driveToSpeakerLeft()
+            .ifPresent(
+                trigger -> trigger.onTrue(
+                    new DriveFromBestTagCommand(
+                        this.swerveDrive,
+                        this.visionModule,
+                        this.poseEstimator::getCurrentPose,
+                        FieldConstants.SPEAKER_POSE_TRANSLATIONS[1],
+                        FieldConstants.SPEAKER_POSE_ROTATIONS[1],
+                        false)
+                    .andThen(
+                        // new DeployGamePieceMidCommand(this.armSubsystem)
+                        // .until(this.driverController.driverWantsControl())
+                    )
+                    .until(this.driverController.driverWantsControl())
+                )
+            );
+
+        // 
+        this.driverController.driveToSpeakerLeft()
+            .ifPresent(
+                trigger -> trigger.onTrue(
+                    new DriveFromBestTagCommand(
+                        this.swerveDrive,
+                        this.visionModule,
+                        this.poseEstimator::getCurrentPose,
+                        FieldConstants.SPEAKER_POSE_TRANSLATIONS[2],
+                        FieldConstants.SPEAKER_POSE_ROTATIONS[2],
+                        false)
+                    .andThen(
+                        // new DeployGamePieceMidCommand(this.armSubsystem)
+                        // .until(this.driverController.driverWantsControl())
+                    )
+                    .until(this.driverController.driverWantsControl())
+                )
+            );
 
         // X-Stance Pose
         // this.driverController.xStance().ifPresent(trigger -> trigger.onTrue(
