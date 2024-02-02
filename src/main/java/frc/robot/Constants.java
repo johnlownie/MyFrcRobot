@@ -106,16 +106,16 @@ public final class Constants {
 
         // relative to rear camera
         public static final Translation3d[] SPEAKER_POSE_TRANSLATIONS = new Translation3d[] {
-            new Translation3d(Units.inchesToMeters(36.17 + (RobotConstants.ROBOT_LENGTH) / 2), Units.inchesToMeters(-41.75), 0.0),
+            new Translation3d(Units.inchesToMeters(36.17 / 2), Units.inchesToMeters(-31.3) - (RobotConstants.ROBOT_LENGTH / 2), 0.0),
             new Translation3d(Units.inchesToMeters(36.17) + (RobotConstants.ROBOT_LENGTH / 2), 0.0, 0.0),
-            new Translation3d(Units.inchesToMeters(36.17 + (RobotConstants.ROBOT_LENGTH) / 2), Units.inchesToMeters(41.75), 0.0)
+            new Translation3d(Units.inchesToMeters(36.17 / 2), Units.inchesToMeters(31.3) + (RobotConstants.ROBOT_LENGTH / 2), 0.0)
         };
 
         // relative to rear camera
         public static final Rotation3d[] SPEAKER_POSE_ROTATIONS = new Rotation3d[] {
-            new Rotation3d(0.0, 0.0, Units.degreesToRadians(30)),
+            new Rotation3d(0.0, 0.0, Units.degreesToRadians(-60)),
             new Rotation3d(0.0, 0.0, 0.0),
-            new Rotation3d(0.0, 0.0, Units.degreesToRadians(-30))
+            new Rotation3d(0.0, 0.0, Units.degreesToRadians(60))
         };
     }
 

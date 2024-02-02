@@ -130,7 +130,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
         }
     
         this.visionModule.process();
-        EstimatedRobotPose visionPose = this.visionModule.getFrontLatestEstimatedPose();
+        EstimatedRobotPose visionPose = this.visionModule.getBestLatestEstimatedPose();
         if (visionPose != null) {
             Pose2d pose2d = visionPose.estimatedPose.toPose2d();
             Matrix<N3, N1> estimatedStdDevs = this.visionModule.getEstimationStdDevs(pose2d);

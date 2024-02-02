@@ -67,7 +67,30 @@ public class VisionModule { //implements Runnable {
         processFrame(this.poseSupplier.get());
         
         processResults("FRONT_CAMERA", getFrontCameraResults(), this.frontCameraPhotonPoseEstimator, this.atomicFrontEstimatedRobotPose);
-        processResults("REAR_CAMERA", getRearCameraResults(), this.rearCameraPhotonPoseEstimator, this.atomicFrontEstimatedRobotPose);
+        processResults("REAR_CAMERA", getRearCameraResults(), this.rearCameraPhotonPoseEstimator, this.atomicRearEstimatedRobotPose);
+    }
+
+    /**
+     * Gets the latest robot pose. Calling this will only return the pose once. If it returns a non-null value, it is a
+     * new estimate that hasn't been returned before.
+     * This pose will always be for the BLUE alliance. It must be flipped if the current alliance is RED.
+     * @return latest estimated pose
+     */
+    public EstimatedRobotPose getBestLatestEstimatedPose() {
+        PhotonTrackedTarget frontTarget = getBestTarget(true);
+        PhotonTrackedTarget rearTarget = getBestTarget(false);
+
+        if (frontTarget == null && rearTarget == null) return null;
+
+        if (frontTarget == null) return this.atomicRearEstimatedRobotPose.getAndSet(null);
+
+        if (rearTarget == null) return this.atomicFrontEstimatedRobotPose.getAndSet(null);
+
+        if (frontTarget.getArea() > rearTarget.getArea()) {
+            return this.atomicFrontEstimatedRobotPose.getAndSet(null);
+        }
+
+        return this.atomicRearEstimatedRobotPose.getAndSet(null);
     }
 
     /**
@@ -123,27 +146,10 @@ public class VisionModule { //implements Runnable {
     }
 
     /**
-     * Gets the latest robot pose. Calling this will only return the pose once. If it returns a non-null value, it is a
-     * new estimate that hasn't been returned before.
-     * This pose will always be for the BLUE alliance. It must be flipped if the current alliance is RED.
-     * @return latest estimated pose
-     */
-    public EstimatedRobotPose getFrontLatestEstimatedPose() {
-        return this.atomicFrontEstimatedRobotPose.getAndSet(null);
-    }
-
-    /**
      * 
      */
     protected PhotonPipelineResult getRearCameraResults() {
         return this.rearCamera.getLatestResult();
-    }
-    
-    /**
-     * 
-     */
-    public EstimatedRobotPose getRearLatestEstimatedPose() {
-        return this.atomicRearEstimatedRobotPose.getAndSet(null);
     }
  
     /**
@@ -167,7 +173,8 @@ public class VisionModule { //implements Runnable {
 
             // Make sure the measurement is on the field
             if (estimatedPose.getX() > 0.0 && estimatedPose.getX() <= FieldConstants.LENGTH_METERS
-                && estimatedPose.getY() > 0.0 && estimatedPose.getY() <= FieldConstants.WIDTH_METERS) {
+                && estimatedPose.getY() > 0.0 && estimatedPose.getY() <= FieldConstants.WIDTH_METERS
+                && estimatedPose.getZ() > 0.0 && estimatedPose.getZ() <= 0.1) {
                 atomicEstimatedRobotPose.set(estimatedRobotPose);
                 Logger.recordOutput("Subsystems/Vision/" + camera + "/Pose", estimatedRobotPose.estimatedPose);
             }
