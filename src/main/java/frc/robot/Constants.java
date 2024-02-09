@@ -176,7 +176,7 @@ public final class Constants {
             public static final int DRIVE_MOTOR_ID = 11;
             public static final int ANGLE_MOTOR_ID = 12;
             public static final int CANCODER_ID = 1;
-            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(0.0);
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(-317.285156);
         }
 
         /* Front Right Module - Module 1 */
@@ -184,7 +184,7 @@ public final class Constants {
             public static final int DRIVE_MOTOR_ID = 31;
             public static final int ANGLE_MOTOR_ID = 32;
             public static final int CANCODER_ID = 3;
-            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(0.0);
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(-434.619141);
         }
         
         /* Back Left Module - Module 2 */
@@ -192,7 +192,7 @@ public final class Constants {
             public static final int DRIVE_MOTOR_ID = 21;
             public static final int ANGLE_MOTOR_ID = 22;
             public static final int CANCODER_ID = 2;
-            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(0.0);
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(-20.126953);
         }
 
         /* Back Right Module - Module 3 */
@@ -200,7 +200,7 @@ public final class Constants {
             public static final int DRIVE_MOTOR_ID = 41;
             public static final int ANGLE_MOTOR_ID = 42;
             public static final int CANCODER_ID = 4;
-            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(0.0);
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(-200.742188);
         }
     }
 
@@ -241,13 +241,13 @@ public final class Constants {
         public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
         public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
 
-        public static final String FRONT_CAMERA_NAME = "camera1";
+        public static final String FRONT_CAMERA_NAME = "ARDUCAM_BLUE";
         public static final Transform3d FRONT_CAMERA_TO_ROBOT = new Transform3d(
             new Translation3d(0.0, 0.0, -1.5), // cam mounted center of robot, half meter up
             new Rotation3d(0, 0, 0));
         public static final Transform3d ROBOT_TO_FRONT_CAMERA = FRONT_CAMERA_TO_ROBOT.inverse();
 
-        public static final String REAR_CAMERA_NAME = "REAR_CAMERA";
+        public static final String REAR_CAMERA_NAME = "LOGITECH_LIFECAM";
         public static final Transform3d REAR_CAMERA_TO_ROBOT = new Transform3d(
             new Translation3d(0.0, 0.0, -1.5), // cam mounted center of robot, half meter up
             new Rotation3d(0, 0, Math.PI));

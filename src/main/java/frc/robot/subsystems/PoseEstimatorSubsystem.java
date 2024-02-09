@@ -129,6 +129,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
             this.estimatedPoseWithoutGyro = this.estimatedPoseWithoutGyro.exp(twist);
         }
     
+        // Process the data from the vision module
         this.visionModule.process();
         EstimatedRobotPose visionPose = this.visionModule.getBestLatestEstimatedPose();
         if (visionPose != null) {
