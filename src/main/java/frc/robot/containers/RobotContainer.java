@@ -34,6 +34,7 @@ import frc.robot.controls.XBoxControlBindings;
 import frc.robot.modules.gyro.GyroModule;
 import frc.robot.modules.swerve.SwerveModule;
 import frc.robot.modules.vision.VisionModule;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.PneumaticSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -58,6 +59,7 @@ abstract public class RobotContainer {
     protected VisionModule visionModule;
 
     /* Subsystems */
+    protected ArmSubsystem armSubsystem;
     protected PneumaticSubsystem pneumaticSubsystem;
     protected PoseEstimatorSubsystem poseEstimator;
     protected SwerveDriveSubsystem swerveDrive;

@@ -1,0 +1,171 @@
+package frc.robot.subsystems;
+
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
+
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.util.StateMachine;
+import frc.lib.util.StateMetadata;
+import frc.lib.util.Timer;
+import frc.robot.Constants.ArmConstants;
+import frc.robot.modules.arm.ArmModule;
+
+/**
+ * 
+ */
+public class ArmSubsystem extends SubsystemBase {
+    public static enum Action {
+        IDLE, MOVE, MOVE_TO_AMP, MOVE_TO_INTAKE, MOVE_TO_SPEAKER, MOVE_TO_STAGE, PAUSE
+    }
+
+    private final StateMachine<Action> stateMachine;
+    private final LinkedList<Action> actionQueue;
+
+    private final ArmModule armModule;
+
+    private boolean is_released;
+    private boolean notify_on_release;
+    private Timer timer;
+
+    /**
+     * 
+     */
+    public ArmSubsystem(ArmModule armModule) {
+        this.armModule = armModule;
+
+        // Sets states for the arm, and what methods.
+        this.stateMachine = new StateMachine<>("ARM SUBSYSTEM");
+        this.stateMachine.setDefaultState(Action.IDLE, this::handleIdle);
+        this.stateMachine.addState(Action.MOVE, this::handleMove);
+        this.stateMachine.addState(Action.MOVE_TO_AMP, this::handleMoveToAmp);
+        this.stateMachine.addState(Action.MOVE_TO_INTAKE, this::handleMoveToIntake);
+        this.stateMachine.addState(Action.MOVE_TO_SPEAKER, this::handleMoveToSpeaker);
+        this.stateMachine.addState(Action.MOVE_TO_STAGE, this::handleMoveToStage);
+        this.stateMachine.addState(Action.PAUSE, this::handlePause);
+
+        this.actionQueue = new LinkedList<Action>();
+
+        this.is_released = false;
+        this.notify_on_release = false;
+        this.timer = new Timer();
+    }
+
+    /**
+     * 
+     */
+    public void addAction(Action action) {
+        this.actionQueue.add(action);
+    }
+
+    /**
+     * 
+     */
+    private void handleIdle(StateMetadata<Action> stateMetadata) {
+    }
+
+    /**
+     * 
+     */
+    private void handleMove(StateMetadata<Action> stateMetadata) {
+        if (stateMetadata.isFirstRun()) {
+            this.is_released = false;
+            this.armModule.setEnabled(true);
+        }
+    }
+    
+    /**
+     * 
+     */
+    private void handleMoveToAmp(StateMetadata<Action> stateMetadata) {
+        if (stateMetadata.isFirstRun()) {
+            setDesiredAngle(ArmConstants.ANGLE_AMP);
+            moveArm(false);
+        }
+    }
+
+    /**
+     * 
+     */
+    private void handleMoveToIntake(StateMetadata<Action> stateMetadata) {
+        setDesiredAngle(ArmConstants.ANGLE_INTAKE);
+        moveArm(false);
+    }
+
+    /**
+     * 
+     */
+    private void handleMoveToSpeaker(StateMetadata<Action> stateMetadata) {
+        if (stateMetadata.isFirstRun()) {
+            setDesiredAngle(ArmConstants.ANGLE_SPEAKER);
+            moveArm(true);
+        }
+    }
+
+    /**
+     * 
+     */
+    private void handleMoveToStage(StateMetadata<Action> stateMetadata) {
+        if (stateMetadata.isFirstRun()) {
+            setDesiredAngle(ArmConstants.ANGLE_STAGE);
+            moveArm(true);
+        }
+    }
+
+    /**
+     * 
+     */
+    private void handlePause(StateMetadata<Action> stateMetadata) {
+        if (stateMetadata.isFirstRun()) {
+            this.timer.reset();
+            this.timer.start();
+        }
+
+        if (this.timer.hasElapsed(1)) {
+            timer.stop();
+            this.stateMachine.setState(Action.IDLE);
+        }
+    }
+    
+    /**
+     * 
+     */
+    private boolean isActionComplete() {
+        return (this.armModule.isAtAngle() || this.stateMachine.getCurrentState() == Action.IDLE) && !this.timer.isRunning();
+    }
+
+    /**
+     * 
+     */
+    private void moveArm(boolean notify_on_release) {
+        this.notify_on_release = notify_on_release;
+        this.stateMachine.setState(Action.MOVE);
+    }
+    
+    @Override
+    public void periodic() {
+        this.stateMachine.update();
+        this.armModule.update();
+
+        if (isActionComplete()) {
+            if (this.notify_on_release) {
+                this.is_released = true;
+                this.notify_on_release = false;
+            }
+
+            this.stateMachine.setState(Action.IDLE);
+        }
+
+        // Run any action in the queue
+        if (this.stateMachine.getCurrentState() == Action.IDLE && this.actionQueue.size() > 0) {
+            try { 
+                Action nextAction = this.actionQueue.removeFirst();
+                this.stateMachine.setState(nextAction);
+            } catch (NoSuchElementException e) {}
+        }
+    }
+
+    /**
+     * Getters and Setters
+     */
+    public void setDesiredAngle(double desired_angle_degrees) { this.armModule.setDesiredAngle(desired_angle_degrees); }
+}

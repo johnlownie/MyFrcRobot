@@ -75,6 +75,16 @@ public final class Constants {
     /**
      * 
      */
+    public static class ArmConstants {
+        public static final int ANGLE_AMP = 225;
+        public static final int ANGLE_INTAKE = -40;
+        public static final int ANGLE_SPEAKER = 180;
+        public static final int ANGLE_STAGE  = 135;
+    }
+
+    /**
+     * 
+     */
     public static final class DriveTrainConstants {
         public static final double TRACK_WIDTH_METERS = Units.inchesToMeters(18.75);
         public static final double WHEEL_BASE_METERS = Units.inchesToMeters(18.75);
