@@ -32,11 +32,15 @@ import frc.robot.commands.DriveToBestTagCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.controls.XBoxControlBindings;
 import frc.robot.modules.gyro.GyroModule;
+import frc.robot.modules.intake.IntakeModule;
+import frc.robot.modules.shooter.ShooterModule;
 import frc.robot.modules.swerve.SwerveModule;
 import frc.robot.modules.vision.VisionModule;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PneumaticSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.utils.AllianceFlipUtil;
 
@@ -60,6 +64,8 @@ abstract public class RobotContainer {
 
     /* Subsystems */
     protected ArmSubsystem armSubsystem;
+    protected IntakeSubsystem intakeSubsystem;
+    protected ShooterSubsystem shooterSubsystem;
     protected PneumaticSubsystem pneumaticSubsystem;
     protected PoseEstimatorSubsystem poseEstimator;
     protected SwerveDriveSubsystem swerveDrive;
@@ -75,6 +81,8 @@ abstract public class RobotContainer {
     public RobotContainer() {
         /* Subsystems with no simulated modules */
         this.pneumaticSubsystem = new PneumaticSubsystem();
+        this.intakeSubsystem = new IntakeSubsystem(new IntakeModule());
+        this.shooterSubsystem = new ShooterSubsystem(new ShooterModule());
         
         this.driverController = new XBoxControlBindings();
         this.operatorController = new XBoxControlBindings();

@@ -14,6 +14,8 @@ import frc.robot.modules.arm.ArmModule;
  * 
  */
 public class ArmSubsystem extends SubsystemBase {
+    private final ArmModule armModule;
+
     public static enum Action {
         IDLE, MOVE, MOVE_TO_AMP, MOVE_TO_INTAKE, MOVE_TO_SPEAKER, MOVE_TO_STAGE, PAUSE
     }
@@ -21,10 +23,8 @@ public class ArmSubsystem extends SubsystemBase {
     private final StateMachine<Action> stateMachine;
     private final LinkedList<Action> actionQueue;
 
-    private final ArmModule armModule;
-
-    private boolean is_released;
-    private boolean notify_on_release;
+    private boolean is_at_angle;
+    private boolean notify_at_angle;
     private Timer timer;
 
     /**
@@ -45,8 +45,8 @@ public class ArmSubsystem extends SubsystemBase {
 
         this.actionQueue = new LinkedList<Action>();
 
-        this.is_released = false;
-        this.notify_on_release = false;
+        this.is_at_angle = false;
+        this.notify_at_angle = false;
         this.timer = new Timer();
     }
 
@@ -68,7 +68,7 @@ public class ArmSubsystem extends SubsystemBase {
      */
     private void handleMove(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
-            this.is_released = false;
+            this.is_at_angle = false;
             this.armModule.setEnabled(true);
         }
     }
@@ -121,7 +121,7 @@ public class ArmSubsystem extends SubsystemBase {
         }
 
         if (this.timer.hasElapsed(1)) {
-            timer.stop();
+            this.timer.stop();
             this.stateMachine.setState(Action.IDLE);
         }
     }
@@ -136,8 +136,15 @@ public class ArmSubsystem extends SubsystemBase {
     /**
      * 
      */
-    private void moveArm(boolean notify_on_release) {
-        this.notify_on_release = notify_on_release;
+    public boolean isAtAngle() {
+        return this.is_at_angle;
+    }
+
+    /**
+     * 
+     */
+    private void moveArm(boolean notify_at_angle) {
+        this.notify_at_angle = notify_at_angle;
         this.stateMachine.setState(Action.MOVE);
     }
     
@@ -147,9 +154,9 @@ public class ArmSubsystem extends SubsystemBase {
         this.armModule.update();
 
         if (isActionComplete()) {
-            if (this.notify_on_release) {
-                this.is_released = true;
-                this.notify_on_release = false;
+            if (this.notify_at_angle) {
+                this.is_at_angle = true;
+                this.notify_at_angle = false;
             }
 
             this.stateMachine.setState(Action.IDLE);

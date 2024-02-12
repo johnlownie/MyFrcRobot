@@ -97,6 +97,5 @@ public class ArmModuleSimulator extends ArmModule {
         Logger.recordOutput("Mechanisms/Arm/PID Output", pidOutput);
         Logger.recordOutput("Mechanisms/Arm/SetPoint", super.getDesiredAngle());
         Logger.recordOutput("Mechanisms/Arm/Angle", Units.radiansToDegrees(this.singleJointedArmSim.getAngleRads()));
-
     }
 }

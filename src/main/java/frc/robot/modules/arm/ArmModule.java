@@ -1,19 +1,27 @@
 package frc.robot.modules.arm;
 
+import org.littletonrobotics.junction.Logger;
+
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.utils.LoggedTunableNumber;
 
 public class ArmModule {
     /* Hardware Contants */
     private final int MOTOR_ID = 5;
-    
-    private final int INTAKE_LIMIT_SWITCH_ID = 0;
-    private final int BACK_LIMIT_SWITCH_ID = 1;
+    private final int ENCODER_CHANNEL_1_ID = 0;
+    private final int ENCODER_CHANNEL_2_ID = 1;
+    private final double DISTANCE_PER_PULSE = 183 / 64;
+    private final double MIN_RATE = 0.1;
+
+    private final int UP_LIMIT_SWITCH_ID = 0;
+    private final int DOWN_LIMIT_SWITCH_ID = 1;
     
     /* Motor PID Values */
     private final double KP = 0.95 / 1000;
@@ -28,10 +36,11 @@ public class ArmModule {
     private final PIDController pidController = new PIDController(KP, KI, KD);
 
     /* Arm Hardware */
-    private final TalonSRX armMotor;
-    private final DigitalInput intakeLimitSwitch;
-    private final DigitalInput backLimitSwitch;
-
+    private final TalonSRX motor;
+    private final Encoder encoder;
+    private final DigitalInput upLimitSwitch;
+    private final DigitalInput downLimitSwitch;
+    
     /* Mechanisim2d Display for Monitoring the Arm Position */
     protected final ArmModuleMechanism armModuleMechanism = new ArmModuleMechanism();
 
@@ -42,10 +51,14 @@ public class ArmModule {
      * 
      */
     public ArmModule() {
-        this.armMotor = new TalonSRX(MOTOR_ID);
+        this.motor = new TalonSRX(MOTOR_ID);
+
+        this.encoder = new Encoder(ENCODER_CHANNEL_1_ID, ENCODER_CHANNEL_2_ID, false, Encoder.EncodingType.k4X);
+        this.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
+        this.encoder.setMinRate(MIN_RATE);
         
-        this.intakeLimitSwitch = new DigitalInput(INTAKE_LIMIT_SWITCH_ID);
-        this.backLimitSwitch = new DigitalInput(BACK_LIMIT_SWITCH_ID);
+        this.upLimitSwitch = new DigitalInput(UP_LIMIT_SWITCH_ID);
+        this.downLimitSwitch = new DigitalInput(DOWN_LIMIT_SWITCH_ID);
 
         this.enabled = false;
     }
@@ -67,15 +80,15 @@ public class ArmModule {
     /**
      * 
      */
-    public boolean isBackLimitSwitchTriggered() {
-        return !this.backLimitSwitch.get();
+    public boolean isDownLimitSwitchTriggered() {
+        return !this.downLimitSwitch.get();
     }
 
     /**
      * 
      */
-    public boolean isIntakeLimitSwitchTriggered() {
-        return !this.intakeLimitSwitch.get();
+    public boolean isUpLimitSwitchTriggered() {
+        return !this.upLimitSwitch.get();
     }
 
     /**
@@ -85,11 +98,31 @@ public class ArmModule {
         if (RobotConstants.TUNING_MODE && (kp.hasChanged(hashCode()) || ki.hasChanged(hashCode()) || kp.hasChanged(hashCode()))) {
             this.pidController.setPID(kp.get(), ki.get(), kd.get());
         }
+
+        if (isUpLimitSwitchTriggered()) {
+            setDesiredAngle(getCurrentAngle());
+        }
+        
+        if (isDownLimitSwitchTriggered()) {
+            this.encoder.reset();
+            setDesiredAngle(getCurrentAngle());
+        }
+
+        double pidOutput = isEnabled() ? this.pidController.calculate(this.encoder.getDistance(), Units.degreesToRadians(getDesiredAngle())) : 0.0;
+        this.motor.set(TalonSRXControlMode.PercentOutput, pidOutput);
+
+        Logger.recordOutput("Mechanisms/Arm/Desired Angle", getDesiredAngle());
+        Logger.recordOutput("Mechanisms/Arm/Current Angle", getCurrentAngle());
+        Logger.recordOutput("Mechanisms/Arm/PID Output", pidOutput);
     }
     
     /**
      * Getters and Setters
      */
+    public double getCurrentAngle() {
+        return Units.radiansToDegrees(this.encoder.getDistance());
+    }
+
     public double getDesiredAngle() {
         return this.desired_angle_degrees;
     }
