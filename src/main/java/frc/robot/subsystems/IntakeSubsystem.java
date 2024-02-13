@@ -23,6 +23,8 @@ public class IntakeSubsystem extends SubsystemBase {
     private final LinkedList<Action> actionQueue;
 
     private Timer timer;
+    private boolean has_note;
+    private boolean notify_on_note;
     
     /**
      * 
@@ -39,6 +41,8 @@ public class IntakeSubsystem extends SubsystemBase {
         this.actionQueue = new LinkedList<Action>();
 
         this.timer = new Timer();
+        this.has_note = false;
+        this.notify_on_note = false;
     }
 
     /**
@@ -75,6 +79,8 @@ public class IntakeSubsystem extends SubsystemBase {
         if (stateMetadata.isFirstRun()) {
             this.timer.reset();
             this.timer.start();
+            this.has_note = false;
+            this.notify_on_note = true;
             this.intakeModule.intake();
         }
     }
@@ -82,8 +88,18 @@ public class IntakeSubsystem extends SubsystemBase {
     /**
      * 
      */
+    public boolean hasNote() {
+        boolean has_note = this.has_note;
+        this.has_note = false;
+        
+        return has_note;
+    }
+    
+    /**
+     * 
+     */
     private boolean isActionComplete() {
-        return this.intakeModule.isIntakeLimitSwitchTriggered() || !this.timer.isRunning();
+        return this.intakeModule.hasNote() || !this.timer.isRunning();
     }
     
     @Override
@@ -91,12 +107,17 @@ public class IntakeSubsystem extends SubsystemBase {
         this.stateMachine.update();
         this.intakeModule.update();
 
-        // actions run for no longer than 2 seconds
-        if (this.timer.hasElapsed(2)) {
+        // actions run for no longer than 1 seconds
+        if (this.timer.hasElapsed(1)) {
             this.timer.stop();
         }
 
         if (isActionComplete()) {
+            if (this.notify_on_note) {
+                this.has_note = true;
+                this.notify_on_note = false;
+            }
+
             this.stateMachine.setState(Action.IDLE);
         }
 

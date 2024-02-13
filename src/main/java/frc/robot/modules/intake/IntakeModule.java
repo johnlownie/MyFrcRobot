@@ -9,7 +9,7 @@ public class IntakeModule {
     /* Hardware Contants */
     private final int MOTOR_CHANNEL = 0;
     private final double MOTOR_SPEED = -0.6;
-    private final int INTAKE_LIMIT_SWITCH_ID = 0;
+    private final int INTAKE_LIMIT_SWITCH_ID = 3;
 
     /* Intake Hardware */
     private final Talon motor;
@@ -40,7 +40,7 @@ public class IntakeModule {
     /**
      * 
      */
-    public boolean isIntakeLimitSwitchTriggered() {
+    public boolean hasNote() {
         return !this.intakeLimitSwitch.get();
     }
 
@@ -55,6 +55,6 @@ public class IntakeModule {
      * 
      */
     public void update() {
-        Logger.recordOutput("Mechanisms/Intake/Has Note", isIntakeLimitSwitchTriggered());
+        Logger.recordOutput("Mechanisms/Intake/Has Note", hasNote());
     }
 }

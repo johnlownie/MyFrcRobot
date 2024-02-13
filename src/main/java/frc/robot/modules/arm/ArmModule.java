@@ -15,13 +15,13 @@ import frc.robot.utils.LoggedTunableNumber;
 public class ArmModule {
     /* Hardware Contants */
     private final int MOTOR_ID = 5;
-    private final int ENCODER_CHANNEL_1_ID = 0;
-    private final int ENCODER_CHANNEL_2_ID = 1;
+    private final int ENCODER_CHANNEL_A_ID = 0;
+    private final int ENCODER_CHANNEL_B_ID = 1;
     private final double DISTANCE_PER_PULSE = 183 / 64;
     private final double MIN_RATE = 0.1;
 
-    private final int UP_LIMIT_SWITCH_ID = 0;
-    private final int DOWN_LIMIT_SWITCH_ID = 1;
+    private final int UP_LIMIT_SWITCH_ID = 4;
+    private final int DOWN_LIMIT_SWITCH_ID = 5;
     
     /* Motor PID Values */
     private final double KP = 0.95 / 1000;
@@ -53,7 +53,7 @@ public class ArmModule {
     public ArmModule() {
         this.motor = new TalonSRX(MOTOR_ID);
 
-        this.encoder = new Encoder(ENCODER_CHANNEL_1_ID, ENCODER_CHANNEL_2_ID, false, Encoder.EncodingType.k4X);
+        this.encoder = new Encoder(ENCODER_CHANNEL_A_ID, ENCODER_CHANNEL_B_ID, false, Encoder.EncodingType.k4X);
         this.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
         this.encoder.setMinRate(MIN_RATE);
         

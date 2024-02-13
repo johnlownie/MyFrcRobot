@@ -23,7 +23,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private final LinkedList<Action> actionQueue;
 
     private Timer timer;
-
     private boolean has_shot;
     private boolean notify_on_shoot;
 
@@ -41,9 +40,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
         this.actionQueue = new LinkedList<Action>();
 
+        this.timer = new Timer();
         this.has_shot = false;
         this.notify_on_shoot = false;
-        this.timer = new Timer();
     }
 
     /**
@@ -106,7 +105,10 @@ public class ShooterSubsystem extends SubsystemBase {
      * 
      */
     public boolean hasShot() {
-        return this.has_shot;
+        boolean has_shot = this.has_shot;
+        this.has_shot = false;
+
+        return has_shot;
     }
     
     /**
@@ -121,8 +123,8 @@ public class ShooterSubsystem extends SubsystemBase {
         this.stateMachine.update();
         this.shooterModule.update();
 
-        // actions run for no longer than 4 seconds
-        if (this.timer.hasElapsed(4)) {
+        // actions run for no longer than 2 seconds
+        if (this.timer.hasElapsed(2)) {
             this.timer.stop();
         }
 
