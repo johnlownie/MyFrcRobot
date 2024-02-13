@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.util.StateMachine;
 import frc.lib.util.StateMetadata;
@@ -144,5 +146,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 this.stateMachine.setState(nextAction);
             } catch (NoSuchElementException e) {}
         }
+
+        Logger.recordOutput("Subsystems/Shooter/Current State", this.stateMachine.getCurrentState());
     }
 }

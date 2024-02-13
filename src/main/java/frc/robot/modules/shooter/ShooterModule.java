@@ -54,7 +54,7 @@ public class ShooterModule {
      * 
      */
     public boolean hasNoteToShoot() {
-        return this.linebreak.get();
+        return !this.linebreak.get();
     }
 
     /**
@@ -114,7 +114,7 @@ public class ShooterModule {
      * 
      */
     public void update() {
-        Logger.recordOutput("Mechanisms/Shooter/Has Note", this.linebreak.get());
+        Logger.recordOutput("Mechanisms/Shooter/Has Note", hasNoteToShoot());
         Logger.recordOutput("Mechanisms/Shooter/Left Velocity", this.leftEncoder.getVelocity());
         Logger.recordOutput("Mechanisms/Shooter/Right Velocity", this.rightEncoder.getVelocity());
         Logger.recordOutput("Mechanisms/Shooter/Kicker Output Current", this.kickerMotor.getOutputCurrent());
