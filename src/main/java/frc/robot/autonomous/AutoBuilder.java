@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.SwerveModuleConstants;
@@ -134,34 +135,54 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
         Command command = Commands.sequence(
             Commands.print("*** Starting Blue1DriveFirst ***"),
 
-            new InstantCommand(() -> {
-                this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
-            }),
-            AutoBuilder.followPath(pathGroup.get(0)),
-            new InstantCommand(() -> {
-                this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
-            }),
-            new WaitUntilCommand(this.intakeSubsystem::hasNote),
-            AutoBuilder.followPath(pathGroup.get(1)),
-            new InstantCommand(() -> {
-                this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_SPEAKER);
-                this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT_SPEAKER);
-                this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
-            }),
-            new WaitUntilCommand(this.shooterSubsystem::hasShot),
-            AutoBuilder.followPath(pathGroup.get(2)),
+            new ParallelCommandGroup(
+                new InstantCommand(() -> {
+                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
+                }),
+                AutoBuilder.followPath(pathGroup.get(0))
+            ),
             new InstantCommand(() -> {
                 this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
             }),
             new WaitUntilCommand(this.intakeSubsystem::hasNote),
-            AutoBuilder.followPath(pathGroup.get(3)),
+            new ParallelCommandGroup(
+                AutoBuilder.followPath(pathGroup.get(1)),
+                new InstantCommand(() -> {
+                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_SPEAKER);
+                }),
+                new WaitUntilCommand(this.armSubsystem::isAtAngle)
+            ),
             new InstantCommand(() -> {
-                this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_SPEAKER);
                 this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT_SPEAKER);
-                this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
             }),
             new WaitUntilCommand(this.shooterSubsystem::hasShot),
-            AutoBuilder.followPath(pathGroup.get(4)),
+            new ParallelCommandGroup(
+                new InstantCommand(() -> {
+                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
+                }),
+                AutoBuilder.followPath(pathGroup.get(2))
+            ),
+            new InstantCommand(() -> {
+                this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
+            }),
+            new WaitUntilCommand(this.intakeSubsystem::hasNote),
+            new ParallelCommandGroup(
+                AutoBuilder.followPath(pathGroup.get(3)),
+                new InstantCommand(() -> {
+                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_SPEAKER);
+                }),
+                new WaitUntilCommand(this.armSubsystem::isAtAngle)
+            ),
+            new InstantCommand(() -> {
+                this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT_SPEAKER);
+            }),
+            new WaitUntilCommand(this.shooterSubsystem::hasShot),
+            new ParallelCommandGroup(
+                new InstantCommand(() -> {
+                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
+                }),
+                AutoBuilder.followPath(pathGroup.get(4))
+            ),
 
             Commands.print("*** Finished Blue1DriveFirst ***")
         );
