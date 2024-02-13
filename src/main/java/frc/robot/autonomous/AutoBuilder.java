@@ -144,7 +144,7 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
             new WaitUntilCommand(this.intakeSubsystem::hasNote),
             AutoBuilder.followPath(pathGroup.get(1)),
             new InstantCommand(() -> {
-                this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_STAGE);
+                this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_SPEAKER);
                 this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT_SPEAKER);
                 this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
             }),
@@ -156,7 +156,7 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
             new WaitUntilCommand(this.intakeSubsystem::hasNote),
             AutoBuilder.followPath(pathGroup.get(3)),
             new InstantCommand(() -> {
-                this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_STAGE);
+                this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_SPEAKER);
                 this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT_SPEAKER);
                 this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
             }),
