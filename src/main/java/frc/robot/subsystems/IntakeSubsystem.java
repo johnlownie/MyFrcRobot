@@ -18,7 +18,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private final IntakeModule intakeModule;
 
     public static enum Action {
-        IDLE, EJECT, INTAKE
+        IDLE, EJECT, INTAKE, PAUSE
     }
 
     private final StateMachine<Action> stateMachine;
@@ -39,6 +39,7 @@ public class IntakeSubsystem extends SubsystemBase {
         this.stateMachine.setDefaultState(Action.IDLE, this::handleIdle);
         this.stateMachine.addState(Action.EJECT, this::handleEject);
         this.stateMachine.addState(Action.INTAKE, this::handleIntake);
+        this.stateMachine.addState(Action.PAUSE, this::handleLongPause);
 
         this.actionQueue = new LinkedList<Action>();
 
@@ -86,6 +87,21 @@ public class IntakeSubsystem extends SubsystemBase {
             this.intakeModule.intake();
         }
     }
+
+    /**
+     * 
+     */
+    private void handleLongPause(StateMetadata<Action> stateMetadata) {
+        if (stateMetadata.isFirstRun()) {
+            this.timer.reset();
+            this.timer.start();
+        }
+
+        if (this.timer.hasElapsed(2)) {
+            timer.stop();
+            this.stateMachine.setState(Action.IDLE);
+        }
+    }
     
     /**
      * 
@@ -109,8 +125,8 @@ public class IntakeSubsystem extends SubsystemBase {
         this.stateMachine.update();
         this.intakeModule.update();
 
-        // actions run for no longer than 1 seconds
-        if (this.timer.hasElapsed(1)) {
+        // actions run for no longer than 3 seconds
+        if (this.timer.hasElapsed(3)) {
             this.timer.stop();
         }
 
