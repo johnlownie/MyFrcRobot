@@ -78,8 +78,8 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
 
         // Setup the chooser
         this.autonomousChooser = AutoBuilder.buildAutoChooser();
-        this.autonomousChooser.addOption("Shoot and Move Away", getShootAndMoveAway());
-        this.autonomousChooser.addOption("Blue 1 - Drive First", getBlue1DriveFirst());
+        this.autonomousChooser.addOption("Station 3 - Shoot and Move Away", getShootAndMoveAway());
+        this.autonomousChooser.addOption("Station 1 - Drive First", getBlue1DriveFirst());
 
         // Add chooser to the shuffleboard
         ShuffleboardTab tab = Shuffleboard.getTab("Driver");
@@ -97,7 +97,7 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
      * 
      */
     private Command getShootAndMoveAway() {
-        PathPlannerPath path = PathPlannerPath.fromPathFile("Blue3 - Center5");
+        PathPlannerPath path = PathPlannerPath.fromPathFile("Station3 - Center5");
 
         if (path == null) {
             return Commands.print("*** Failed to build ShootAndMoveAway");
@@ -135,7 +135,7 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
      * 
      */
     private Command getBlue1DriveFirst() {
-        List<PathPlannerPath> pathGroup = PathPlannerAuto.getPathGroupFromAutoFile("Blue 1 - Drive First");
+        List<PathPlannerPath> pathGroup = PathPlannerAuto.getPathGroupFromAutoFile("Station 1 - Drive First");
 
         if (pathGroup == null) {
             return Commands.print("*** Failed to build Blue1DriveFirst");

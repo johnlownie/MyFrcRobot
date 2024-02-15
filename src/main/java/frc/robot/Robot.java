@@ -89,7 +89,7 @@ public class Robot extends LoggedRobot {
                 // Provide log data over the network, viewable in Advantage Scope.
                 Logger.addDataReceiver(new WPILOGWriter("/media/sda1"));
                 Logger.addDataReceiver(new NT4Publisher());
-                // new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+                new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
                 
                 this.robotContainer = new CrescendoContainer();
                 break;

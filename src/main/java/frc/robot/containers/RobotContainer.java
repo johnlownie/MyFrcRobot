@@ -124,10 +124,6 @@ abstract public class RobotContainer {
      */
     public void onAllianceChanged(Alliance alliance, int location) {
         location -= 1;
-        
-        if (alliance.name().equalsIgnoreCase("Red")) {
-            location = Math.abs(location - 2);
-        }
 
         Pose2d pose2d = AllianceFlipUtil.apply(FieldConstants.SPEAKER_POSES[location]);
         this.poseEstimator.setCurrentPose(pose2d);
