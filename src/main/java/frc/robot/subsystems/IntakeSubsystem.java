@@ -6,8 +6,8 @@ import java.util.NoSuchElementException;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.util.StateMachine;
-import frc.lib.util.StateMetadata;
+import frc.lib.statemachine.StateMachine;
+import frc.lib.statemachine.StateMetadata;
 import frc.lib.util.Timer;
 import frc.robot.modules.intake.IntakeModule;
 

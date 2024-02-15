@@ -4,6 +4,8 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
+import frc.lib.led.LEDController;
+import frc.lib.led.LEDPreset;
 
 public class IntakeModule {
     /* Hardware Contants */
@@ -55,6 +57,10 @@ public class IntakeModule {
      * 
      */
     public void update() {
+        if (hasNote()) {
+            LEDController.set(LEDPreset.Solid.kGreen);
+        }
+        
         Logger.recordOutput("Mechanisms/Intake/Has Note", hasNote());
     }
 }

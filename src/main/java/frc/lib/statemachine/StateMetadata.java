@@ -1,4 +1,4 @@
-package frc.lib.util;
+package frc.lib.statemachine;
 
 /**
  * A container for metadata about a state. These are sent to every state's
