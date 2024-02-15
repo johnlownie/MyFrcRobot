@@ -12,8 +12,6 @@ import frc.robot.Constants.MechanismConstants;
  */
 public class ArmModuleMechanism {
     private final double ARM_LENGTH_METERS = Units.inchesToMeters(16);
-    private final double GRIPPER_CLOSE_ANGLE = 20.0;
-    private final double GRIPPER_OPEN_ANGLE = 65.0;
     private final double ROBOT_BASE1_LENGTH_METERS = Units.inchesToMeters(4.5);
     private final double ROBOT_BASE2_LENGTH_METERS = Units.inchesToMeters(27.5);
     private final double SHOOTER_BASE1_LENGTH_METERS = Units.inchesToMeters(7.5);
