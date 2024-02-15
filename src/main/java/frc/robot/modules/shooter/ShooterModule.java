@@ -3,7 +3,6 @@ package frc.robot.modules.shooter;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 import org.littletonrobotics.junction.Logger;
@@ -15,7 +14,6 @@ public class ShooterModule {
     private final int LEFT_MOTOR_ID = 62;
     private final int RIGHT_MOTOR_ID = 61;
     private final int KICKER_MOTOR_ID = 60;
-    private final int LINE_BREAK_CHANNEL_ID = 8;
     private final double AMP_SPEED = 0.9;
     private final double SPEAKER_SPEED = 0.9;
     private final double KICKER_SPEED = 0.6;
@@ -28,7 +26,6 @@ public class ShooterModule {
     private final CANSparkMax kickerMotor;
     private RelativeEncoder leftEncoder;
     private RelativeEncoder rightEncoder;
-    private DigitalInput linebreak;
 
     /**
      * 
@@ -46,22 +43,6 @@ public class ShooterModule {
 
         this.leftEncoder = this.leftMotor.getEncoder();
         this.rightEncoder = this.rightMotor.getEncoder();
-
-        this.linebreak = new DigitalInput(LINE_BREAK_CHANNEL_ID);
-    }
-
-    /**
-     * 
-     */
-    public boolean hasNoteToShoot() {
-        return !this.linebreak.get();
-    }
-
-    /**
-     * 
-     */
-    public boolean hasShot() {
-        return !this.linebreak.get();
     }
 
     /**
@@ -114,7 +95,6 @@ public class ShooterModule {
      * 
      */
     public void update() {
-        Logger.recordOutput("Mechanisms/Shooter/Has Note", hasNoteToShoot());
         Logger.recordOutput("Mechanisms/Shooter/Left Velocity", this.leftEncoder.getVelocity());
         Logger.recordOutput("Mechanisms/Shooter/Right Velocity", this.rightEncoder.getVelocity());
         Logger.recordOutput("Mechanisms/Shooter/Kicker Output Current", this.kickerMotor.getOutputCurrent());

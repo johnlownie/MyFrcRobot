@@ -73,9 +73,7 @@ public class ShooterSubsystem extends SubsystemBase {
             this.has_shot = false;
             this.notify_on_shoot = true;
 
-            if (this.shooterModule.hasNoteToShoot()) {
-                this.shooterModule.spinupForAmp();
-            }
+            this.shooterModule.spinupForAmp();
         }
 
         if (this.shooterModule.isSpunupForAmp()) {
@@ -93,9 +91,7 @@ public class ShooterSubsystem extends SubsystemBase {
             this.has_shot = false;
             this.notify_on_shoot = true;
             
-            if (this.shooterModule.hasNoteToShoot()) {
-                this.shooterModule.spinupForSpeaker();
-            }
+            this.shooterModule.spinupForSpeaker();
         }
 
         if (this.shooterModule.isSpunupForSpeaker()) {
@@ -117,7 +113,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * 
      */
     private boolean isActionComplete() {
-        return this.shooterModule.hasShot() || !this.timer.isRunning();
+        return !this.timer.isRunning();
     }
     
     @Override

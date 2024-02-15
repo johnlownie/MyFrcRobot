@@ -9,7 +9,7 @@ public class IntakeModule {
     /* Hardware Contants */
     private final int MOTOR_CHANNEL = 0;
     private final double MOTOR_SPEED = -0.6;
-    private final int INTAKE_LIMIT_SWITCH_ID = 3;
+    private final int INTAKE_LIMIT_SWITCH_ID = 8;
 
     /* Intake Hardware */
     private final Talon motor;

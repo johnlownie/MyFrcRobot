@@ -107,6 +107,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * 
      */
     public boolean hasNote() {
+        // reset has_note if this method is called
         boolean has_note = this.has_note;
         this.has_note = false;
         
