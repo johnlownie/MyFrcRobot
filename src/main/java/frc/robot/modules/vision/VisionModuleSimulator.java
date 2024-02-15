@@ -6,6 +6,7 @@ import org.photonvision.simulation.VisionSystemSim;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.VisionConstants;
 
 /**
@@ -33,13 +34,13 @@ public class VisionModuleSimulator extends VisionModule {
         this.frontCameraSim = new PhotonCameraSim(this.frontCamera, simCameraProperties);
 
         this.frontVisionSystemSim = new VisionSystemSim(VisionConstants.FRONT_CAMERA_NAME);
-        this.frontVisionSystemSim.addAprilTags(VisionConstants.TAG_FIELD_LAYOUT);
+        this.frontVisionSystemSim.addAprilTags(FieldConstants.TAG_FIELD_LAYOUT);
         this.frontVisionSystemSim.addCamera(this.frontCameraSim, VisionConstants.ROBOT_TO_FRONT_CAMERA);
 
         this.rearCameraSim = new PhotonCameraSim(this.rearCamera, simCameraProperties);
 
         this.rearVisionSystemSim = new VisionSystemSim(VisionConstants.REAR_CAMERA_NAME);
-        this.rearVisionSystemSim.addAprilTags(VisionConstants.TAG_FIELD_LAYOUT);
+        this.rearVisionSystemSim.addAprilTags(FieldConstants.TAG_FIELD_LAYOUT);
         this.rearVisionSystemSim.addCamera(this.rearCameraSim, VisionConstants.ROBOT_TO_REAR_CAMERA);
     }
 

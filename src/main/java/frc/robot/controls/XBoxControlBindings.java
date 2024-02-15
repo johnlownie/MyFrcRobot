@@ -23,6 +23,11 @@ public class XBoxControlBindings implements ControlBindings {
      * Driver Controls
      */
 
+     @Override
+     public Optional<Trigger> alignAndShoot() {
+         return Optional.of(this.driverController.a());
+     }
+ 
     @Override
     public Optional<Trigger> driveToAmp() {
         return Optional.of(this.driverController.povCenter());

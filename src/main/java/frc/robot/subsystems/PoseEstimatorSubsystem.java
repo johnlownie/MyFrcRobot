@@ -24,15 +24,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.util.Timer;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.modules.vision.VisionModule;
 
 /**
  * 
  */
 public class PoseEstimatorSubsystem extends SubsystemBase {
+    /* Subsystems */
+    private final VisionSubsystem visionSubsystem;
+    
     private final Supplier<SwerveModulePosition[]> modulePositionSupplier;
     private final Supplier<Rotation2d> rotationSupplier;
-    private final VisionModule visionModule;
  
     protected Notifier visionNotifier;
 
@@ -58,14 +59,13 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     /**
      * 
      */
-    public PoseEstimatorSubsystem(Supplier<SwerveModulePosition[]> modulePositionSupplier, Supplier<Rotation2d> rotationSupplier, VisionModule visionModule) {
+    public PoseEstimatorSubsystem(Supplier<SwerveModulePosition[]> modulePositionSupplier, Supplier<Rotation2d> rotationSupplier, VisionSubsystem visionSubsystem) {
         this.modulePositionSupplier = modulePositionSupplier;
         this.rotationSupplier = rotationSupplier;
-        this.visionModule = visionModule;
-        this.visionModule.setPoseSupplier(this::getCurrentPose);
+        this.visionSubsystem = visionSubsystem;
+        this.visionSubsystem.setPoseSupplier(this::getCurrentPose);
         
         setSwerveDrivePoseEstimators();
-        // startVisionThread();
     }
 
     /**
@@ -130,11 +130,10 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
         }
     
         // Process the data from the vision module
-        this.visionModule.process();
-        EstimatedRobotPose visionPose = this.visionModule.getBestLatestEstimatedPose();
+        EstimatedRobotPose visionPose = this.visionSubsystem.getBestLatestEstimatedPose();
         if (visionPose != null) {
             Pose2d pose2d = visionPose.estimatedPose.toPose2d();
-            Matrix<N3, N1> estimatedStdDevs = this.visionModule.getEstimationStdDevs(pose2d);
+            Matrix<N3, N1> estimatedStdDevs = this.visionSubsystem.getEstimationStdDevs(pose2d);
             this.swerveDrivePoseEstimator.addVisionMeasurement(pose2d, visionPose.timestampSeconds, estimatedStdDevs);
             Logger.recordOutput("Subsystems/PoseEstimator/VisionPose", pose2d);
         }
@@ -155,7 +154,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
      */
     public void resetPose(Pose2d pose2d) {
         setCurrentPose(pose2d);
-        this.visionModule.resetFieldPosition(pose2d);
+        this.visionSubsystem.resetFieldPosition(pose2d);
     }
 
     /**
@@ -242,15 +241,5 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
         //     this.defaultModulePositions,
         //     new Pose2d()
         // );
-    }
-
-    /**
-     * 
-     */
-    private void startVisionThread() {
-        // Start PhotonVision thread
-        // this.visionNotifier = new Notifier(this.visionModule);
-        // this.visionNotifier.setName("PhotonRunnable");
-        // this.visionNotifier.startPeriodic(0.02);
     }
 }

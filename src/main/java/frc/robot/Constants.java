@@ -1,10 +1,15 @@
 package frc.robot;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -20,6 +25,8 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.lib.util.ProfiledPIDController;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
 
@@ -97,6 +104,9 @@ public final class Constants {
         );
     }
 
+    /**
+     * 
+     */
     public static class FieldConstants {
         // Page 4 & 5 of Layout & Marking Diagram manual (https://firstfrc.blob.core.windows.net/frc2024/FieldAssets/2024LayoutMarkingDiagram.pdf) 
         public static final double LENGTH_METERS = Units.inchesToMeters(652.73);
@@ -141,6 +151,9 @@ public final class Constants {
             new Rotation3d(0.0, 0.0, 0.0),
             new Rotation3d(0.0, 0.0, Units.degreesToRadians(60))
         };
+
+        // The layout of the AprilTags on the field
+        public static final AprilTagFieldLayout TAG_FIELD_LAYOUT = AprilTagFields.kDefaultField.loadAprilTagLayoutField();
     }
 
     /**
@@ -224,6 +237,9 @@ public final class Constants {
         }
     }
 
+    /**
+     * 
+     */
     public static final class TeleopConstants {
         public static final double DEADBAND = 0.1;
     
@@ -252,10 +268,7 @@ public final class Constants {
     /**
      * 
      */
-    public static class VisionConstants {
-        // The layout of the AprilTags on the field
-        public static final AprilTagFieldLayout TAG_FIELD_LAYOUT = AprilTagFields.kDefaultField.loadAprilTagLayoutField();
-
+    public static final class VisionConstants {
         // The standard deviations of our vision estimated poses, which affect correction rate
         // (Fake values. Experiment and determine estimation noise on an actual robot.)
         public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);

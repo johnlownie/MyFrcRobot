@@ -1,31 +1,27 @@
 package frc.robot.containers;
 
-import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ScheduleCommand;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.util.Timer;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.autonomous.AutoBuilder;
-import frc.robot.commands.DriveFromBestTagCommand;
 import frc.robot.commands.TeleopDriveCommand;
+import frc.robot.controls.DriverBindings;
 import frc.robot.controls.XBoxControlBindings;
 import frc.robot.modules.gyro.GyroModule;
 import frc.robot.modules.intake.IntakeModule;
 import frc.robot.modules.shooter.ShooterModule;
 import frc.robot.modules.swerve.SwerveModule;
-import frc.robot.modules.vision.VisionModule;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PneumaticSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.utils.AllianceFlipUtil;
 
 /**
@@ -44,8 +40,7 @@ abstract public class RobotContainer {
     /* Modules */
     protected GyroModule gyroModule;
     protected SwerveModule[] swerveModules;
-    protected VisionModule visionModule;
-
+    
     /* Subsystems */
     protected ArmSubsystem armSubsystem;
     protected IntakeSubsystem intakeSubsystem;
@@ -53,6 +48,7 @@ abstract public class RobotContainer {
     protected PneumaticSubsystem pneumaticSubsystem;
     protected PoseEstimatorSubsystem poseEstimator;
     protected SwerveDriveSubsystem swerveDrive;
+    protected VisionSubsystem visionSubsystem;
 
     /* Autonomous */
     SendableChooser<Command> autonomousChooser;
@@ -88,75 +84,7 @@ abstract public class RobotContainer {
      */
     protected void configureButtonBindings() {
         /* Driver Buttons */
-        // POV up for field oriented drive
-        this.driverController.driveTeleop().ifPresent(
-            trigger -> trigger.onTrue(runOnce(() -> this.swerveDrive.setDefaultCommand(this.teleopDriveCommand))
-                .andThen(new ScheduleCommand(this.teleopDriveCommand))));
-
-        // reset the robot pose
-        this.driverController.resetPose().ifPresent(trigger -> trigger.onTrue(runOnce(this::resetPose)));
-
-        // Start button reseeds the steer motors to fix dead wheel
-        this.driverController.reseedSteerMotors()
-            .ifPresent(trigger -> trigger.onTrue(this.swerveDrive.runOnce(this.swerveDrive::reseedSteerMotorOffsets)
-                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)));
-
-        // 
-        this.driverController.driveToSpeakerRight()
-            .ifPresent(
-                trigger -> trigger.onTrue(
-                    new DriveFromBestTagCommand(
-                        this.swerveDrive,
-                        this.visionModule,
-                        this.poseEstimator::getCurrentPose,
-                        FieldConstants.SPEAKER_POSE_TRANSLATIONS[0],
-                        FieldConstants.SPEAKER_POSE_ROTATIONS[0],
-                        false)
-                    .andThen(
-                        // new DeployGamePieceMidCommand(this.armSubsystem)
-                        // .until(this.driverController.driverWantsControl())
-                    )
-                    .until(this.driverController.driverWantsControl())
-                )
-            );
-
-        // 
-        this.driverController.driveToSpeakerCenter()
-            .ifPresent(
-                trigger -> trigger.onTrue(
-                    new DriveFromBestTagCommand(
-                        this.swerveDrive,
-                        this.visionModule,
-                        this.poseEstimator::getCurrentPose,
-                        FieldConstants.SPEAKER_POSE_TRANSLATIONS[1],
-                        FieldConstants.SPEAKER_POSE_ROTATIONS[1],
-                        false)
-                    .andThen(
-                        // new DeployGamePieceMidCommand(this.armSubsystem)
-                        // .until(this.driverController.driverWantsControl())
-                    )
-                    .until(this.driverController.driverWantsControl())
-                )
-            );
-
-        // 
-        this.driverController.driveToSpeakerLeft()
-            .ifPresent(
-                trigger -> trigger.onTrue(
-                    new DriveFromBestTagCommand(
-                        this.swerveDrive,
-                        this.visionModule,
-                        this.poseEstimator::getCurrentPose,
-                        FieldConstants.SPEAKER_POSE_TRANSLATIONS[2],
-                        FieldConstants.SPEAKER_POSE_ROTATIONS[2],
-                        false)
-                    .andThen(
-                        // new DeployGamePieceMidCommand(this.armSubsystem)
-                        // .until(this.driverController.driverWantsControl())
-                    )
-                    .until(this.driverController.driverWantsControl())
-                )
-            );
+        new DriverBindings(swerveDrive, poseEstimator, armSubsystem, shooterSubsystem, visionSubsystem, teleopDriveCommand).configureButtonBindings(driverController);
 
         // X-Stance Pose
         // this.driverController.xStance().ifPresent(trigger -> trigger.onTrue(

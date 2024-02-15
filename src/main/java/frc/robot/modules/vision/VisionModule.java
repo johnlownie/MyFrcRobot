@@ -45,10 +45,10 @@ public class VisionModule { //implements Runnable {
         this.frontCamera = new PhotonCamera(VisionConstants.FRONT_CAMERA_NAME);
         this.rearCamera = new PhotonCamera(VisionConstants.REAR_CAMERA_NAME);
 
-        this.frontCameraPhotonPoseEstimator = new PhotonPoseEstimator(VisionConstants.TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, this.frontCamera, VisionConstants.ROBOT_TO_FRONT_CAMERA);
+        this.frontCameraPhotonPoseEstimator = new PhotonPoseEstimator(FieldConstants.TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, this.frontCamera, VisionConstants.ROBOT_TO_FRONT_CAMERA);
         this.frontCameraPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
 
-        this.rearCameraPhotonPoseEstimator = new PhotonPoseEstimator(VisionConstants.TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, this.rearCamera, VisionConstants.ROBOT_TO_REAR_CAMERA);
+        this.rearCameraPhotonPoseEstimator = new PhotonPoseEstimator(FieldConstants.TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, this.rearCamera, VisionConstants.ROBOT_TO_REAR_CAMERA);
         this.rearCameraPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
 
         this.atomicFrontEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
@@ -58,7 +58,7 @@ public class VisionModule { //implements Runnable {
 
     // @Override
     public void process() {
-        if (this.frontCameraPhotonPoseEstimator == null || this.rearCameraPhotonPoseEstimator == null || this.poseSupplier == null || this.rearCamera == null || RobotState.isAutonomous()) {
+        if (this.frontCameraPhotonPoseEstimator == null || this.rearCameraPhotonPoseEstimator == null || this.poseSupplier == null || this.rearCamera == null) {
             return;
         }
 

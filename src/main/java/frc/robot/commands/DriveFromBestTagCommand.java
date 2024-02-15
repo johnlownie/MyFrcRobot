@@ -16,15 +16,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.util.ProfiledPIDController;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.modules.vision.VisionModule;
 import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 
 /**
  * 
  */
 public class DriveFromBestTagCommand extends Command {
     private final SwerveDriveSubsystem swerveDrive;
-    private final VisionModule visionModule;
+    private final VisionSubsystem visionSubsystem;
     private final Supplier<Pose2d> poseProvider;
     private final Transform3d transformation;
     private final boolean fromFrontCamera;
@@ -36,9 +36,9 @@ public class DriveFromBestTagCommand extends Command {
     /**
      * 
      */
-    public DriveFromBestTagCommand(SwerveDriveSubsystem swerveDrive, VisionModule visionModule, Supplier<Pose2d> poseProvider, Translation3d translation, Rotation3d rotation, boolean fromFrontCamera) {
+    public DriveFromBestTagCommand(SwerveDriveSubsystem swerveDrive, VisionSubsystem visionSubsystem, Supplier<Pose2d> poseProvider, Translation3d translation, Rotation3d rotation, boolean fromFrontCamera) {
         this.swerveDrive = swerveDrive;
-        this.visionModule = visionModule;
+        this.visionSubsystem = visionSubsystem;
         this.poseProvider = poseProvider;
         this.transformation = new Transform3d(translation, rotation);;
         this.fromFrontCamera = fromFrontCamera;
@@ -49,6 +49,7 @@ public class DriveFromBestTagCommand extends Command {
         this.omegaController.enableContinuousInput(-Math.PI, Math.PI);
 
         addRequirements(this.swerveDrive);
+        addRequirements(this.visionSubsystem);
     }
 
     @Override
@@ -77,7 +78,7 @@ public class DriveFromBestTagCommand extends Command {
      * 
      */
     private Pose2d getBestTagPose(Pose3d currentPose) {
-        PhotonTrackedTarget target = this.visionModule.getBestTarget(this.fromFrontCamera);
+        PhotonTrackedTarget target = this.visionSubsystem.getBestTarget(this.fromFrontCamera);
 
         if (target == null) return null;
         
