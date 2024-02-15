@@ -84,7 +84,8 @@ abstract public class RobotContainer {
      */
     protected void configureButtonBindings() {
         /* Driver Buttons */
-        new DriverBindings(swerveDrive, poseEstimator, armSubsystem, shooterSubsystem, visionSubsystem, teleopDriveCommand).configureButtonBindings(driverController);
+        DriverBindings driverBindings = new DriverBindings(this.swerveDrive, this.poseEstimator, this.armSubsystem, this.shooterSubsystem, this.visionSubsystem, this.teleopDriveCommand);
+        driverBindings.configureButtonBindings(this.driverController);
 
         // X-Stance Pose
         // this.driverController.xStance().ifPresent(trigger -> trigger.onTrue(

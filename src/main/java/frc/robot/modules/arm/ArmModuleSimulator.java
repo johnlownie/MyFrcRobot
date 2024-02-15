@@ -19,8 +19,8 @@ import frc.robot.Constants.RobotConstants;
 import frc.robot.utils.LoggedTunableNumber;
 
 public class ArmModuleSimulator extends ArmModule {
-    private final double ARM_MIN_ANGLE_DEGRESS = -75.0;
-    private final double ARM_MAX_ANGLE_DEGREES = 255.0;
+    private final double ARM_MIN_ANGLE_DEGRESS = -30.0;
+    private final double ARM_MAX_ANGLE_DEGREES = 90.0;
     private final double ARM_REDUCTION = 200.0;
     private final double DISTANCE_PER_PULSE = 2.0 * Math.PI / 4096;
     private final double STARTING_ANGLE_RADIANS = 0.0;

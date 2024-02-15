@@ -109,12 +109,21 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
             Commands.print("*** Starting ShootAndMoveAway ***"),
 
             new InstantCommand(() -> {
-                this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_STAGE);
+                this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_SPEAKER);
+            }),
+            new WaitUntilCommand(this.armSubsystem::isAtAngle),
+            new InstantCommand(() -> {
                 this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT_SPEAKER);
-                this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
             }),
             new WaitUntilCommand(this.shooterSubsystem::hasShot),
-            AutoBuilder.followPath(path),
+            new ParallelCommandGroup(
+                new InstantCommand(() -> {
+                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
+                    this.intakeSubsystem.addAction(IntakeSubsystem.Action.PAUSE);
+                    this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
+                }),
+                AutoBuilder.followPath(path)
+            ),
 
             Commands.print("*** Finished ShootAndMoveAway ***")
         );

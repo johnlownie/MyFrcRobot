@@ -2,6 +2,7 @@ package frc.robot.modules.vision;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
@@ -26,7 +27,7 @@ public class AprilTagShootData {
             // SPEAKER
             case 4:
             case 7:
-                this.offset = Units.inchesToMeters(36.17);
+                this.offset = Units.inchesToMeters(36.17) + (RobotConstants.ROBOT_LENGTH / 2);
                 this.move_to = ArmSubsystem.Action.MOVE_TO_SPEAKER;
                 this.shoot_to = ShooterSubsystem.Action.SHOOT_SPEAKER;
                 break;
@@ -34,7 +35,7 @@ public class AprilTagShootData {
             // AMP
             case 5:
             case 6:
-                this.offset = 0.0;
+                this.offset = RobotConstants.ROBOT_LENGTH / 2;
                 this.move_to = ArmSubsystem.Action.MOVE_TO_AMP;
                 this.shoot_to = ShooterSubsystem.Action.SHOOT_AMP;
                 break;

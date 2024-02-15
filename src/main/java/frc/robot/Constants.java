@@ -81,10 +81,10 @@ public final class Constants {
      * 
      */
     public static class ArmConstants {
-        public static final int ANGLE_AMP = -40;
-        public static final int ANGLE_INTAKE = -60;
-        public static final int ANGLE_SPEAKER = -50;
-        public static final int ANGLE_STAGE  = 0;
+        public static final int ANGLE_AMP = -20;
+        public static final int ANGLE_INTAKE = -30;
+        public static final int ANGLE_SPEAKER = -10;
+        public static final int ANGLE_STAGE  = 30;
     }
 
     /**

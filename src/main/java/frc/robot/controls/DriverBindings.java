@@ -81,6 +81,10 @@ public class DriverBindings {
                     FieldConstants.SPEAKER_POSE_TRANSLATIONS[0],
                     FieldConstants.SPEAKER_POSE_ROTATIONS[0],
                     false)
+                .andThen(
+                    new DeployGamePieceCommand(this.armSubsystem, this.shooterSubsystem, this.visionSubsystem, false)
+                    .until(driverController.driverWantsControl())
+                )
                 .until(driverController.driverWantsControl())
             )
         );
@@ -95,6 +99,10 @@ public class DriverBindings {
                     FieldConstants.SPEAKER_POSE_TRANSLATIONS[1],
                     FieldConstants.SPEAKER_POSE_ROTATIONS[1],
                     false)
+                .andThen(
+                    new DeployGamePieceCommand(this.armSubsystem, this.shooterSubsystem, this.visionSubsystem, false)
+                    .until(driverController.driverWantsControl())
+                )
                 .until(driverController.driverWantsControl())
             )
         );
@@ -109,6 +117,10 @@ public class DriverBindings {
                     FieldConstants.SPEAKER_POSE_TRANSLATIONS[2],
                     FieldConstants.SPEAKER_POSE_ROTATIONS[2],
                     false)
+                .andThen(
+                    new DeployGamePieceCommand(this.armSubsystem, this.shooterSubsystem, this.visionSubsystem, false)
+                    .until(driverController.driverWantsControl())
+                )
                 .until(driverController.driverWantsControl())
             )
         );

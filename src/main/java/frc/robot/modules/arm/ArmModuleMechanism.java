@@ -39,8 +39,8 @@ public class ArmModuleMechanism {
         this.robotBase1 = new MechanismLigament2d("ROBOT BASE 1", ROBOT_BASE1_LENGTH_METERS, 270, LINE_WIDTH, new Color8Bit(Color.kRoyalBlue));
         this.robotBase2 = new MechanismLigament2d("ROBOT BASE 2", ROBOT_BASE2_LENGTH_METERS, 90, LINE_WIDTH, new Color8Bit(Color.kRoyalBlue));
         this.arm = new MechanismLigament2d("ARM", ARM_LENGTH_METERS, 0, LINE_WIDTH, new Color8Bit(Color.kBlue));
-        this.shooterBase1 = new MechanismLigament2d("SHOOTER BASE 1", SHOOTER_BASE1_LENGTH_METERS, -45, LINE_WIDTH, new Color8Bit(Color.kRed));
-        this.shooterBase2 = new MechanismLigament2d("SHOOTER BASE 2", SHOOTER_BASE2_LENGTH_METERS, 135, LINE_WIDTH, new Color8Bit(Color.kOrange));
+        this.shooterBase1 = new MechanismLigament2d("SHOOTER BASE 1", SHOOTER_BASE1_LENGTH_METERS, 150, LINE_WIDTH, new Color8Bit(Color.kRed));
+        this.shooterBase2 = new MechanismLigament2d("SHOOTER BASE 2", SHOOTER_BASE2_LENGTH_METERS, -30, LINE_WIDTH, new Color8Bit(Color.kOrange));
 
         this.pivot.append(this.tower);
         this.pivot.append(this.support);

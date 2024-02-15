@@ -77,8 +77,10 @@ public class DeployGamePieceCommand extends Command {
     public void initialize() {
         PhotonTrackedTarget target = this.visionSubsystem.getBestTarget(this.fromFrontCamera);
 
-        this.moveTo = this.visionSubsystem.getMoveTo(target.getFiducialId());
-        this.shootTo = this.visionSubsystem.getShootTo(target.getFiducialId());
+        if (target!= null) {
+            this.moveTo = this.visionSubsystem.getMoveTo(target.getFiducialId());
+            this.shootTo = this.visionSubsystem.getShootTo(target.getFiducialId());
+        }
 
         this.timer.reset();
         this.timer.start();
