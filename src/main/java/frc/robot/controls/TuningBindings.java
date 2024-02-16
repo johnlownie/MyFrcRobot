@@ -54,17 +54,9 @@ public class TuningBindings {
         // Arm Bindings
         controller.operatorA().ifPresent(
             trigger -> trigger.onTrue(
-                Commands.print("*** Initial Command ***")
-                .andThen(
-                    new WaitUntilCommand(this.armSubsystem::isAtAngle)
-                )
-                .andThen(
-                    Commands.print("*** Command After Wait ***")
-                )
-
-                // new InstantCommand(() -> {
-                //     this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
-                // })
+                new InstantCommand(() -> {
+                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
+                })
                 .until(controller.operatorWantsControl())
             )
         );

@@ -44,7 +44,6 @@ public class ArmModule {
     /* Mechanisim2d Display for Monitoring the Arm Position */
     protected final ArmModuleMechanism armModuleMechanism = new ArmModuleMechanism();
 
-    private boolean enabled;
     private double desired_angle_degrees;
 
     /**
@@ -59,8 +58,6 @@ public class ArmModule {
         
         this.upperLimitSwitch = new DigitalInput(UPPER_LIMIT_SWITCH_ID);
         this.lowerLimitSwitch = new DigitalInput(LOWER_LIMIT_SWITCH_ID);
-
-        this.enabled = false;
     }
 
     /**
@@ -108,7 +105,7 @@ public class ArmModule {
             setDesiredAngle(getCurrentAngle());
         }
 
-        double pidOutput = isEnabled() ? this.pidController.calculate(this.encoder.getDistance(), Units.degreesToRadians(getDesiredAngle())) : 0.0;
+        double pidOutput = this.pidController.calculate(this.encoder.getDistance(), Units.degreesToRadians(getDesiredAngle()));
         this.motor.set(TalonSRXControlMode.PercentOutput, pidOutput);
 
         Logger.recordOutput("Mechanisms/Arm/Desired Angle", getDesiredAngle());
@@ -127,15 +124,7 @@ public class ArmModule {
         return this.desired_angle_degrees;
     }
 
-    public boolean isEnabled() {
-        return this.enabled;
-    }
-
     public void setDesiredAngle(double desired_angle_degrees) {
         this.desired_angle_degrees = desired_angle_degrees;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 }

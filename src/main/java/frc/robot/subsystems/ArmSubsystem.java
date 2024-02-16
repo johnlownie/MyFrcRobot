@@ -19,7 +19,7 @@ public class ArmSubsystem extends SubsystemBase {
     private final ArmModule armModule;
 
     public static enum Action {
-        IDLE, MOVE, MOVE_TO_AMP, MOVE_TO_INTAKE, MOVE_TO_SPEAKER, MOVE_TO_STAGE, PAUSE
+        IDLE, MOVE_TO_AMP, MOVE_TO_INTAKE, MOVE_TO_SPEAKER, MOVE_TO_STAGE, PAUSE
     }
 
     private final StateMachine<Action> stateMachine;
@@ -38,7 +38,6 @@ public class ArmSubsystem extends SubsystemBase {
         // Sets states for the arm, and what methods.
         this.stateMachine = new StateMachine<>("ARM SUBSYSTEM");
         this.stateMachine.setDefaultState(Action.IDLE, this::handleIdle);
-        this.stateMachine.addState(Action.MOVE, this::handleMove);
         this.stateMachine.addState(Action.MOVE_TO_AMP, this::handleMoveToAmp);
         this.stateMachine.addState(Action.MOVE_TO_INTAKE, this::handleMoveToIntake);
         this.stateMachine.addState(Action.MOVE_TO_SPEAKER, this::handleMoveToSpeaker);
@@ -64,16 +63,6 @@ public class ArmSubsystem extends SubsystemBase {
      */
     private void handleIdle(StateMetadata<Action> stateMetadata) {
     }
-
-    /**
-     * 
-     */
-    private void handleMove(StateMetadata<Action> stateMetadata) {
-        if (stateMetadata.isFirstRun()) {
-            this.is_at_angle = false;
-            this.armModule.setEnabled(true);
-        }
-    }
     
     /**
      * 
@@ -81,7 +70,8 @@ public class ArmSubsystem extends SubsystemBase {
     private void handleMoveToAmp(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
             setDesiredAngle(ArmConstants.ANGLE_AMP);
-            moveArm(true);
+            this.is_at_angle = false;
+            this.notify_at_angle = true;
         }
     }
 
@@ -89,8 +79,11 @@ public class ArmSubsystem extends SubsystemBase {
      * 
      */
     private void handleMoveToIntake(StateMetadata<Action> stateMetadata) {
-        setDesiredAngle(ArmConstants.ANGLE_INTAKE);
-        moveArm(true);
+        if (stateMetadata.isFirstRun()) {
+            setDesiredAngle(ArmConstants.ANGLE_INTAKE);
+            this.is_at_angle = false;
+            this.notify_at_angle = true;
+        }
     }
 
     /**
@@ -99,7 +92,8 @@ public class ArmSubsystem extends SubsystemBase {
     private void handleMoveToSpeaker(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
             setDesiredAngle(ArmConstants.ANGLE_SPEAKER);
-            moveArm(true);
+            this.is_at_angle = false;
+            this.notify_at_angle = true;
         }
     }
 
@@ -109,7 +103,8 @@ public class ArmSubsystem extends SubsystemBase {
     private void handleMoveToStage(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
             setDesiredAngle(ArmConstants.ANGLE_STAGE);
-            moveArm(true);
+            this.is_at_angle = false;
+            this.notify_at_angle = true;
         }
     }
 
@@ -140,14 +135,6 @@ public class ArmSubsystem extends SubsystemBase {
      */
     public boolean isAtAngle() {
         return this.is_at_angle;
-    }
-
-    /**
-     * 
-     */
-    private void moveArm(boolean notify_at_angle) {
-        this.notify_at_angle = notify_at_angle;
-        this.stateMachine.setState(Action.MOVE);
     }
     
     @Override

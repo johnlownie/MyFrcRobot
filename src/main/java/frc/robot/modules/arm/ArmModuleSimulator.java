@@ -74,7 +74,7 @@ public class ArmModuleSimulator extends ArmModule {
             this.pidController.setPID(kp.get(), ki.get(), kd.get());
         }
 
-        double pidOutput = super.isEnabled() ? this.pidController.calculate(this.encoderSim.getDistance(), Units.degreesToRadians(getDesiredAngle())) : 0.0;
+        double pidOutput = this.pidController.calculate(this.encoderSim.getDistance(), Units.degreesToRadians(getDesiredAngle()));
         this.motor.setVoltage(pidOutput);
 
         this.singleJointedArmSim.setInput(MathUtil.clamp(this.motor.get() * 12.0, -12.0, 12.0));
