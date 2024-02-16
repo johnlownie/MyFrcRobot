@@ -35,7 +35,7 @@ public final class Constants {
     public static final class RobotConstants {
         public static final double ROBOT_LENGTH = Units.inchesToMeters(38.0);
         public static final double LOOP_PERIOD_SECS = 0.02;
-        public static final boolean TUNING_MODE = false;
+        public static final boolean TUNING_MODE = true;
         
         // FIXME: update for various robots
         public enum Mode { REAL, REPLAY, SIM }
@@ -79,7 +79,7 @@ public final class Constants {
      * 
      */
     public static class ArmConstants {
-        public static final int ANGLE_AMP = -20;
+        public static final int ANGLE_AMP = 70;
         public static final int ANGLE_INTAKE = -30;
         public static final int ANGLE_SPEAKER = -10;
         public static final int ANGLE_STAGE  = 90;

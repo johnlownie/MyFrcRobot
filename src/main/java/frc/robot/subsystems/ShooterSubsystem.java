@@ -144,5 +144,6 @@ public class ShooterSubsystem extends SubsystemBase {
         }
 
         Logger.recordOutput("Subsystems/Shooter/Current State", this.stateMachine.getCurrentState());
+        Logger.recordOutput("Subsystems/Shooter/HasShot", this.has_shot);
     }
 }

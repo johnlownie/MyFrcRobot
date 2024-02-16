@@ -24,6 +24,11 @@ public class ArmModuleSimulator extends ArmModule {
     private final double STARTING_ANGLE_RADIANS = 0.0;
     
     private final Vector<N1> STD_DEVS = VecBuilder.fill(DISTANCE_PER_PULSE);
+
+    /* Motor PID Values */	
+    protected final double KP = 50.0;	
+    protected final double KI = 0.0;	
+    protected final double KD = 0.0;	
     
     /* Simulated Hardware */
     private final DCMotor gearBox;

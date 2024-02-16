@@ -81,7 +81,7 @@ public class ArmSubsystem extends SubsystemBase {
     private void handleMoveToAmp(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
             setDesiredAngle(ArmConstants.ANGLE_AMP);
-            moveArm(false);
+            moveArm(true);
         }
     }
 
@@ -90,7 +90,7 @@ public class ArmSubsystem extends SubsystemBase {
      */
     private void handleMoveToIntake(StateMetadata<Action> stateMetadata) {
         setDesiredAngle(ArmConstants.ANGLE_INTAKE);
-        moveArm(false);
+        moveArm(true);
     }
 
     /**
@@ -173,6 +173,7 @@ public class ArmSubsystem extends SubsystemBase {
         }
 
         Logger.recordOutput("Subsystems/Arm/Current State", this.stateMachine.getCurrentState());
+        Logger.recordOutput("Subsystems/Arm/IsAtAngle", isAtAngle());
     }
 
     /**

@@ -2,8 +2,10 @@ package frc.robot.controls;
 
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.commands.DeployGamePieceCommand;
 import frc.robot.commands.DriveToBestTagCommand;
 import frc.robot.commands.TeleopDriveCommand;
@@ -52,9 +54,17 @@ public class TuningBindings {
         // Arm Bindings
         controller.operatorA().ifPresent(
             trigger -> trigger.onTrue(
-                new InstantCommand(() -> {
-                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
-                })
+                Commands.print("*** Initial Command ***")
+                .andThen(
+                    new WaitUntilCommand(this.armSubsystem::isAtAngle)
+                )
+                .andThen(
+                    Commands.print("*** Command After Wait ***")
+                )
+
+                // new InstantCommand(() -> {
+                //     this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
+                // })
                 .until(controller.operatorWantsControl())
             )
         );
@@ -64,6 +74,23 @@ public class TuningBindings {
                 new InstantCommand(() -> {
                     this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_AMP);
                 })
+                .andThen(
+                    new WaitUntilCommand(this.armSubsystem::isAtAngle)
+                )
+                .andThen(
+                    Commands.print("*** And Then ***"),
+                    new InstantCommand(() -> {
+                        this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT_AMP);
+                    })
+                )
+                .andThen(
+                    new WaitUntilCommand(this.shooterSubsystem::hasShot)
+                )
+                .andThen(
+                    new InstantCommand(() -> {
+                        this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
+                    })
+                )
                 .until(controller.operatorWantsControl())
             )
         );
@@ -73,30 +100,27 @@ public class TuningBindings {
                 new InstantCommand(() -> {
                     this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_SPEAKER);
                 })
+                .andThen(
+                    new WaitUntilCommand(this.armSubsystem::isAtAngle)
+                )
+                .andThen(
+                    new InstantCommand(() -> {
+                        this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT_SPEAKER);
+                    })
+                )
+                .andThen(
+                    new WaitUntilCommand(this.shooterSubsystem::hasShot)
+                )
+                .andThen(
+                    new InstantCommand(() -> {
+                        this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
+                    })
+                )
                 .until(controller.operatorWantsControl())
             )
         );
 
         controller.operatorY().ifPresent(
-            trigger -> trigger.onTrue(
-                new InstantCommand(() -> {
-                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_STAGE);
-                })
-                .until(controller.operatorWantsControl())
-            )
-        );
-
-        // Shooter Bindings
-        controller.operatorLeftTrigger().ifPresent(
-            trigger -> trigger.onTrue(
-                new InstantCommand(() -> {
-                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_STAGE);
-                })
-                .until(controller.operatorWantsControl())
-            )
-        );
-
-        controller.operatorRightTrigger().ifPresent(
             trigger -> trigger.onTrue(
                 new InstantCommand(() -> {
                     this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_STAGE);
