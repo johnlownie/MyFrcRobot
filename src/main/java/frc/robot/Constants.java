@@ -25,8 +25,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.lib.util.ProfiledPIDController;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
 
@@ -84,7 +82,7 @@ public final class Constants {
         public static final int ANGLE_AMP = -20;
         public static final int ANGLE_INTAKE = -30;
         public static final int ANGLE_SPEAKER = -10;
-        public static final int ANGLE_STAGE  = 30;
+        public static final int ANGLE_STAGE  = 90;
     }
 
     /**

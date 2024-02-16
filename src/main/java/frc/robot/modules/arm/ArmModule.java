@@ -14,32 +14,32 @@ import frc.robot.utils.LoggedTunableNumber;
 
 public class ArmModule {
     /* Hardware Contants */
-    private final int MOTOR_ID = 5;
+    private final int MOTOR_ID = 7;
     private final int ENCODER_CHANNEL_A_ID = 0;
     private final int ENCODER_CHANNEL_B_ID = 1;
     private final double DISTANCE_PER_PULSE = 183 / 64;
     private final double MIN_RATE = 0.1;
 
-    private final int UP_LIMIT_SWITCH_ID = 4;
-    private final int DOWN_LIMIT_SWITCH_ID = 5;
+    private final int UPPER_LIMIT_SWITCH_ID = 4;
+    private final int LOWER_LIMIT_SWITCH_ID = 5;
     
     /* Motor PID Values */
-    private final double KP = 0.95 / 1000;
-    private final double KI = 0.0;
-    private final double KD = 0.0;
+    protected final double KP = 0.95 / 1000;
+    protected final double KI = 0.0;
+    protected final double KD = 0.0;
 
     /* Tunable PID */
-    private final LoggedTunableNumber kp = new LoggedTunableNumber("Arm/Kp", KP);
-    private final LoggedTunableNumber ki = new LoggedTunableNumber("Arm/Ki", KI);
-    private final LoggedTunableNumber kd = new LoggedTunableNumber("Arm/Kd", KD);
+    protected final LoggedTunableNumber kp = new LoggedTunableNumber("Arm/Kp", KP);
+    protected final LoggedTunableNumber ki = new LoggedTunableNumber("Arm/Ki", KI);
+    protected final LoggedTunableNumber kd = new LoggedTunableNumber("Arm/Kd", KD);
 
-    private final PIDController pidController = new PIDController(KP, KI, KD);
+    protected final PIDController pidController = new PIDController(KP, KI, KD);
 
     /* Arm Hardware */
     private final TalonSRX motor;
     private final Encoder encoder;
-    private final DigitalInput upLimitSwitch;
-    private final DigitalInput downLimitSwitch;
+    private final DigitalInput upperLimitSwitch;
+    private final DigitalInput lowerLimitSwitch;
     
     /* Mechanisim2d Display for Monitoring the Arm Position */
     protected final ArmModuleMechanism armModuleMechanism = new ArmModuleMechanism();
@@ -57,8 +57,8 @@ public class ArmModule {
         this.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
         this.encoder.setMinRate(MIN_RATE);
         
-        this.upLimitSwitch = new DigitalInput(UP_LIMIT_SWITCH_ID);
-        this.downLimitSwitch = new DigitalInput(DOWN_LIMIT_SWITCH_ID);
+        this.upperLimitSwitch = new DigitalInput(UPPER_LIMIT_SWITCH_ID);
+        this.lowerLimitSwitch = new DigitalInput(LOWER_LIMIT_SWITCH_ID);
 
         this.enabled = false;
     }
@@ -80,15 +80,15 @@ public class ArmModule {
     /**
      * 
      */
-    public boolean isDownLimitSwitchTriggered() {
-        return !this.downLimitSwitch.get();
+    public boolean isLowerLimitSwitchTriggered() {
+        return !this.lowerLimitSwitch.get();
     }
 
     /**
      * 
      */
-    public boolean isUpLimitSwitchTriggered() {
-        return !this.upLimitSwitch.get();
+    public boolean isUpperLimitSwitchTriggered() {
+        return !this.upperLimitSwitch.get();
     }
 
     /**
@@ -99,11 +99,11 @@ public class ArmModule {
             this.pidController.setPID(kp.get(), ki.get(), kd.get());
         }
 
-        if (isUpLimitSwitchTriggered()) {
+        if (isUpperLimitSwitchTriggered()) {
             setDesiredAngle(getCurrentAngle());
         }
         
-        if (isDownLimitSwitchTriggered()) {
+        if (isLowerLimitSwitchTriggered()) {
             this.encoder.reset();
             setDesiredAngle(getCurrentAngle());
         }

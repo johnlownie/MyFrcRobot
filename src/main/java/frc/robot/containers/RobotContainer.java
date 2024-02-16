@@ -7,9 +7,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.util.Timer;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.autonomous.AutoBuilder;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.controls.DriverBindings;
+import frc.robot.controls.OperatorBindings;
+import frc.robot.controls.TuningBindings;
 import frc.robot.controls.XBoxControlBindings;
 import frc.robot.modules.gyro.GyroModule;
 import frc.robot.modules.intake.IntakeModule;
@@ -83,17 +86,21 @@ abstract public class RobotContainer {
      * 
      */
     protected void configureButtonBindings() {
+        /* Use specific button configuration if tuning the robot */
+        if (RobotConstants.TUNING_MODE) {
+            TuningBindings tuningBindings = new TuningBindings(this.swerveDrive, this.poseEstimator, this.armSubsystem, this.intakeSubsystem, this.shooterSubsystem, this.visionSubsystem, this.teleopDriveCommand);
+            tuningBindings.configureDriverButtonBindings(this.driverController);
+            tuningBindings.configureOperatorButtonBindings(this.operatorController);
+            return;
+        }
+
         /* Driver Buttons */
-        DriverBindings driverBindings = new DriverBindings(this.swerveDrive, this.poseEstimator, this.armSubsystem, this.shooterSubsystem, this.visionSubsystem, this.teleopDriveCommand);
+        DriverBindings driverBindings = new DriverBindings(this.swerveDrive, this.poseEstimator, this.armSubsystem, this.intakeSubsystem, this.shooterSubsystem, this.visionSubsystem, this.teleopDriveCommand);
         driverBindings.configureButtonBindings(this.driverController);
 
-        // X-Stance Pose
-        // this.driverController.xStance().ifPresent(trigger -> trigger.onTrue(
-        //     run(this.swerveDrive::setXStance)
-        //     .until(this.driverController.driverWantsControl())
-        // ));
-
         /* Operator Buttons */
+        OperatorBindings operatorBindings = new OperatorBindings(this.swerveDrive, this.poseEstimator, this.armSubsystem, this.intakeSubsystem, this.shooterSubsystem, this.visionSubsystem);
+        operatorBindings.configureButtonBindings(this.operatorController);
     }
 
     /**

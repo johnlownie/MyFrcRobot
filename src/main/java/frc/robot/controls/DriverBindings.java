@@ -10,6 +10,7 @@ import frc.robot.commands.DriveFromBestTagCommand;
 import frc.robot.commands.DriveToBestTagCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -19,6 +20,7 @@ public class DriverBindings {
     /* Subsystems */
     private final PoseEstimatorSubsystem poseEstimator;
     private final ArmSubsystem armSubsystem;
+    private final IntakeSubsystem intakeSubsystem;
     private final ShooterSubsystem shooterSubsystem;
     private final SwerveDriveSubsystem swerveDrive;
     private final VisionSubsystem visionSubsystem;
@@ -29,10 +31,11 @@ public class DriverBindings {
     /**
      * 
      */
-    public DriverBindings(SwerveDriveSubsystem swerveDrive, PoseEstimatorSubsystem poseEstimator, ArmSubsystem armSubsystem, ShooterSubsystem shooterSubsystem, VisionSubsystem visionSubsystem, TeleopDriveCommand teleopDriveCommand) {
+    public DriverBindings(SwerveDriveSubsystem swerveDrive, PoseEstimatorSubsystem poseEstimator, ArmSubsystem armSubsystem, IntakeSubsystem intakeSubsystem, ShooterSubsystem shooterSubsystem, VisionSubsystem visionSubsystem, TeleopDriveCommand teleopDriveCommand) {
         this.swerveDrive = swerveDrive;
         this.poseEstimator = poseEstimator;
         this.armSubsystem = armSubsystem;
+        this.intakeSubsystem = intakeSubsystem;
         this.shooterSubsystem = shooterSubsystem;
         this.visionSubsystem = visionSubsystem;
         this.teleopDriveCommand = teleopDriveCommand;
@@ -41,9 +44,9 @@ public class DriverBindings {
     /**
      * 
      */
-    public void configureButtonBindings(XBoxControlBindings driverController) {
+    public void configureButtonBindings(XBoxControlBindings controller) {
         // Teleop Drive
-        driverController.driveTeleop().ifPresent(
+        controller.driveTeleop().ifPresent(
             trigger -> trigger.onTrue(runOnce(() -> this.swerveDrive.setDefaultCommand(this.teleopDriveCommand))
                 .andThen(new ScheduleCommand(this.teleopDriveCommand))));
 
@@ -51,12 +54,12 @@ public class DriverBindings {
         // driverController.resetPose().ifPresent(trigger -> trigger.onTrue(runOnce(this::resetPose)));
 
         // Start button reseeds the steer motors to fix dead wheel
-        driverController.reseedSteerMotors()
+        controller.reseedSteerMotors()
             .ifPresent(trigger -> trigger.onTrue(this.swerveDrive.runOnce(this.swerveDrive::reseedSteerMotorOffsets)
                 .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)));
 
         // Align and Shoot
-        driverController.alignAndShoot().ifPresent(
+        controller.alignAndShoot().ifPresent(
             trigger -> trigger.onTrue(
                 new DriveToBestTagCommand(
                     this.swerveDrive,
@@ -65,14 +68,14 @@ public class DriverBindings {
                     false)
                 .andThen(
                     new DeployGamePieceCommand(this.armSubsystem, this.shooterSubsystem, this.visionSubsystem, false)
-                    .until(driverController.driverWantsControl())
+                    .until(controller.driverWantsControl())
                 )
-                .until(driverController.driverWantsControl())
+                .until(controller.driverWantsControl())
             )
         );
 
         // Drive to Speaker Pose examples
-        driverController.driveToSpeakerRight().ifPresent(
+        controller.driveToSpeakerRight().ifPresent(
             trigger -> trigger.onTrue(
                 new DriveFromBestTagCommand(
                     this.swerveDrive,
@@ -83,14 +86,14 @@ public class DriverBindings {
                     false)
                 .andThen(
                     new DeployGamePieceCommand(this.armSubsystem, this.shooterSubsystem, this.visionSubsystem, false)
-                    .until(driverController.driverWantsControl())
+                    .until(controller.driverWantsControl())
                 )
-                .until(driverController.driverWantsControl())
+                .until(controller.driverWantsControl())
             )
         );
 
         // 
-        driverController.driveToSpeakerCenter().ifPresent(
+        controller.driveToSpeakerCenter().ifPresent(
             trigger -> trigger.onTrue(
                 new DriveFromBestTagCommand(
                     this.swerveDrive,
@@ -101,14 +104,14 @@ public class DriverBindings {
                     false)
                 .andThen(
                     new DeployGamePieceCommand(this.armSubsystem, this.shooterSubsystem, this.visionSubsystem, false)
-                    .until(driverController.driverWantsControl())
+                    .until(controller.driverWantsControl())
                 )
-                .until(driverController.driverWantsControl())
+                .until(controller.driverWantsControl())
             )
         );
 
         // 
-        driverController.driveToSpeakerLeft().ifPresent(
+        controller.driveToSpeakerLeft().ifPresent(
             trigger -> trigger.onTrue(
                 new DriveFromBestTagCommand(
                     this.swerveDrive,
@@ -119,9 +122,9 @@ public class DriverBindings {
                     false)
                 .andThen(
                     new DeployGamePieceCommand(this.armSubsystem, this.shooterSubsystem, this.visionSubsystem, false)
-                    .until(driverController.driverWantsControl())
+                    .until(controller.driverWantsControl())
                 )
-                .until(driverController.driverWantsControl())
+                .until(controller.driverWantsControl())
             )
         );
     }

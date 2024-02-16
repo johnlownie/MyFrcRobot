@@ -20,7 +20,7 @@ public class XBoxControlBindings implements ControlBindings {
     private final CommandXboxController operatorController = new CommandXboxController(1);;
  
     /**
-     * Driver Controls
+     * Game Specific Driver Controls
      */
 
      @Override
@@ -62,19 +62,160 @@ public class XBoxControlBindings implements ControlBindings {
     public Optional<Trigger> resetPose() {
         return Optional.of(this.driverController.back());
     }
-  
+ 
+    /**
+     * Game Specific Operator Controls
+     */
+ 
+    /**
+     * Generic Driver Controls
+     */
     @Override
-    public Optional<Trigger> xStance() {
+    public Optional<Trigger> driverA() {
+        return Optional.of(this.driverController.a());
+    }
+
+    @Override
+    public Optional<Trigger> driverB() {
+        return Optional.of(this.driverController.b());
+    }
+
+    @Override
+    public Optional<Trigger> driverX() {
         return Optional.of(this.driverController.x());
+    }
+
+    @Override
+    public Optional<Trigger> driverY() {
+        return Optional.of(this.driverController.y());
+    }
+
+    @Override
+    public Optional<Trigger> driverStart() {
+        return Optional.of(this.driverController.start());
+    }
+
+    @Override
+    public Optional<Trigger> driverBack() {
+        return Optional.of(this.driverController.back());
+    }
+
+    @Override
+    public Optional<Trigger> driverLeftTrigger() {
+        return Optional.of(this.driverController.leftTrigger());
+    }
+
+    @Override
+    public Optional<Trigger> driverRightTrigger() {
+        return Optional.of(this.driverController.rightTrigger());
+    }
+
+    @Override
+    public Optional<Trigger> driverLeftBumper() {
+        return Optional.of(this.driverController.leftTrigger());
+    }
+
+    @Override
+    public Optional<Trigger> driverRightBumper() {
+        return Optional.of(this.driverController.rightTrigger());
+    }
+
+    @Override
+    public Optional<Trigger> driverPovLeft() {
+        return Optional.of(this.driverController.povLeft());
+    }
+
+    @Override
+    public Optional<Trigger> driverPovRight() {
+        return Optional.of(this.driverController.povRight());
+    }
+
+    @Override
+    public Optional<Trigger> driverPovUp() {
+        return Optional.of(this.driverController.povUp());
+    }
+
+    @Override
+    public Optional<Trigger> driverPovDown() {
+        return Optional.of(this.driverController.povDown());
     }
  
     /**
-     * Operator Controls
+     * Generic Operator Controls
      */
- 
-     /**
-      * 
-      */
+    @Override
+    public Optional<Trigger> operatorA() {
+        return Optional.of(this.operatorController.a());
+    }
+
+    @Override
+    public Optional<Trigger> operatorB() {
+        return Optional.of(this.operatorController.b());
+    }
+
+    @Override
+    public Optional<Trigger> operatorX() {
+        return Optional.of(this.operatorController.x());
+    }
+
+    @Override
+    public Optional<Trigger> operatorY() {
+        return Optional.of(this.operatorController.y());
+    }
+
+    @Override
+    public Optional<Trigger> operatorStart() {
+        return Optional.of(this.operatorController.start());
+    }
+
+    @Override
+    public Optional<Trigger> operatorBack() {
+        return Optional.of(this.operatorController.back());
+    }
+
+    @Override
+    public Optional<Trigger> operatorLeftTrigger() {
+        return Optional.of(this.operatorController.leftTrigger());
+    }
+
+    @Override
+    public Optional<Trigger> operatorRightTrigger() {
+        return Optional.of(this.operatorController.rightTrigger());
+    }
+
+    @Override
+    public Optional<Trigger> operatorLeftBumper() {
+        return Optional.of(this.operatorController.leftTrigger());
+    }
+
+    @Override
+    public Optional<Trigger> operatorRightBumper() {
+        return Optional.of(this.operatorController.rightTrigger());
+    }
+
+    @Override
+    public Optional<Trigger> operatorPovLeft() {
+        return Optional.of(this.operatorController.povLeft());
+    }
+
+    @Override
+    public Optional<Trigger> operatorPovRight() {
+        return Optional.of(this.operatorController.povRight());
+    }
+
+    @Override
+    public Optional<Trigger> operatorPovUp() {
+        return Optional.of(this.operatorController.povUp());
+    }
+
+    @Override
+    public Optional<Trigger> operatorPovDown() {
+        return Optional.of(this.operatorController.povDown());
+    }
+
+    /**
+     * 
+     */
     @Override
     public DoubleSupplier translationX() {
         return () ->-modifyAxis(this.driverController.getLeftY()) * SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;

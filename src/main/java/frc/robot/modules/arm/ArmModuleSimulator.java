@@ -5,7 +5,6 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -16,7 +15,6 @@ import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants.RobotConstants;
-import frc.robot.utils.LoggedTunableNumber;
 
 public class ArmModuleSimulator extends ArmModule {
     private final double ARM_MIN_ANGLE_DEGRESS = -30.0;
@@ -26,18 +24,6 @@ public class ArmModuleSimulator extends ArmModule {
     private final double STARTING_ANGLE_RADIANS = 0.0;
     
     private final Vector<N1> STD_DEVS = VecBuilder.fill(DISTANCE_PER_PULSE);
-
-    /* Motor PID Values */
-    private final double KP = 50.0;
-    private final double KI = 0.0;
-    private final double KD = 0.0;
-
-    /* Tunable PID */
-    private final LoggedTunableNumber kp = new LoggedTunableNumber("Arm/Kp", KP);
-    private final LoggedTunableNumber ki = new LoggedTunableNumber("Arm/Ki", KI);
-    private final LoggedTunableNumber kd = new LoggedTunableNumber("Arm/Kd", KD);
-    
-    private final PIDController pidController = new PIDController(KP, KI, KD);
     
     /* Simulated Hardware */
     private final DCMotor gearBox;
