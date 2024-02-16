@@ -37,9 +37,9 @@ public class ArmSubsystem extends SubsystemBase {
 
         // Sets states for the arm, and what methods.
         this.stateMachine = new StateMachine<>("ARM SUBSYSTEM");
-        this.stateMachine.setDefaultState(Action.IDLE, this::handleIdle);
+        this.stateMachine.setDefaultState(Action.MOVE_TO_INTAKE, this::handleMoveToIntake);
+        this.stateMachine.addState(Action.IDLE, this::handleIdle);
         this.stateMachine.addState(Action.MOVE_TO_AMP, this::handleMoveToAmp);
-        this.stateMachine.addState(Action.MOVE_TO_INTAKE, this::handleMoveToIntake);
         this.stateMachine.addState(Action.MOVE_TO_SPEAKER, this::handleMoveToSpeaker);
         this.stateMachine.addState(Action.MOVE_TO_STAGE, this::handleMoveToStage);
         this.stateMachine.addState(Action.PAUSE, this::handlePause);
