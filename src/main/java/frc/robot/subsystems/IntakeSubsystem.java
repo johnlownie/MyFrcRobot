@@ -25,8 +25,6 @@ public class IntakeSubsystem extends SubsystemBase {
     private final LinkedList<Action> actionQueue;
 
     private Timer timer;
-    private boolean has_note;
-    private boolean notify_on_note;
     
     /**
      * 
@@ -39,13 +37,11 @@ public class IntakeSubsystem extends SubsystemBase {
         this.stateMachine.setDefaultState(Action.IDLE, this::handleIdle);
         this.stateMachine.addState(Action.EJECT, this::handleEject);
         this.stateMachine.addState(Action.INTAKE, this::handleIntake);
-        this.stateMachine.addState(Action.PAUSE, this::handleLongPause);
+        this.stateMachine.addState(Action.PAUSE, this::handlePause);
 
         this.actionQueue = new LinkedList<Action>();
 
         this.timer = new Timer();
-        this.has_note = false;
-        this.notify_on_note = false;
     }
 
     /**
@@ -82,8 +78,6 @@ public class IntakeSubsystem extends SubsystemBase {
         if (stateMetadata.isFirstRun()) {
             this.timer.reset();
             this.timer.start();
-            this.has_note = false;
-            this.notify_on_note = true;
             this.intakeModule.intake();
         }
     }
@@ -91,7 +85,7 @@ public class IntakeSubsystem extends SubsystemBase {
     /**
      * 
      */
-    private void handleLongPause(StateMetadata<Action> stateMetadata) {
+    private void handlePause(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
             this.timer.reset();
             this.timer.start();
@@ -106,19 +100,8 @@ public class IntakeSubsystem extends SubsystemBase {
     /**
      * 
      */
-    public boolean hasNote() {
-        // reset has_note if this method is called
-        boolean has_note = this.has_note;
-        this.has_note = false;
-        
-        return has_note;
-    }
-    
-    /**
-     * 
-     */
     private boolean isActionComplete() {
-        return this.intakeModule.hasNote() || !this.timer.isRunning();
+        return !this.timer.isRunning();
     }
     
     @Override
@@ -132,11 +115,6 @@ public class IntakeSubsystem extends SubsystemBase {
         }
 
         if (isActionComplete()) {
-            if (this.notify_on_note) {
-                this.has_note = true;
-                this.notify_on_note = false;
-            }
-
             this.stateMachine.setState(Action.IDLE);
         }
 
@@ -149,6 +127,5 @@ public class IntakeSubsystem extends SubsystemBase {
         }
 
         Logger.recordOutput("Subsystems/Intake/Current State", this.stateMachine.getCurrentState());
-        Logger.recordOutput("Mechanisms/Intake/Has Note", this.has_note);
     }
 }

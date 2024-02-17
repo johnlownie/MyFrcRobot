@@ -3,6 +3,8 @@ package frc.robot.modules.shooter;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 
+import edu.wpi.first.wpilibj.DigitalInput;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -17,6 +19,7 @@ public class ShooterModule {
     private final double KICKER_SPEED = 0.6;
     private final int AMP_VELOCITY = 2000;
     private final int SPEAKER_VELOCITY = 5000;
+    private final int INTAKE_LIMIT_SWITCH_ID = 8;
 
     /* Shooter Hardware */
     private final CANSparkMax leftMotor;
@@ -24,6 +27,7 @@ public class ShooterModule {
     private final CANSparkMax kickerMotor;
     private RelativeEncoder leftEncoder;
     private RelativeEncoder rightEncoder;
+    private final DigitalInput intakeLimitSwitch;
 
     /**
      * 
@@ -41,6 +45,22 @@ public class ShooterModule {
 
         this.leftEncoder = this.leftMotor.getEncoder();
         this.rightEncoder = this.rightMotor.getEncoder();
+
+        this.intakeLimitSwitch = new DigitalInput(INTAKE_LIMIT_SWITCH_ID);
+    }
+
+    /**
+     * 
+     */
+    public boolean hasNote() {
+        return !this.intakeLimitSwitch.get();
+    }
+
+    /**
+     * 
+     */
+    public void intake() {
+        this.kickerMotor.set(KICKER_SPEED);
     }
 
     /**

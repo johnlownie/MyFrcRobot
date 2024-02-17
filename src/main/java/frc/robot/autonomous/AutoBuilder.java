@@ -120,7 +120,9 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
                 new InstantCommand(() -> {
                     this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
                     this.intakeSubsystem.addAction(IntakeSubsystem.Action.PAUSE);
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.PAUSE);
                     this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.INTAKE);
                 }),
                 AutoBuilder.followPath(path)
             ),
@@ -148,11 +150,13 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
                 new InstantCommand(() -> {
                     this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
                     this.intakeSubsystem.addAction(IntakeSubsystem.Action.PAUSE);
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.PAUSE);
                     this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.INTAKE);
                 }),
                 AutoBuilder.followPath(pathGroup.get(0))
             ),
-            new WaitUntilCommand(this.intakeSubsystem::hasNote),
+            new WaitUntilCommand(this.shooterSubsystem::hasNote),
             new ParallelCommandGroup(
                 AutoBuilder.followPath(pathGroup.get(1)),
                 new InstantCommand(() -> {
@@ -168,10 +172,11 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
                 new InstantCommand(() -> {
                     this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
                     this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.INTAKE);
                 }),
                 AutoBuilder.followPath(pathGroup.get(2))
             ),
-            new WaitUntilCommand(this.intakeSubsystem::hasNote),
+            new WaitUntilCommand(this.shooterSubsystem::hasNote),
             new ParallelCommandGroup(
                 AutoBuilder.followPath(pathGroup.get(3)),
                 new InstantCommand(() -> {
@@ -187,6 +192,7 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
                 new InstantCommand(() -> {
                     this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
                     this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.INTAKE);
                 }),
                 AutoBuilder.followPath(pathGroup.get(4))
             ),

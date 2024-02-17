@@ -18,14 +18,16 @@ public class ShooterSubsystem extends SubsystemBase {
     private final ShooterModule shooterModule;
 
     public static enum Action { 
-        IDLE, SHOOT_AMP, SHOOT_SPEAKER
+        IDLE, INTAKE, PAUSE, SHOOT_AMP, SHOOT_SPEAKER
     }
 
     private final StateMachine<Action> stateMachine;
     private final LinkedList<Action> actionQueue;
 
     private Timer timer;
+    private boolean has_note;
     private boolean has_shot;
+    private boolean notify_on_note;
     private boolean notify_on_shoot;
 
     /**
@@ -37,13 +39,17 @@ public class ShooterSubsystem extends SubsystemBase {
         // Sets states for the arm, and what methods.
         this.stateMachine = new StateMachine<>("SHOOTER SUBSYSTEM");
         this.stateMachine.setDefaultState(Action.IDLE, this::handleIdle);
+        this.stateMachine.addState(Action.INTAKE, this::handleIntake);
+        this.stateMachine.addState(Action.PAUSE, this::handlePause);
         this.stateMachine.addState(Action.SHOOT_AMP, this::handleShootAmp);
         this.stateMachine.addState(Action.SHOOT_SPEAKER, this::handleShootSpeaker);
 
         this.actionQueue = new LinkedList<Action>();
 
         this.timer = new Timer();
+        this.has_note = false;
         this.has_shot = false;
+        this.notify_on_note = false;
         this.notify_on_shoot = false;
     }
 
@@ -60,6 +66,34 @@ public class ShooterSubsystem extends SubsystemBase {
     private void handleIdle(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
             this.shooterModule.stop();
+        }
+    }
+
+    /**
+     * 
+     */
+    private void handleIntake(StateMetadata<Action> stateMetadata) {
+        if (stateMetadata.isFirstRun()) {
+            this.timer.reset();
+            this.timer.start();
+            this.has_note = false;
+            this.notify_on_note = true;
+            this.shooterModule.intake();
+        }
+    }
+
+    /**
+     * 
+     */
+    private void handlePause(StateMetadata<Action> stateMetadata) {
+        if (stateMetadata.isFirstRun()) {
+            this.timer.reset();
+            this.timer.start();
+        }
+
+        if (this.timer.hasElapsed(2)) {
+            timer.stop();
+            this.stateMachine.setState(Action.IDLE);
         }
     }
 
@@ -98,6 +132,10 @@ public class ShooterSubsystem extends SubsystemBase {
             this.shooterModule.shoot();
         }
     }
+
+    public boolean hasNote() {
+        return this.shooterModule.hasNote();
+    }
     
     /**
      * 
@@ -113,7 +151,17 @@ public class ShooterSubsystem extends SubsystemBase {
      * 
      */
     private boolean isActionComplete() {
-        return !this.timer.isRunning();
+        switch (this.stateMachine.getCurrentState()) {
+            case INTAKE:
+                return hasNote() || !this.timer.isRunning();
+
+            case SHOOT_AMP:
+            case SHOOT_SPEAKER:
+                return hasShot() || !this.timer.isRunning();
+
+            default:
+                return !this.timer.isRunning();
+        }
     }
     
     @Override

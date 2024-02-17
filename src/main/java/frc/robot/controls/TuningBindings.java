@@ -135,6 +135,7 @@ public class TuningBindings {
             trigger -> trigger.onTrue(
                 new InstantCommand(() -> {
                     this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.INTAKE);
                 })
                 .until(controller.operatorWantsControl())
             )

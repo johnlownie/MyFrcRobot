@@ -1,28 +1,20 @@
 package frc.robot.modules.intake;
 
-import org.littletonrobotics.junction.Logger;
-
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
-import frc.lib.led.LEDController;
-import frc.lib.led.LEDPreset;
 
 public class IntakeModule {
     /* Hardware Contants */
     private final int MOTOR_CHANNEL = 0;
     private final double MOTOR_SPEED = -0.6;
-    private final int INTAKE_LIMIT_SWITCH_ID = 8;
 
     /* Intake Hardware */
     private final Talon motor;
-    private final DigitalInput intakeLimitSwitch;
 
     /**
      * 
      */
     public IntakeModule() {
         this.motor = new Talon(MOTOR_CHANNEL);
-        this.intakeLimitSwitch = new DigitalInput(INTAKE_LIMIT_SWITCH_ID);
     }
 
     /**
@@ -42,13 +34,6 @@ public class IntakeModule {
     /**
      * 
      */
-    public boolean hasNote() {
-        return !this.intakeLimitSwitch.get();
-    }
-
-    /**
-     * 
-     */
     public void stop() {
         this.motor.set(0.0);
     }
@@ -57,8 +42,5 @@ public class IntakeModule {
      * 
      */
     public void update() {
-        if (hasNote()) {
-            LEDController.set(LEDPreset.Solid.kGreen);
-        }
     }
 }

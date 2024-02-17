@@ -11,27 +11,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 /**
  * 
  */
-public interface ControlBindings {
-    /* Game Specific Assignments */
-    Optional<Trigger> alignAndShoot();
-    Optional<Trigger> driveTeleop();
-    Optional<Trigger> driveToAmp();
-    Optional<Trigger> driveToSpeakerRight();
-    Optional<Trigger> driveToSpeakerCenter();
-    Optional<Trigger> driveToSpeakerLeft();
-    Optional<Trigger> resetPose();
-    Optional<Trigger> reseedSteerMotors();
-
-    DoubleSupplier omega();
-    DoubleSupplier translationX();
-    DoubleSupplier translationY();
-
-    Supplier<Optional<Rotation2d>> heading();
-
-    BooleanSupplier driverWantsControl();
-    BooleanSupplier operatorWantsControl();
-
-    /* Generic Driver Assignments */
+public interface IControlBindings {
+    /* Generic Assignments */
     Optional<Trigger> driverA();
     Optional<Trigger> driverB();
     Optional<Trigger> driverX();
@@ -62,4 +43,23 @@ public interface ControlBindings {
     Optional<Trigger> operatorPovRight();
     Optional<Trigger> operatorPovUp();
     Optional<Trigger> operatorPovDown();
+
+    /* Game Specific Assignments */
+    Optional<Trigger> alignAndShoot();
+    Optional<Trigger> driveTeleop();
+    Optional<Trigger> driveToAmp();
+    Optional<Trigger> driveToSpeakerRight();
+    Optional<Trigger> driveToSpeakerCenter();
+    Optional<Trigger> driveToSpeakerLeft();
+    Optional<Trigger> resetPose();
+    Optional<Trigger> reseedSteerMotors();
+
+    DoubleSupplier omega();
+    DoubleSupplier translationX();
+    DoubleSupplier translationY();
+
+    Supplier<Optional<Rotation2d>> heading();
+
+    BooleanSupplier driverWantsControl();
+    BooleanSupplier operatorWantsControl();
 }
