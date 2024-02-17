@@ -149,5 +149,6 @@ public class IntakeSubsystem extends SubsystemBase {
         }
 
         Logger.recordOutput("Subsystems/Intake/Current State", this.stateMachine.getCurrentState());
+        Logger.recordOutput("Mechanisms/Intake/Has Note", this.has_note);
     }
 }

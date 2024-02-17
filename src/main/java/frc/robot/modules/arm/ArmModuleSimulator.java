@@ -5,6 +5,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -29,6 +30,8 @@ public class ArmModuleSimulator extends ArmModule {
     protected final double KP = 50.0;	
     protected final double KI = 0.0;	
     protected final double KD = 0.0;	
+
+    protected final PIDController pidController = new PIDController(KP, KI, KD);
     
     /* Simulated Hardware */
     private final DCMotor gearBox;

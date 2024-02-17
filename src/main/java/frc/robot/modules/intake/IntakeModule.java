@@ -60,7 +60,5 @@ public class IntakeModule {
         if (hasNote()) {
             LEDController.set(LEDPreset.Solid.kGreen);
         }
-        
-        Logger.recordOutput("Mechanisms/Intake/Has Note", hasNote());
     }
 }

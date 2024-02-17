@@ -16,8 +16,10 @@ import frc.robot.Constants.TeleopConstants;
  * 
  */
 public class XBoxControlBindings implements ControlBindings {
-    private final CommandXboxController driverController = new CommandXboxController(0);;
-    private final CommandXboxController operatorController = new CommandXboxController(1);;
+    private final int DRIVER_PORT_ID = 0;
+    private final int OPERATOR_PORT_ID = 1;
+    private final CommandXboxController driverController = new CommandXboxController(DRIVER_PORT_ID);;
+    private final CommandXboxController operatorController = new CommandXboxController(OPERATOR_PORT_ID);;
  
     /**
      * Game Specific Driver Controls
