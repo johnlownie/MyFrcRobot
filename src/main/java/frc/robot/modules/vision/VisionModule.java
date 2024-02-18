@@ -188,7 +188,10 @@ public class VisionModule { //implements Runnable {
             PhotonTrackedTarget target = results.getBestTarget();
             
             Logger.recordOutput("Subsystems/Vision/" + camera + "/Best Target Id", String.format("%d", target.getFiducialId()));
+            Logger.recordOutput("Subsystems/Vision/" + camera + "/Target Pitch", target.getPitch());
+            Logger.recordOutput("Subsystems/Vision/" + camera + "/Target Skew", target.getSkew());
             Logger.recordOutput("Subsystems/Vision/" + camera + "/Target Yaw", target.getYaw());
+            Logger.recordOutput("Subsystems/Vision/" + camera + "/Best Camera to Target", target.getBestCameraToTarget());
         }
     }
 

@@ -3,8 +3,9 @@ package frc.robot.modules.arm;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -36,7 +37,7 @@ public class ArmModule {
     protected final PIDController pidController = new PIDController(KP, KI, KD);
 
     /* Arm Hardware */
-    private final TalonSRX motor;
+    private final TalonFX motor;
     private final Encoder encoder;
     private final DigitalInput upperLimitSwitch;
     private final DigitalInput lowerLimitSwitch;
@@ -50,7 +51,8 @@ public class ArmModule {
      * 
      */
     public ArmModule() {
-        this.motor = new TalonSRX(MOTOR_ID);
+        this.motor = new TalonFX(MOTOR_ID);
+        this.motor.setPosition(0.0);
 
         this.encoder = new Encoder(ENCODER_CHANNEL_A_ID, ENCODER_CHANNEL_B_ID, false, Encoder.EncodingType.k4X);
         this.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
@@ -106,7 +108,9 @@ public class ArmModule {
         }
 
         double pidOutput = this.pidController.calculate(this.encoder.getDistance(), Units.degreesToRadians(getDesiredAngle()));
-        this.motor.set(TalonSRXControlMode.PercentOutput, pidOutput);
+
+        double voltage = MathUtil.clamp(pidOutput, -12.0, 12.0);
+        this.motor.setVoltage(voltage);
 
         Logger.recordOutput("Mechanisms/Arm/Desired Angle", getDesiredAngle());
         Logger.recordOutput("Mechanisms/Arm/Current Angle", getCurrentAngle());
