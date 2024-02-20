@@ -272,16 +272,16 @@ public final class Constants {
         public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
         public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
 
-        public static final String FRONT_CAMERA_NAME = "ARDUCAM_BLUE";
+        public static final String FRONT_CAMERA_NAME = "ARDUCAM_FRONT";
         public static final Transform3d FRONT_CAMERA_TO_ROBOT = new Transform3d(
-            new Translation3d(0.0, 0.0, -1.5), // cam mounted center of robot, half meter up
-            new Rotation3d(0, 0, 0));
+            new Translation3d(0.0, 0.0, Units.inchesToMeters(16)),
+            new Rotation3d(0, Units.degreesToRadians(40), 0));
         public static final Transform3d ROBOT_TO_FRONT_CAMERA = FRONT_CAMERA_TO_ROBOT.inverse();
 
-        public static final String REAR_CAMERA_NAME = "LOGITECH_LIFECAM";
+        public static final String REAR_CAMERA_NAME = "ARDUCAM_REAR";
         public static final Transform3d REAR_CAMERA_TO_ROBOT = new Transform3d(
-            new Translation3d(0.0, 0.0, -1.5), // cam mounted center of robot, half meter up
-            new Rotation3d(0, 0, Math.PI));
+            new Translation3d(0.0, 0.0, Units.inchesToMeters(16)),
+            new Rotation3d(0, Units.degreesToRadians(-40), Math.PI));
         public static final Transform3d ROBOT_TO_REAR_CAMERA = REAR_CAMERA_TO_ROBOT.inverse();
 
         /** Minimum target ambiguity. Targets with higher ambiguity will be discarded */

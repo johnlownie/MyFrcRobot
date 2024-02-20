@@ -7,9 +7,11 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.led.LEDController;
@@ -36,8 +38,6 @@ public class AlignAndShootTagCommand extends Command {
     private final ProfiledPIDController omegaController = TeleopConstants.omegaController;
 
     private final Timer timer = new Timer();
-
-    private Transform3d ROBOT_TO_TAG;
 
     /**
      * 
@@ -70,7 +70,17 @@ public class AlignAndShootTagCommand extends Command {
 
     @Override
     public void execute() {
+        Pose2d robotPose = this.poseProvider.get();
 
+        double xSpeed = this.xController.calculate(robotPose.getX());
+        double ySpeed = this.yController.calculate(robotPose.getY());
+        double omegaSpeed = this.omegaController.calculate(robotPose.getRotation().getRadians());
+
+        if (this.xController.atGoal()) xSpeed = 0;
+        if (this.yController.atGoal()) ySpeed = 0;
+        if (this.omegaController.atGoal()) omegaSpeed = 0;
+
+        this.swerveDrive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose.getRotation()), false);
     }
 
     @Override
@@ -81,13 +91,14 @@ public class AlignAndShootTagCommand extends Command {
         Pose3d robotPose = new Pose3d(robotPose2d.getX(), robotPose2d.getY(), 0.0, new Rotation3d(0.0, 0.0, robotPose2d.getRotation().getRadians()));
 
         PhotonTrackedTarget target = this.visionSubsystem.getBestTarget(this.fromFrontCamera);
+        Pose2d goalPose = robotPose2d;
 
-        Pose2d goalPose = getBestTagPose(target, robotPose);
-        if (goalPose == null) {
-            goalPose = robotPose2d;
+        if (target == null) {
             LEDController.set(LEDPreset.Solid.kRed);
         }
         else {
+            goalPose = getBestTagPose(robotPose, target);
+            
             LEDController.set(LEDPreset.Solid.kGreen);
         }
 
@@ -98,28 +109,36 @@ public class AlignAndShootTagCommand extends Command {
         this.timer.reset();
         this.timer.start();
 
+        Logger.recordOutput("Commands/Goal Pose", goalPose);
         Logger.recordOutput("Commands/Active Command", this.getName());
     }
 
     @Override
     public boolean isFinished() {
-        return this.timer.hasElapsed(5.0);
+        return isAtGoal() || this.timer.hasElapsed(5.0);
     }
 
     /**
      * 
      */
-    private Pose2d getBestTagPose(PhotonTrackedTarget target, Pose3d currentPose) {
-        if (target == null) return null;
+    private double getBestArmAngle(PhotonTrackedTarget target) {
+        return 0.0;
+    }
 
-        double cameraYaw = this.fromFrontCamera ? Math.PI : 0.0;
-        this.ROBOT_TO_TAG = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0.0, 0.0, cameraYaw));
-        
+    /**
+     * 
+     */
+    private Pose2d getBestTagPose(Pose3d currentPose, PhotonTrackedTarget target) {
         Pose3d cameraPose = currentPose.transformBy(this.fromFrontCamera ? VisionConstants.ROBOT_TO_FRONT_CAMERA : VisionConstants.ROBOT_TO_REAR_CAMERA);
+        
         Transform3d camToTarget = target.getBestCameraToTarget();
         Pose3d targetPose = cameraPose.transformBy(camToTarget);
-        
-        return targetPose.transformBy(ROBOT_TO_TAG).toPose2d();
+
+        Translation3d goalTranslation = new Translation3d(currentPose.getX(), currentPose.getY(), 0.0);
+        Rotation3d goalRotation = new Rotation3d(0.0, 0.0, this.fromFrontCamera ? Math.PI : 0.0);
+        Transform3d robotToTag = new Transform3d(goalTranslation, goalRotation);
+
+        return targetPose.transformBy(robotToTag).toPose2d();
     }
 
     /**

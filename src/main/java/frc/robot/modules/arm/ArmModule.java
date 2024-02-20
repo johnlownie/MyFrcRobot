@@ -73,7 +73,9 @@ public class ArmModule {
      * 
      */
     public boolean isAtAngle(double angle) {
-        return false;
+        double difference = getCurrentAngle() - angle;
+
+        return -1.0 <= difference && difference <= 1.0;
     }
 
     /**

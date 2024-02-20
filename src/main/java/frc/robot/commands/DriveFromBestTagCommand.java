@@ -34,13 +34,13 @@ public class DriveFromBestTagCommand extends Command {
     private final ProfiledPIDController omegaController = TeleopConstants.omegaController;
 
     /**
-     * 
+     * Drive to a provided translation/rotation away from vision system best tag
      */
     public DriveFromBestTagCommand(SwerveDriveSubsystem swerveDrive, VisionSubsystem visionSubsystem, Supplier<Pose2d> poseProvider, Translation3d translation, Rotation3d rotation, boolean fromFrontCamera) {
         this.swerveDrive = swerveDrive;
         this.visionSubsystem = visionSubsystem;
         this.poseProvider = poseProvider;
-        this.transformation = new Transform3d(translation, rotation);;
+        this.transformation = new Transform3d(translation, rotation);
         this.fromFrontCamera = fromFrontCamera;
 
         this.xController.setTolerance(0.2);
@@ -104,6 +104,7 @@ public class DriveFromBestTagCommand extends Command {
         this.yController.setGoal(goalPose.getY());
         this.omegaController.setGoal(goalPose.getRotation().getRadians());
         
+        Logger.recordOutput("Commands/Goal Pose", goalPose);
         Logger.recordOutput("Commands/Active Command", this.getName());
     }
 

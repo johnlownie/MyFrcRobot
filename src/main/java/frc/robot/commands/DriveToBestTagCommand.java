@@ -34,7 +34,7 @@ public class DriveToBestTagCommand extends Command {
     private Transform3d ROBOT_TO_TAG;
 
     /**
-     * 
+     * Drive to a set distance (tag offset) away from vision system best tag
      */
     public DriveToBestTagCommand(SwerveDriveSubsystem swerveDrive, VisionSubsystem visionSubsystem, Supplier<Pose2d> poseProvider, boolean fromFrontCamera) {
         this.swerveDrive = swerveDrive;

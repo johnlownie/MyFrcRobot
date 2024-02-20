@@ -57,7 +57,7 @@ public class XBoxControlBindings implements IControlBindings {
     }
 
     @Override
-    public Optional<Trigger> reseedSteerMotors() {
+    public Optional<Trigger> driveType() {
         return Optional.of(this.driverController.start());
     }
   

@@ -1,5 +1,6 @@
 package frc.robot.controls;
 
+import static edu.wpi.first.wpilibj2.command.Commands.either;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
@@ -45,18 +46,24 @@ public class DriverBindings {
      * 
      */
     public void configureButtonBindings(XBoxControlBindings controller) {
+        // switch from robot relative to field relative
+        controller.driveType().ifPresent(
+            trigger -> trigger.toggleOnTrue(either(
+                runOnce(this.swerveDrive::disableFieldRelative, this.swerveDrive),
+                runOnce(this.swerveDrive::enableFieldRelative, this.swerveDrive),
+                this.swerveDrive::isFieldRelative)
+            )
+        );
+        
         // Teleop Drive
         controller.driveTeleop().ifPresent(
             trigger -> trigger.onTrue(runOnce(() -> this.swerveDrive.setDefaultCommand(this.teleopDriveCommand))
-                .andThen(new ScheduleCommand(this.teleopDriveCommand))));
+                .andThen(new ScheduleCommand(this.teleopDriveCommand))
+            )
+        );
 
         // reset the robot pose
         // driverController.resetPose().ifPresent(trigger -> trigger.onTrue(runOnce(this::resetPose)));
-
-        // Start button reseeds the steer motors to fix dead wheel
-        controller.reseedSteerMotors()
-            .ifPresent(trigger -> trigger.onTrue(this.swerveDrive.runOnce(this.swerveDrive::reseedSteerMotorOffsets)
-                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)));
 
         // Align and Shoot
         controller.alignAndShoot().ifPresent(

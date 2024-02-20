@@ -13,17 +13,22 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.util.Timer;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.VisionConstants;
 
 /**
  * 
@@ -140,12 +145,24 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
         
         // Update pose estimator with drivetrain sensors
         this.swerveDrivePoseEstimator.updateWithTime(Timer.getFPGATimestamp(), getRotation(), getModulePositions());
-        
+
         // log poses, 3D geometry, and swerve module states, gyro offset
         Logger.recordOutput("Subsystems/PoseEstimator/Robot", getCurrentPose());
         Logger.recordOutput("Subsystems/PoseEstimator/RobotNoGyro", this.estimatedPoseWithoutGyro);
         Logger.recordOutput("Subsystems/PoseEstimator/Rotation", getRotation().getDegrees());
         Logger.recordOutput("Subsystems/PoseEstimator/3DFieldPose", new Pose3d(getCurrentPose()));
+        
+        Transform3d frontCameraView = new Transform3d(
+            new Translation3d(getCurrentPose().getX(), getCurrentPose().getY(), Units.inchesToMeters(16)),
+            new Rotation3d(0, Units.degreesToRadians(-40), getRotation().getRadians())
+        );
+        
+        Transform3d rearCameraView = new Transform3d(
+            new Translation3d(getCurrentPose().getX(), getCurrentPose().getY(), Units.inchesToMeters(16)),
+            new Rotation3d(0, Units.degreesToRadians(-40), getRotation().getRadians() + Math.PI)
+        );
+        Logger.recordOutput("Subsystems/PoseEstimator/FrontCameraView", frontCameraView);
+        Logger.recordOutput("Subsystems/PoseEstimator/RearCameraView", rearCameraView);
     }
 
     /**

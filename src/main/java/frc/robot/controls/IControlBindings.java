@@ -47,12 +47,12 @@ public interface IControlBindings {
     /* Game Specific Assignments */
     Optional<Trigger> alignAndShoot();
     Optional<Trigger> driveTeleop();
+    Optional<Trigger> driveType();
     Optional<Trigger> driveToAmp();
     Optional<Trigger> driveToSpeakerRight();
     Optional<Trigger> driveToSpeakerCenter();
     Optional<Trigger> driveToSpeakerLeft();
     Optional<Trigger> resetPose();
-    Optional<Trigger> reseedSteerMotors();
 
     DoubleSupplier omega();
     DoubleSupplier translationX();

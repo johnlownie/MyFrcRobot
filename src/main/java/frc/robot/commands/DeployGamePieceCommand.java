@@ -30,7 +30,7 @@ public class DeployGamePieceCommand extends Command {
     private final Timer timer = new Timer();
     
     /**
-     * 
+     * Move arm and shoot note to preset values provided by vision subsystem based on best target fiducial id
      */
     public DeployGamePieceCommand(ArmSubsystem armSubsystem, ShooterSubsystem shooterSubsystem, VisionSubsystem visionSubsystem, boolean fromFrontCamera) {
         this.armSubsystem = armSubsystem;

@@ -191,13 +191,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         this.desiredChassisSpeeds = null;
     }
 
-    /**
-     * Reseeds the Talon FX steer motors from their CANCoder absolute position. Workaround for "dead wheel"
-     */
-    public void reseedSteerMotorOffsets() {
-        // Arrays.stream(this.swerveModules).forEach(SwerveModule::reseedSteerMotorOffset);
-    }
-
     /** Runs forwards at the commanded voltage. */
     public void runCharacterizationVolts(double volts) {
         for (SwerveModule swerveModule : swerveModules) {
