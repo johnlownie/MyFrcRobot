@@ -63,8 +63,8 @@ public class VisionModule { //implements Runnable {
 
         processFrame(this.poseSupplier.get());
         
-        processResults("FRONT_CAMERA", getFrontCameraResults(), this.frontCameraPhotonPoseEstimator, this.atomicFrontEstimatedRobotPose);
-        processResults("REAR_CAMERA", getRearCameraResults(), this.rearCameraPhotonPoseEstimator, this.atomicRearEstimatedRobotPose);
+        processResults(VisionConstants.FRONT_CAMERA_NAME, getFrontCameraResults(), this.frontCameraPhotonPoseEstimator, this.atomicFrontEstimatedRobotPose);
+        processResults(VisionConstants.REAR_CAMERA_NAME, getRearCameraResults(), this.rearCameraPhotonPoseEstimator, this.atomicRearEstimatedRobotPose);
     }
 
     /**
