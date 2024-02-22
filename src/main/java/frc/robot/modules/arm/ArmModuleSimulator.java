@@ -73,8 +73,14 @@ public class ArmModuleSimulator extends ArmModule {
     
     @Override
     public void update() {
-        if (RobotConstants.TUNING_MODE && (kp.hasChanged(hashCode()) || ki.hasChanged(hashCode()) || kp.hasChanged(hashCode()))) {
-            this.pidController.setPID(kp.get(), ki.get(), kd.get());
+        if (RobotConstants.TUNING_MODE) {
+            if (kp.hasChanged(hashCode()) || ki.hasChanged(hashCode()) || kp.hasChanged(hashCode())) {
+                this.pidController.setPID(kp.get(), ki.get(), kd.get());
+            }
+
+            if (da.hasChanged(hashCode())) {
+                setDesiredAngle(da.get());
+            }
         }
 
         double pidOutput = this.pidController.calculate(this.encoderSim.getDistance(), Units.degreesToRadians(getDesiredAngle()));
@@ -88,8 +94,13 @@ public class ArmModuleSimulator extends ArmModule {
 
         RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(this.singleJointedArmSim.getCurrentDrawAmps()));
 
+        Logger.recordOutput("Mechanisms/Arm/Desired Angle", getDesiredAngle());
+        Logger.recordOutput("Mechanisms/Arm/Current Angle", getCurrentAngle());
         Logger.recordOutput("Mechanisms/Arm/PID Output", pidOutput);
-        Logger.recordOutput("Mechanisms/Arm/SetPoint", super.getDesiredAngle());
-        Logger.recordOutput("Mechanisms/Arm/Angle", Units.radiansToDegrees(this.singleJointedArmSim.getAngleRads()));
+    }
+
+    @Override
+    public double getCurrentAngle() {
+        return Units.radiansToDegrees(this.singleJointedArmSim.getAngleRads());
     }
 }

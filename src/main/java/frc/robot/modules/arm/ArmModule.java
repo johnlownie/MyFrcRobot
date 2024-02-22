@@ -2,7 +2,6 @@ package frc.robot.modules.arm;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.MathUtil;
@@ -25,14 +24,16 @@ public class ArmModule {
     private final int LOWER_LIMIT_SWITCH_ID = 5;
     
     /* Motor PID Values */
-    protected final double KP = 0.95 / 1000;
+    protected final double KP = 15.0;
     protected final double KI = 0.0;
     protected final double KD = 0.0;
+    protected final double DA = 0.0;
 
     /* Tunable PID */
     protected final LoggedTunableNumber kp = new LoggedTunableNumber("Arm/Kp", KP);
     protected final LoggedTunableNumber ki = new LoggedTunableNumber("Arm/Ki", KI);
     protected final LoggedTunableNumber kd = new LoggedTunableNumber("Arm/Kd", KD);
+    protected final LoggedTunableNumber da = new LoggedTunableNumber("Arm/DA", DA);
 
     protected final PIDController pidController = new PIDController(KP, KI, KD);
 
@@ -96,8 +97,14 @@ public class ArmModule {
      * 
      */
     public void update() {
-        if (RobotConstants.TUNING_MODE && (kp.hasChanged(hashCode()) || ki.hasChanged(hashCode()) || kp.hasChanged(hashCode()))) {
-            this.pidController.setPID(kp.get(), ki.get(), kd.get());
+        if (RobotConstants.TUNING_MODE) {
+            if (kp.hasChanged(hashCode()) || ki.hasChanged(hashCode()) || kp.hasChanged(hashCode())) {
+                this.pidController.setPID(kp.get(), ki.get(), kd.get());
+            }
+
+            if (da.hasChanged(hashCode())) {
+                setDesiredAngle(da.get());
+            }
         }
 
         if (isUpperLimitSwitchTriggered()) {
