@@ -3,7 +3,6 @@ package frc.robot.controls;
 import static edu.wpi.first.wpilibj2.command.Commands.either;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.DeployGamePieceCommand;
@@ -99,6 +98,7 @@ public class DriverBindings {
                 )
                 .until(controller.driverWantsControl())
             )
+            .onFalse(this.teleopDriveCommand)
         );
 
         // 
@@ -150,7 +150,7 @@ public class DriverBindings {
                     controller.omega(),
                     false
                 )
-                .until(controller.driverRightStick()::isEmpty)
+                .until(controller.driverWantsControlRight())
             )
         );
     }

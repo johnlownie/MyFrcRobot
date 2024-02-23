@@ -1,5 +1,7 @@
 package frc.robot.modules.vision;
 
+import java.util.function.Supplier;
+
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
@@ -17,6 +19,8 @@ public class VisionModuleSimulator extends VisionModule {
     private PhotonCameraSim rearCameraSim;
     private VisionSystemSim frontVisionSystemSim;
     private VisionSystemSim rearVisionSystemSim;
+
+    protected Supplier<Pose2d> poseSupplier;
 
     /**
      * 
@@ -42,9 +46,25 @@ public class VisionModuleSimulator extends VisionModule {
         this.rearVisionSystemSim = new VisionSystemSim(VisionConstants.REAR_CAMERA_NAME);
         this.rearVisionSystemSim.addAprilTags(FieldConstants.TAG_FIELD_LAYOUT);
         this.rearVisionSystemSim.addCamera(this.rearCameraSim, VisionConstants.ROBOT_TO_REAR_CAMERA);
+
+        this.poseSupplier = null;
     }
 
     @Override
+    public void process() {
+        if (this.frontCameraPhotonPoseEstimator == null || this.rearCameraPhotonPoseEstimator == null || this.poseSupplier == null || this.rearCamera == null) {
+            return;
+        }
+
+        processFrame(this.poseSupplier.get());
+        
+        processResults(VisionConstants.FRONT_CAMERA_NAME, getFrontCameraResults(), this.frontCameraPhotonPoseEstimator, this.atomicFrontEstimatedRobotPose);
+        processResults(VisionConstants.REAR_CAMERA_NAME, getRearCameraResults(), this.rearCameraPhotonPoseEstimator, this.atomicRearEstimatedRobotPose);
+    }
+
+    /**
+     * 
+     */
     protected void processFrame(Pose2d pose2d) {
         this.frontVisionSystemSim.update(pose2d);
         this.rearVisionSystemSim.update(pose2d);
@@ -55,4 +75,9 @@ public class VisionModuleSimulator extends VisionModule {
         this.frontVisionSystemSim.resetRobotPose(pose2d);
         this.rearVisionSystemSim.resetRobotPose(pose2d);
     }
+
+    /**
+     * Getters and Setters
+     */
+    public void setPoseSupplier(Supplier<Pose2d> poseSupplier) { this.poseSupplier = poseSupplier; }
 }

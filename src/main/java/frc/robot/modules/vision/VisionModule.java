@@ -27,20 +27,18 @@ import frc.robot.Constants.VisionConstants;
  * 
  */
 public class VisionModule { //implements Runnable {
+    protected PhotonCamera frontCamera;
+    protected PhotonCamera rearCamera;
+
     protected final PhotonPoseEstimator frontCameraPhotonPoseEstimator;
     protected final PhotonPoseEstimator rearCameraPhotonPoseEstimator;
     protected final AtomicReference<EstimatedRobotPose> atomicFrontEstimatedRobotPose;
     protected final AtomicReference<EstimatedRobotPose> atomicRearEstimatedRobotPose;
-
-    protected PhotonCamera frontCamera;
-    protected PhotonCamera rearCamera;
-    protected Supplier<Pose2d> poseSupplier;
     
     /**
      * 
      */
     public VisionModule() {
-        //  NetworkTableInstance.kDefaultPort3;
         this.frontCamera = new PhotonCamera(VisionConstants.FRONT_CAMERA_NAME);
         this.rearCamera = new PhotonCamera(VisionConstants.REAR_CAMERA_NAME);
 
@@ -52,17 +50,16 @@ public class VisionModule { //implements Runnable {
 
         this.atomicFrontEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
         this.atomicRearEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
-        this.poseSupplier = null;
     }
 
-    // @Override
+    /**
+     * 
+     */
     public void process() {
-        if (this.frontCameraPhotonPoseEstimator == null || this.rearCameraPhotonPoseEstimator == null || this.poseSupplier == null || this.rearCamera == null) {
+        if (this.frontCameraPhotonPoseEstimator == null || this.rearCameraPhotonPoseEstimator == null || this.rearCamera == null) {
             return;
         }
 
-        processFrame(this.poseSupplier.get());
-        
         processResults(VisionConstants.FRONT_CAMERA_NAME, getFrontCameraResults(), this.frontCameraPhotonPoseEstimator, this.atomicFrontEstimatedRobotPose);
         processResults(VisionConstants.REAR_CAMERA_NAME, getRearCameraResults(), this.rearCameraPhotonPoseEstimator, this.atomicRearEstimatedRobotPose);
     }
@@ -148,16 +145,11 @@ public class VisionModule { //implements Runnable {
     protected PhotonPipelineResult getRearCameraResults() {
         return this.rearCamera.getLatestResult();
     }
- 
-    /**
-     * Only used in simulation
-     */
-    protected void processFrame(Pose2d pose) {}
 
     /**
      * 
      */
-    private void processResults(String camera, PhotonPipelineResult results, PhotonPoseEstimator poseEstimator, AtomicReference<EstimatedRobotPose> atomicEstimatedRobotPose) {
+    protected void processResults(String camera, PhotonPipelineResult results, PhotonPoseEstimator poseEstimator, AtomicReference<EstimatedRobotPose> atomicEstimatedRobotPose) {
         Logger.recordOutput("Subsystems/Vision/" + camera + "/hasTargets", results.hasTargets());
         Logger.recordOutput("Subsystems/Vision/" + camera + "/TargetCount", results.hasTargets() ? results.getTargets().size() : 0);
 
@@ -187,9 +179,9 @@ public class VisionModule { //implements Runnable {
             PhotonTrackedTarget target = results.getBestTarget();
             
             Logger.recordOutput("Subsystems/Vision/" + camera + "/Best Target Id", String.format("%d", target.getFiducialId()));
-            Logger.recordOutput("Subsystems/Vision/" + camera + "/Target Pitch", target.getPitch());
-            Logger.recordOutput("Subsystems/Vision/" + camera + "/Target Skew", target.getSkew());
-            Logger.recordOutput("Subsystems/Vision/" + camera + "/Target Yaw", target.getYaw());
+            Logger.recordOutput("Subsystems/Vision/" + camera + "/Best Target Pitch", target.getPitch());
+            Logger.recordOutput("Subsystems/Vision/" + camera + "/Best Target Skew", target.getSkew());
+            Logger.recordOutput("Subsystems/Vision/" + camera + "/Best Target Yaw", target.getYaw());
             Logger.recordOutput("Subsystems/Vision/" + camera + "/Best Camera to Target", target.getBestCameraToTarget());
         }
     }
@@ -200,7 +192,7 @@ public class VisionModule { //implements Runnable {
     public void resetFieldPosition(Pose2d pose2d) {}
 
     /**
-     * Getters and Setters
+     * Only used in simulation
      */
-    public void setPoseSupplier(Supplier<Pose2d> poseSupplier) { this.poseSupplier = poseSupplier; }
+    public void setPoseSupplier(Supplier<Pose2d> poseSupplier) {}
 }

@@ -63,5 +63,6 @@ public interface IControlBindings {
     Supplier<Optional<Rotation2d>> heading();
 
     BooleanSupplier driverWantsControl();
+    BooleanSupplier driverWantsControlRight();
     BooleanSupplier operatorWantsControl();
 }

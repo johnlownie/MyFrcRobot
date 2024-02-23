@@ -119,7 +119,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     /**
-     * 
+     * Only used in simulation
      */
     public void setPoseSupplier(Supplier<Pose2d> poseSupplier) {
         this.visionModule.setPoseSupplier(poseSupplier);

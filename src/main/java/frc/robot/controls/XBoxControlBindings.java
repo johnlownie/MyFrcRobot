@@ -267,6 +267,12 @@ public class XBoxControlBindings implements IControlBindings {
     }
 
     @Override
+    public BooleanSupplier driverWantsControlRight() {
+      return () -> modifyAxis(this.driverController.getRightY()) != 0.0  || modifyAxis(this.driverController.getRightX()) != 0.0
+          || modifyAxis(this.driverController.getRightY()) != 0.0 || modifyAxis(this.driverController.getRightX()) != 0.0;
+    }
+
+    @Override
     public BooleanSupplier operatorWantsControl() {
       return () -> modifyAxis(this.operatorController.getLeftY()) != 0.0  || modifyAxis(this.operatorController.getLeftX()) != 0.0
           || modifyAxis(this.operatorController.getLeftY()) != 0.0 || modifyAxis(this.operatorController.getLeftX()) != 0.0;
