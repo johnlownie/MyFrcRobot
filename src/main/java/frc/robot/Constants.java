@@ -254,13 +254,13 @@ public final class Constants {
     
         public static final double HEADING_TOLERANCE = Units.degreesToRadians(1.5);
 
-        private static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(4, 3);
-        private static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(4, 3);
-        private static final TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(8, 8);
+        private static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(4.5, 4);
+        private static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(4.5, 4);
+        private static final TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(10, 10);
     
         public static final ProfiledPIDController xController = new ProfiledPIDController(6, 0, 0, X_CONSTRAINTS);
         public static final ProfiledPIDController yController = new ProfiledPIDController(6, 0, 0, Y_CONSTRAINTS);
-        public static final ProfiledPIDController omegaController = new ProfiledPIDController(10.0, 0, 0, OMEGA_CONSTRAINTS);
+        public static final ProfiledPIDController omegaController = new ProfiledPIDController(200.0, 0, 0, OMEGA_CONSTRAINTS);
     }
 
     /**

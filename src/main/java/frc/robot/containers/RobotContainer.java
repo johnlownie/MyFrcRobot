@@ -9,7 +9,6 @@ import frc.lib.util.Timer;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.autonomous.AutoBuilder;
-import frc.robot.commands.TargetLockedTeleopDriveCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.controls.DriverBindings;
 import frc.robot.controls.OperatorBindings;
@@ -36,7 +35,6 @@ abstract public class RobotContainer {
 
     /* Commands */
     protected TeleopDriveCommand teleopDriveCommand;
-    protected TargetLockedTeleopDriveCommand targetLockedTeleopDriveCommand;
 
     /* Controllers */
     protected final XBoxControlBindings driverController;

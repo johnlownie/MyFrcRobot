@@ -8,7 +8,7 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.DeployGamePieceCommand;
 import frc.robot.commands.DriveFromBestTagCommand;
 import frc.robot.commands.DriveToBestTagCommand;
-import frc.robot.commands.TargetLockedTeleopDriveCommand;
+import frc.robot.commands.LockedTelopDriveByPoseCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -140,15 +140,15 @@ public class DriverBindings {
         // Drive with Target Locked
         controller.driverRightStick().ifPresent(
             trigger -> trigger.onTrue(
-                new TargetLockedTeleopDriveCommand(
+                new LockedTelopDriveByPoseCommand(
                     this.swerveDrive,
-                    this.visionSubsystem,
                     () -> this.poseEstimator.getCurrentPose(),
+                    () -> this.visionSubsystem.getBestTargetPose(false),
                     () -> this.poseEstimator.getCurrentPose().getRotation(),
                     controller.translationX(),
                     controller.translationY(),
-                    controller.omega(),
-                    false
+                    controller.omega()
+        
                 )
                 .until(controller.driverWantsControlRight())
             )

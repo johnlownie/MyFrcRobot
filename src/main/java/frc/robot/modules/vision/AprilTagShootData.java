@@ -59,5 +59,6 @@ public class AprilTagShootData {
     public ArmSubsystem.Action getMoveTo() { return this.move_to; }
     public ShooterSubsystem.Action getShootTo() { return this.shoot_to; }
     public double getOffset() { return this.offset; }
+    public Pose3d getPose() { return this.pose3d; }
     
 }

@@ -10,6 +10,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -53,6 +54,17 @@ public class VisionSubsystem extends SubsystemBase {
     public PhotonTrackedTarget getBestTarget(boolean fromFrontCamera) {
         return this.visionModule.getBestTarget(fromFrontCamera);
     }
+ 
+    /**
+     * 
+     */
+    public Pose3d getBestTargetPose(boolean fromFrontCamera) {
+        PhotonTrackedTarget target = this.visionModule.getBestTarget(fromFrontCamera);
+
+        if (target == null) return null;
+        
+        return getTargetPose(target.getFiducialId());
+    }
 
     /**
      * 
@@ -61,6 +73,17 @@ public class VisionSubsystem extends SubsystemBase {
         return this.visionModule.getEstimationStdDevs(estimatedPose);
     }
 
+    /**
+     * 
+     */
+    public Pose3d getTargetPose(int id) {
+        AprilTagShootData aprilTagShootData = this.aprilTagShootDataList.stream()
+            .filter(shootData -> shootData.getId() == id)
+            .findFirst()
+            .get();
+
+        return aprilTagShootData == null ? null : aprilTagShootData.getPose();
+    }
     /**
      * 
      */
