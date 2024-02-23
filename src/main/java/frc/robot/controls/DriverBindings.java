@@ -9,6 +9,7 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.DeployGamePieceCommand;
 import frc.robot.commands.DriveFromBestTagCommand;
 import frc.robot.commands.DriveToBestTagCommand;
+import frc.robot.commands.TargetLockedTeleopDriveCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -57,7 +58,8 @@ public class DriverBindings {
         
         // Teleop Drive
         controller.driveTeleop().ifPresent(
-            trigger -> trigger.onTrue(runOnce(() -> this.swerveDrive.setDefaultCommand(this.teleopDriveCommand))
+            trigger -> trigger.onTrue(
+                runOnce(() -> this.swerveDrive.setDefaultCommand(this.teleopDriveCommand))
                 .andThen(new ScheduleCommand(this.teleopDriveCommand))
             )
         );
@@ -132,6 +134,23 @@ public class DriverBindings {
                     .until(controller.driverWantsControl())
                 )
                 .until(controller.driverWantsControl())
+            )
+        );
+
+        // Drive with Target Locked
+        controller.driverRightStick().ifPresent(
+            trigger -> trigger.onTrue(
+                new TargetLockedTeleopDriveCommand(
+                    this.swerveDrive,
+                    this.visionSubsystem,
+                    () -> this.poseEstimator.getCurrentPose(),
+                    () -> this.poseEstimator.getCurrentPose().getRotation(),
+                    controller.translationX(),
+                    controller.translationY(),
+                    controller.omega(),
+                    false
+                )
+                .until(controller.driverRightStick()::isEmpty)
             )
         );
     }

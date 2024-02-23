@@ -23,6 +23,8 @@ public interface IControlBindings {
     Optional<Trigger> driverRightTrigger();
     Optional<Trigger> driverLeftBumper();
     Optional<Trigger> driverRightBumper();
+    Optional<Trigger> driverLeftStick();
+    Optional<Trigger> driverRightStick();
     Optional<Trigger> driverPovLeft();
     Optional<Trigger> driverPovRight();
     Optional<Trigger> driverPovUp();

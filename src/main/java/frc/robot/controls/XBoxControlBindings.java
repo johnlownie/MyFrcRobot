@@ -124,6 +124,16 @@ public class XBoxControlBindings implements IControlBindings {
     }
 
     @Override
+    public Optional<Trigger> driverLeftStick() {
+        return Optional.of(this.driverController.leftStick());
+    }
+
+    @Override
+    public Optional<Trigger> driverRightStick() {
+        return Optional.of(this.driverController.rightStick());
+    }
+
+    @Override
     public Optional<Trigger> driverPovLeft() {
         return Optional.of(this.driverController.povLeft());
     }

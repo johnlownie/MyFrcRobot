@@ -53,6 +53,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private double gyroOffset;
     private boolean isFieldRelative;
     private boolean isOpenLoop;
+    private boolean isTargetLocked;
 
     /**
      * 
@@ -66,6 +67,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         
         this.isFieldRelative = true;
         this.isOpenLoop = false;
+        this.isTargetLocked = false;
 
         this.omegaController2.enableContinuousInput(-Math.PI, Math.PI);
     }
@@ -97,7 +99,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public void drive(double xVelocity, double yVelocity, double rVelocity, Rotation2d angle, boolean isOpenLoop) {
         ChassisSpeeds chassisSpeeds = null;
 
-        if (isFieldRelative) {
+        if (this.isFieldRelative) {
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xVelocity, yVelocity, rVelocity, angle);
         } else {
             chassisSpeeds = new ChassisSpeeds(xVelocity, yVelocity, rVelocity);
@@ -183,6 +185,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         Logger.recordOutput("Subsystems/SwerveDrive/Gyro/gyroOffset", this.gyroOffset);
         Logger.recordOutput("Subsystems/SwerveDrive/Field Oriented", this.isFieldRelative);
         Logger.recordOutput("Subsystems/SwerveDrive/Is OpenLoop", this.isOpenLoop);
+        Logger.recordOutput("Subsystems/SwerveDrive/Is Target Locked", this.isTargetLocked);
         Logger.recordOutput("Subsystems/SwerveDrive/Actual Module States", getModuleStates());
         Logger.recordOutput("Subsystems/SwerveDrive/Desired Speeds", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.toString() : "");
         Logger.recordOutput("Subsystems/SwerveDrive/Actual Speeds", getChassisSpeeds().toString());
