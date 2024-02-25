@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.util.ProfiledPIDController;
 import frc.robot.Constants.RobotConstants;
@@ -33,17 +34,21 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private final ProfiledPIDController omegaController = TeleopConstants.omegaController;
 
     /* Tunable PID used only for Path Planner autonomous mode in the DrivePathCommand */
-    private final LoggedTunableNumber xKp = new LoggedTunableNumber("PathPlanner/XKp", 6.0);
-    private final LoggedTunableNumber xKi = new LoggedTunableNumber("PathPlanner/XKi", 0.0);
-    private final LoggedTunableNumber xKd = new LoggedTunableNumber("PathPlanner/XKd", 0.0);
+    private final LoggedTunableNumber xKp = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/XKp", 6.0);
+    private final LoggedTunableNumber xKi = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/XKi", 0.0);
+    private final LoggedTunableNumber xKd = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/XKd", 0.0);
 
-    private final LoggedTunableNumber yKp = new LoggedTunableNumber("PathPlanner/YKp", 6.0);
-    private final LoggedTunableNumber yKi = new LoggedTunableNumber("PathPlanner/YKi", 0.0);
-    private final LoggedTunableNumber yKd = new LoggedTunableNumber("PathPlanner/YKd", 0.0);
+    private final LoggedTunableNumber yKp = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/YKp", 6.0);
+    private final LoggedTunableNumber yKi = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/YKi", 0.0);
+    private final LoggedTunableNumber yKd = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/YKd", 0.0);
 
-    private final LoggedTunableNumber omegaKp = new LoggedTunableNumber("PathPlanner/OmegaKp", 10.0);
-    private final LoggedTunableNumber omegaKi = new LoggedTunableNumber("PathPlanner/OmegaKi", 0.0);
-    private final LoggedTunableNumber omegaKd = new LoggedTunableNumber("PathPlanner/OmegaKd", 0.0);
+    private final LoggedTunableNumber omegaKp = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/OmegaKp", 10.0);
+    private final LoggedTunableNumber omegaKi = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/OmegaKi", 0.0);
+    private final LoggedTunableNumber omegaKd = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/OmegaKd", 0.0);
+
+    private final LoggedTunableNumber xPosition = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/xPosition", 0.0);
+    private final LoggedTunableNumber yPosition = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/yPosition", 0.0);
+    private final LoggedTunableNumber rAngle = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/rAngle", 0.0);
 
     private final PIDController xController2 = new PIDController(xKp.get(), xKi.get(), xKd.get());
     private final PIDController yController2 = new PIDController(yKp.get(), yKi.get(), yKd.get());
@@ -153,16 +158,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (RobotConstants.TUNING_MODE) {
-            if (xKp.hasChanged(hashCode()) || xKi.hasChanged(hashCode()) || xKd.hasChanged(hashCode())) {
-                this.xController.setPID(xKp.get(), xKi.get(), xKd.get());
+            if (this.xKp.hasChanged(hashCode()) || this.xKi.hasChanged(hashCode()) || this.xKd.hasChanged(hashCode())) {
+                this.xController.setPID(this.xKp.get(), this.xKi.get(), this.xKd.get());
             }
             
-            if (yKp.hasChanged(hashCode()) || yKi.hasChanged(hashCode()) || yKd.hasChanged(hashCode())) {
-                this.yController.setPID(yKp.get(), yKi.get(), yKd.get());
+            if (this.yKp.hasChanged(hashCode()) || this.yKi.hasChanged(hashCode()) || this.yKd.hasChanged(hashCode())) {
+                this.yController.setPID(this.yKp.get(), this.yKi.get(), this.yKd.get());
             }
             
-            if (omegaKp.hasChanged(hashCode()) || omegaKi.hasChanged(hashCode()) || omegaKd.hasChanged(hashCode())) {
-                this.omegaController.setPID(omegaKp.get(), omegaKi.get(), omegaKd.get());
+            if (this.omegaKp.hasChanged(hashCode()) || this.omegaKi.hasChanged(hashCode()) || this.omegaKd.hasChanged(hashCode())) {
+                this.omegaController.setPID(this.omegaKp.get(), this.omegaKi.get(), this.omegaKd.get());
+            }
+            
+            if (this.xPosition.hasChanged(hashCode())) {
+                this.xController.setGoal(this.xPosition.get());
+            }
+            
+            if (this.yPosition.hasChanged(hashCode())) {
+                this.yController.setGoal(this.yPosition.get());
+            }
+            
+            if (this.rAngle.hasChanged(hashCode())) {
+                this.omegaController.setGoal(Units.degreesToRadians(this.rAngle.get())));
             }
         }
 
