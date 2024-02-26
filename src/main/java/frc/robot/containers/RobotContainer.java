@@ -1,5 +1,7 @@
 package frc.robot.containers;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -10,6 +12,7 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.autonomous.AutoBuilder;
 import frc.robot.commands.TeleopDriveCommand;
+import frc.robot.commands.TuningCommand;
 import frc.robot.controls.DriverBindings;
 import frc.robot.controls.OperatorBindings;
 import frc.robot.controls.TuningBindings;
@@ -35,6 +38,7 @@ abstract public class RobotContainer {
 
     /* Commands */
     protected TeleopDriveCommand teleopDriveCommand;
+    protected TuningCommand tuningCommand;
 
     /* Controllers */
     protected final XBoxControlBindings driverController;
@@ -54,7 +58,7 @@ abstract public class RobotContainer {
     protected VisionSubsystem visionSubsystem;
 
     /* Autonomous */
-    SendableChooser<Command> autonomousChooser;
+    LoggedDashboardChooser<Command> autonomousChooser;
 
     private final Timer reseedTimer = new Timer();
 
@@ -122,7 +126,7 @@ abstract public class RobotContainer {
      * 
      */
     public Command getAutonomousCommand() {
-        return this.autonomousChooser.getSelected();
+        return this.autonomousChooser.get();
     }
         
     /**
@@ -155,6 +159,13 @@ abstract public class RobotContainer {
             this.driverController.omega()
         );
 
-        this.swerveDrive.setDefaultCommand(this.teleopDriveCommand);
+        this.tuningCommand = new TuningCommand(
+            this.swerveDrive,
+            this.armSubsystem,
+            this.poseEstimator,
+            this.driverController
+        );
+
+        this.swerveDrive.setDefaultCommand(!RobotConstants.TUNING_MODE ? this.teleopDriveCommand : this.tuningCommand);
     }
 }

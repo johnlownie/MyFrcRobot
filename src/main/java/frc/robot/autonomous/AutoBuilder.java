@@ -3,6 +3,7 @@ package frc.robot.autonomous;
 import java.util.List;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -36,7 +37,7 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
     private final ShooterSubsystem shooterSubsystem;
 
     /* Autonomous */
-    SendableChooser<Command> autonomousChooser;
+    private LoggedDashboardChooser<Command> autonomousChooser;
 
     /**
      * 
@@ -77,19 +78,19 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
         );
 
         // Setup the chooser
-        this.autonomousChooser = AutoBuilder.buildAutoChooser();
+        this.autonomousChooser = new LoggedDashboardChooser<Command>("Auto Routine", AutoBuilder.buildAutoChooser());
         this.autonomousChooser.addOption("Station 3 - Shoot and Move Away", getShootAndMoveAway());
         this.autonomousChooser.addOption("Station 1 - Drive First", getBlue1DriveFirst());
 
         // Add chooser to the shuffleboard
-        ShuffleboardTab tab = Shuffleboard.getTab("Driver");
-        tab.add("Autonomous", this.autonomousChooser).withSize(2, 1).withPosition(0, 0);
+        // ShuffleboardTab tab = Shuffleboard.getTab("Driver");
+        // tab.add("Autonomous", this.autonomousChooser).withSize(2, 1).withPosition(0, 0);
     }
 
     /**
      * 
      */
-    public SendableChooser<Command> getAutonomousChooser() {
+    public LoggedDashboardChooser<Command> getAutonomousChooser() {
         return this.autonomousChooser;
     }
 

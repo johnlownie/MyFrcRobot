@@ -11,6 +11,7 @@ import frc.lib.statemachine.StateMetadata;
 import frc.lib.util.Timer;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.modules.arm.ArmModule;
+import frc.robot.modules.swerve.SwerveModule;
 
 /**
  * 
@@ -161,6 +162,13 @@ public class ArmSubsystem extends SubsystemBase {
 
         Logger.recordOutput("Subsystems/Arm/Current State", this.stateMachine.getCurrentState());
         Logger.recordOutput("Subsystems/Arm/IsAtAngle", isAtAngle());
+    }
+
+    /**
+     * 
+     */
+    public void updatePID(double kP, double kI, double kD) {
+        this.armModule.updatePID(kP, kI, kD);
     }
 
     /**

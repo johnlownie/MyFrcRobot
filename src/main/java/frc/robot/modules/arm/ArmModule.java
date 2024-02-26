@@ -9,8 +9,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
+import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotConstants;
-import frc.robot.utils.LoggedTunableNumber;
 
 public class ArmModule {
     /* Hardware Contants */
@@ -22,20 +22,8 @@ public class ArmModule {
 
     private final int UPPER_LIMIT_SWITCH_ID = 4;
     private final int LOWER_LIMIT_SWITCH_ID = 5;
-    
-    /* Motor PID Values */
-    protected final double KP = 15.0;
-    protected final double KI = 0.0;
-    protected final double KD = 0.0;
-    protected final double DA = 0.0;
 
-    /* Tunable PID */
-    protected final LoggedTunableNumber kp = new LoggedTunableNumber("Arm/Kp", KP);
-    protected final LoggedTunableNumber ki = new LoggedTunableNumber("Arm/Ki", KI);
-    protected final LoggedTunableNumber kd = new LoggedTunableNumber("Arm/Kd", KD);
-    protected final LoggedTunableNumber da = new LoggedTunableNumber("Arm/DA", DA);
-
-    protected final PIDController pidController = new PIDController(KP, KI, KD);
+    protected final PIDController pidController;
 
     /* Arm Hardware */
     private final TalonFX motor;
@@ -61,6 +49,8 @@ public class ArmModule {
         
         this.upperLimitSwitch = new DigitalInput(UPPER_LIMIT_SWITCH_ID);
         this.lowerLimitSwitch = new DigitalInput(LOWER_LIMIT_SWITCH_ID);
+
+        this.pidController = new PIDController(PIDConstants.ARM_MODULE_KP, PIDConstants.ARM_MODULE_KI, PIDConstants.ARM_MODULE_KD);
     }
 
     /**
@@ -97,16 +87,6 @@ public class ArmModule {
      * 
      */
     public void update() {
-        if (RobotConstants.TUNING_MODE) {
-            if (kp.hasChanged(hashCode()) || ki.hasChanged(hashCode()) || kp.hasChanged(hashCode())) {
-                this.pidController.setPID(kp.get(), ki.get(), kd.get());
-            }
-
-            if (da.hasChanged(hashCode())) {
-                setDesiredAngle(da.get());
-            }
-        }
-
         if (isUpperLimitSwitchTriggered()) {
             setDesiredAngle(getCurrentAngle());
         }
@@ -125,7 +105,16 @@ public class ArmModule {
         Logger.recordOutput("Mechanisms/Arm/Current Angle", getCurrentAngle());
         Logger.recordOutput("Mechanisms/Arm/PID Output", pidOutput);
     }
-    
+
+    /**
+     * 
+     */
+    public void updatePID(double kP, double kI, double kD) {
+        if (RobotConstants.TUNING_MODE) {
+            this.pidController.setPID(kP, kI, kD);
+        }
+    }
+
     /**
      * Getters and Setters
      */

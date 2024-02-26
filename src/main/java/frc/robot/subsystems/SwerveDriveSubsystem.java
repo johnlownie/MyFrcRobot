@@ -4,21 +4,15 @@ import java.util.Arrays;
 
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.util.ProfiledPIDController;
-import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SwerveModuleConstants;
-import frc.robot.Constants.TeleopConstants;
 import frc.robot.modules.gyro.GyroModule;
 import frc.robot.modules.swerve.SwerveModule;
-import frc.robot.utils.LoggedTunableNumber;
 
 /**
  * 
@@ -27,32 +21,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private final SwerveModule[] swerveModules;
     private final SwerveDriveKinematics swerveDriveKinematics;
     private final GyroModule gyro;
-
-    /* These are used only for Path Planner autonomous mode in the DrivePathCommand */
-    private final ProfiledPIDController xController = TeleopConstants.xController;
-    private final ProfiledPIDController yController = TeleopConstants.yController;
-    private final ProfiledPIDController omegaController = TeleopConstants.omegaController;
-
-    /* Tunable PID used only for Path Planner autonomous mode in the DrivePathCommand */
-    private final LoggedTunableNumber xKp = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/XKp", 6.0);
-    private final LoggedTunableNumber xKi = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/XKi", 0.0);
-    private final LoggedTunableNumber xKd = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/XKd", 0.0);
-
-    private final LoggedTunableNumber yKp = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/YKp", 6.0);
-    private final LoggedTunableNumber yKi = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/YKi", 0.0);
-    private final LoggedTunableNumber yKd = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/YKd", 0.0);
-
-    private final LoggedTunableNumber omegaKp = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/OmegaKp", 10.0);
-    private final LoggedTunableNumber omegaKi = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/OmegaKi", 0.0);
-    private final LoggedTunableNumber omegaKd = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/OmegaKd", 0.0);
-
-    private final LoggedTunableNumber xPosition = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/xPosition", 0.0);
-    private final LoggedTunableNumber yPosition = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/yPosition", 0.0);
-    private final LoggedTunableNumber rAngle = new LoggedTunableNumber("Subsystems/SwerveDrive/Tuning/rAngle", 0.0);
-
-    private final PIDController xController2 = new PIDController(xKp.get(), xKi.get(), xKd.get());
-    private final PIDController yController2 = new PIDController(yKp.get(), yKi.get(), yKd.get());
-    private final PIDController omegaController2 = new PIDController(omegaKp.get(), omegaKi.get(), omegaKd.get());
 
     private ChassisSpeeds desiredChassisSpeeds;
     private double gyroOffset;
@@ -73,8 +41,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         this.isFieldRelative = true;
         this.isOpenLoop = false;
         this.isTargetLocked = false;
-
-        this.omegaController2.enableContinuousInput(-Math.PI, Math.PI);
     }
     
     /**
@@ -157,32 +123,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (RobotConstants.TUNING_MODE) {
-            if (this.xKp.hasChanged(hashCode()) || this.xKi.hasChanged(hashCode()) || this.xKd.hasChanged(hashCode())) {
-                this.xController.setPID(this.xKp.get(), this.xKi.get(), this.xKd.get());
-            }
-            
-            if (this.yKp.hasChanged(hashCode()) || this.yKi.hasChanged(hashCode()) || this.yKd.hasChanged(hashCode())) {
-                this.yController.setPID(this.yKp.get(), this.yKi.get(), this.yKd.get());
-            }
-            
-            if (this.omegaKp.hasChanged(hashCode()) || this.omegaKi.hasChanged(hashCode()) || this.omegaKd.hasChanged(hashCode())) {
-                this.omegaController.setPID(this.omegaKp.get(), this.omegaKi.get(), this.omegaKd.get());
-            }
-            
-            if (this.xPosition.hasChanged(hashCode())) {
-                this.xController.setGoal(this.xPosition.get());
-            }
-            
-            if (this.yPosition.hasChanged(hashCode())) {
-                this.yController.setGoal(this.yPosition.get());
-            }
-            
-            if (this.rAngle.hasChanged(hashCode())) {
-                this.omegaController.setGoal(Units.degreesToRadians(this.rAngle.get())));
-            }
-        }
-
         // Set the swerve module states
         if (this.desiredChassisSpeeds != null) {
             SwerveModuleState[] desiredStates = this.swerveDriveKinematics.toSwerveModuleStates(desiredChassisSpeeds);
@@ -293,6 +233,24 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     /**
+     * 
+     */
+    public void updateDrivePID(double kP, double kI, double kD) {
+        for (SwerveModule swerveModule : this.swerveModules) {
+            swerveModule.updateDrivePID(kP, kI, kD);
+        }
+    }
+
+    /**
+     * 
+     */
+    public void updateTurnPID(double kP, double kI, double kD) {
+        for (SwerveModule swerveModule : this.swerveModules) {
+            swerveModule.updateTurnPID(kP, kI, kD);
+        }
+    }
+
+    /**
      * Zeroes the gyroscope. This sets the current rotation of the robot to zero degrees. This method
      * is intended to be invoked only when the alignment beteween the robot's rotation and the gyro is
      * sufficiently different to make field-relative driving difficult. The robot needs to be
@@ -304,14 +262,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     /** Getters and Setters */
-    public ProfiledPIDController getXController() { return this.xController; }
-    public ProfiledPIDController getYController() { return this.yController; }
-    public ProfiledPIDController getOmegaController() { return this.omegaController; }
-
-    public PIDController getXController2() { return this.xController2; }
-    public PIDController getYController2() { return this.yController2; }
-    public PIDController getOmegaController2() { return this.omegaController2; }
-
     public boolean isFieldRelative() { return this.isFieldRelative; }
     public GyroModule getGyro() { return this.gyro; }
     public SwerveDriveKinematics getKinematics() { return this.swerveDriveKinematics; }

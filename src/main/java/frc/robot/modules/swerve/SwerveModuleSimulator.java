@@ -12,6 +12,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.utils.Conversions;
@@ -21,38 +22,19 @@ import frc.robot.utils.LoggedTunableNumber;
  * 
  */
 public class SwerveModuleSimulator extends SwerveModule {
-    /* Simulated Drive Motor PID Values */
-    private final double DRIVE_KP = 0.8;
-    private final double DRIVE_KI = 0.0;
-    private final double DRIVE_KD = 0.0;
-
-    /* Simulated Turn Motor PID Values */
-    private final double ANGLE_KP = 12.0;
-    private final double ANGLE_KI = 0.0;
-    private final double ANGLE_KD = 0.0;
-
     /* Simulated Drive Motor Characterization Values */
     private final double DRIVE_KS = 0.0545;  // 0.116970;
     private final double DRIVE_KV = 0.40126 / 12.0; // 0.133240;
     private final double DRIVE_KA = 0.0225;  // 0.0;
 
-    /* Tunable PID */
-    private final LoggedTunableNumber driveKp = new LoggedTunableNumber("Drive/DriveKp", DRIVE_KP);
-    private final LoggedTunableNumber driveKi = new LoggedTunableNumber("Drive/DriveKi", DRIVE_KI);
-    private final LoggedTunableNumber driveKd = new LoggedTunableNumber("Drive/DriveKd", DRIVE_KD);
-
-    private final LoggedTunableNumber angleKp = new LoggedTunableNumber("Drive/TurnKp", ANGLE_KP);
-    private final LoggedTunableNumber angleKi = new LoggedTunableNumber("Drive/TurnKi", ANGLE_KI);
-    private final LoggedTunableNumber angleKd = new LoggedTunableNumber("Drive/TurnKd", ANGLE_KD);
-
     private final SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
 
     /* Simulated Motors */
     private FlywheelSim driveMotorSim;
-    private FlywheelSim angleMotorSim;
+    private FlywheelSim turnMotorSim;
 
     private PIDController driveController;
-    private PIDController angleController;
+    private PIDController turnController;
     
     private TalonFXSimState driveSimState;
     private TalonFXSimState angleSimState;
@@ -78,10 +60,10 @@ public class SwerveModuleSimulator extends SwerveModule {
         super(module_id, drive_motor_id, angle_motor_id, can_coder_id, angle_offset_degrees);
 
         this.driveMotorSim = new FlywheelSim(DCMotor.getFalcon500(1), CHOSEN_MODULE.driveGearRatio, 0.025);
-        this.angleMotorSim = new FlywheelSim(DCMotor.getFalcon500(1), CHOSEN_MODULE.angleGearRatio, 0.004096955);
+        this.turnMotorSim = new FlywheelSim(DCMotor.getFalcon500(1), CHOSEN_MODULE.angleGearRatio, 0.004096955);
 
-        this.driveController = new PIDController(driveKp.get(), driveKi.get(), driveKd.get());
-        this.angleController = new PIDController(angleKp.get(), angleKi.get(), angleKd.get());
+        this.driveController = new PIDController(PIDConstants.SWERVE_MODULE_DRIVE_KP, PIDConstants.SWERVE_MODULE_DRIVE_KI, PIDConstants.SWERVE_MODULE_DRIVE_KD);
+        this.turnController = new PIDController(PIDConstants.SWERVE_MODULE_TURN_KP, PIDConstants.SWERVE_MODULE_TURN_KI, PIDConstants.SWERVE_MODULE_TURN_KD);
 
         this.driveSimState = this.driveMotor.getSimState();
         this.angleSimState = this.angleMotor.getSimState();
@@ -133,10 +115,10 @@ public class SwerveModuleSimulator extends SwerveModule {
      * 
      */
     private void applyAngleSettings() {
-        double pidOutput = this.angleController.calculate(this.angleRelativePositionRadians, Math.toRadians(this.angleSetpointDegrees));
+        double pidOutput = this.turnController.calculate(this.angleRelativePositionRadians, Math.toRadians(this.angleSetpointDegrees));
 
         double voltage = MathUtil.clamp(pidOutput, -12.0, 12.0);
-        this.angleMotorSim.setInputVoltage(voltage);
+        this.turnMotorSim.setInputVoltage(voltage);
     }
 
     /**
@@ -157,35 +139,31 @@ public class SwerveModuleSimulator extends SwerveModule {
             this.driveMotorSim.setInputVoltage(voltage);
         }
     }
+
+    @Override
+    public void updateDrivePID(double kP, double kI, double kD) {
+        if (RobotConstants.TUNING_MODE) {
+            this.driveController.setPID(kP, kI, kD);
+        }
+    }
+
+    @Override
+    public void updateTurnPID(double kP, double kI, double kD) {
+        if (RobotConstants.TUNING_MODE) {
+            this.turnController.setPID(kP, kI, kD);
+        }
+    }
     
     /**
      * 
      */
     @Override
     public void updatePositions() {
-        if (RobotConstants.TUNING_MODE) {
-            if (driveKp.hasChanged(hashCode()) || driveKi.hasChanged(hashCode()) || driveKd.hasChanged(hashCode())) {
-                Slot0Configs slot0Configs = new Slot0Configs();
-                slot0Configs.kP = this.driveKp.get();
-                slot0Configs.kI = this.driveKi.get();
-                slot0Configs.kD = this.driveKd.get();
-                this.driveMotor.getConfigurator().refresh(slot0Configs);
-            }
-            
-            if (angleKp.hasChanged(hashCode()) || angleKi.hasChanged(hashCode()) || angleKd.hasChanged(hashCode())) {
-                Slot0Configs slot0Configs = new Slot0Configs();
-                slot0Configs.kP = this.angleKp.get();
-                slot0Configs.kI = this.angleKi.get();
-                slot0Configs.kD = this.angleKd.get();
-                this.angleMotor.getConfigurator().refresh(slot0Configs);
-            }
-        }
-
         // update the simulated motors
-        this.angleMotorSim.update(RobotConstants.LOOP_PERIOD_SECS);
+        this.turnMotorSim.update(RobotConstants.LOOP_PERIOD_SECS);
         this.driveMotorSim.update(RobotConstants.LOOP_PERIOD_SECS);
 
-        double angleDiffRadians = this.angleMotorSim.getAngularVelocityRadPerSec() * RobotConstants.LOOP_PERIOD_SECS;
+        double angleDiffRadians = this.turnMotorSim.getAngularVelocityRadPerSec() * RobotConstants.LOOP_PERIOD_SECS;
         this.angleRelativePositionRadians += angleDiffRadians;
         this.anglePositionDeg = this.angleRelativePositionRadians * (180.0 / Math.PI);
 

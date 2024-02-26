@@ -16,20 +16,15 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.lib.util.COTSTalonFXSwerveConstants;
+import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.utils.Conversions;
-import frc.robot.utils.LoggedTunableNumber;
 
 /**
  * 
  */
 public class SwerveModule {
-    /* Drive Motor PID Values */
-    private final double DRIVE_KP = 0.05;
-    private final double DRIVE_KI = 0.0;
-    private final double DRIVE_KD = 0.0;
-
     /* Drive Motor Characterization Values */
     private final double DRIVE_KS = 0.32 / 12.0;
     private final double DRIVE_KV = 1.51 / 12.0;
@@ -43,15 +38,6 @@ public class SwerveModule {
     public static final COTSTalonFXSwerveConstants CHOSEN_MODULE = COTSTalonFXSwerveConstants.SDS.MK4i.Falcon500(COTSTalonFXSwerveConstants.SDS.MK4i.driveRatios.L2);
 
     private final SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
-
-    /* Tunable PID */
-    private final LoggedTunableNumber driveKp = new LoggedTunableNumber("Drive/DriveKp", DRIVE_KP);
-    private final LoggedTunableNumber driveKi = new LoggedTunableNumber("Drive/DriveKi", DRIVE_KI);
-    private final LoggedTunableNumber driveKd = new LoggedTunableNumber("Drive/DriveKd", DRIVE_KD);
-
-    private final LoggedTunableNumber angleKp = new LoggedTunableNumber("Drive/TurnKp", CHOSEN_MODULE.angleKP);
-    private final LoggedTunableNumber angleKi = new LoggedTunableNumber("Drive/TurnKi", CHOSEN_MODULE.angleKI);
-    private final LoggedTunableNumber angleKd = new LoggedTunableNumber("Drive/TurnKd", CHOSEN_MODULE.angleKD);
 
     /* Motors */
     protected final int module_id;
@@ -105,9 +91,9 @@ public class SwerveModule {
         talonFXConfiguration.CurrentLimits.StatorCurrentLimit = SwerveModuleConstants.STATOR_CURRENT_LIMIT;
         talonFXConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        talonFXConfiguration.Slot0.kP = angleKp.get();
-        talonFXConfiguration.Slot0.kI = angleKi.get();
-        talonFXConfiguration.Slot0.kD = angleKd.get();
+        talonFXConfiguration.Slot0.kP = PIDConstants.SWERVE_MODULE_TURN_KP;
+        talonFXConfiguration.Slot0.kI = PIDConstants.SWERVE_MODULE_TURN_KI;
+        talonFXConfiguration.Slot0.kD = PIDConstants.SWERVE_MODULE_TURN_KD;
 
         // talonFXConfiguration.MotionMagic.MotionMagicCruiseVelocity = 2.0 / MOTION_MAGIC_VELOCITY / this.angleEncoderVelocityCoefficient;
         // talonFXConfiguration.MotionMagic.MotionMagicAcceleration = (8.0 - 2.0) / MOTION_MAGIC_ACCELERATION / this.angleEncoderVelocityCoefficient;
@@ -146,9 +132,9 @@ public class SwerveModule {
         talonFXConfiguration.CurrentLimits.StatorCurrentLimit = SwerveModuleConstants.STATOR_CURRENT_LIMIT;
         talonFXConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        talonFXConfiguration.Slot0.kP = driveKp.get();
-        talonFXConfiguration.Slot0.kI = driveKi.get();
-        talonFXConfiguration.Slot0.kD = driveKd.get();
+        talonFXConfiguration.Slot0.kP = PIDConstants.SWERVE_MODULE_DRIVE_KP;
+        talonFXConfiguration.Slot0.kI = PIDConstants.SWERVE_MODULE_DRIVE_KI;
+        talonFXConfiguration.Slot0.kD = PIDConstants.SWERVE_MODULE_DRIVE_KD;
 
         talonFXConfiguration.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = SwerveModuleConstants.OPEN_LOOP_RAMP;
         talonFXConfiguration.OpenLoopRamps.VoltageOpenLoopRampPeriod = SwerveModuleConstants.OPEN_LOOP_RAMP;
@@ -246,23 +232,35 @@ public class SwerveModule {
         }
     }
 
+    /**
+     * Only used in simulation
+     */
     public void updatePositions() {
+    }
+
+    /**
+     * 
+     */
+    public void updateDrivePID(double kP, double kI, double kD) {
         if (RobotConstants.TUNING_MODE) {
-            if (driveKp.hasChanged(hashCode()) || driveKi.hasChanged(hashCode()) || driveKd.hasChanged(hashCode())) {
-                Slot0Configs slot0Configs = new Slot0Configs();
-                slot0Configs.kP = this.driveKp.get();
-                slot0Configs.kI = this.driveKi.get();
-                slot0Configs.kD = this.driveKd.get();
-                this.driveMotor.getConfigurator().refresh(slot0Configs);
-            }
-            
-            if (angleKp.hasChanged(hashCode()) || angleKi.hasChanged(hashCode()) || angleKd.hasChanged(hashCode())) {
-                Slot0Configs slot0Configs = new Slot0Configs();
-                slot0Configs.kP = this.angleKp.get();
-                slot0Configs.kI = this.angleKi.get();
-                slot0Configs.kD = this.angleKd.get();
-                this.angleMotor.getConfigurator().refresh(slot0Configs);
-            }
+            Slot0Configs slot0Configs = new Slot0Configs();
+            slot0Configs.kP = kP;
+            slot0Configs.kI = kI;
+            slot0Configs.kD = kD;
+            this.driveMotor.getConfigurator().refresh(slot0Configs);
+        }
+    }
+
+    /**
+     * 
+     */
+    public void updateTurnPID(double kP, double kI, double kD) {
+        if (RobotConstants.TUNING_MODE) {
+            Slot0Configs slot0Configs = new Slot0Configs();
+            slot0Configs.kP = kP;
+            slot0Configs.kI = kI;
+            slot0Configs.kD = kD;
+            this.angleMotor.getConfigurator().refresh(slot0Configs);
         }
     }
 }

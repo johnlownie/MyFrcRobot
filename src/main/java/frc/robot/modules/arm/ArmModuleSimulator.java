@@ -5,7 +5,6 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -15,7 +14,6 @@ import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import frc.robot.Constants.RobotConstants;
 
 public class ArmModuleSimulator extends ArmModule {
     private final double ARM_MIN_ANGLE_DEGRESS = -30.0;
@@ -25,13 +23,6 @@ public class ArmModuleSimulator extends ArmModule {
     private final double STARTING_ANGLE_RADIANS = 0.0;
     
     private final Vector<N1> STD_DEVS = VecBuilder.fill(DISTANCE_PER_PULSE);
-
-    /* Motor PID Values */	
-    protected final double KP = 50.0;	
-    protected final double KI = 0.0;	
-    protected final double KD = 0.0;	
-
-    protected final PIDController pidController = new PIDController(KP, KI, KD);
     
     /* Simulated Hardware */
     private final DCMotor gearBox;
@@ -73,16 +64,6 @@ public class ArmModuleSimulator extends ArmModule {
     
     @Override
     public void update() {
-        if (RobotConstants.TUNING_MODE) {
-            if (kp.hasChanged(hashCode()) || ki.hasChanged(hashCode()) || kp.hasChanged(hashCode())) {
-                this.pidController.setPID(kp.get(), ki.get(), kd.get());
-            }
-
-            if (da.hasChanged(hashCode())) {
-                setDesiredAngle(da.get());
-            }
-        }
-
         double pidOutput = this.pidController.calculate(this.encoderSim.getDistance(), Units.degreesToRadians(getDesiredAngle()));
         this.motor.setVoltage(pidOutput);
 

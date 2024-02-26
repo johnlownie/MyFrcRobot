@@ -35,7 +35,7 @@ public final class Constants {
     public static final class RobotConstants {
         public static final double ROBOT_LENGTH = Units.inchesToMeters(38.0);
         public static final double LOOP_PERIOD_SECS = 0.02;
-        public static final boolean TUNING_MODE = false;
+        public static final boolean TUNING_MODE = true;
         
         // FIXME: update for various robots
         public enum Mode { REAL, REPLAY, SIM }
@@ -165,6 +165,38 @@ public final class Constants {
     /**
      * 
      */
+    public static final class PIDConstants {
+        // PID constants for arm module
+        public static final double ARM_MODULE_KP = 15.0;
+        public static final double ARM_MODULE_KI = 0.0;
+        public static final double ARM_MODULE_KD = 0.0;
+        
+        // PID constants for swerve modules
+        public static final double SWERVE_MODULE_DRIVE_KP = 0.112;
+        public static final double SWERVE_MODULE_DRIVE_KI = 0.0;
+        public static final double SWERVE_MODULE_DRIVE_KD = 0.0;
+        
+        public static final double SWERVE_MODULE_TURN_KP = 1.0;
+        public static final double SWERVE_MODULE_TURN_KI = 0.0;
+        public static final double SWERVE_MODULE_TURN_KD = 0.0;
+        
+        // PID constants for autonomous/pathplanner mode
+        public static final double SWERVE_DRIVE_X_KP = 0.0;
+        public static final double SWERVE_DRIVE_X_KI = 0.0;
+        public static final double SWERVE_DRIVE_X_KD = 0.0;
+
+        public static final double SWERVE_DRIVE_Y_KP = 0.0;
+        public static final double SWERVE_DRIVE_Y_KI = 0.0;
+        public static final double SWERVE_DRIVE_Y_KD = 0.0;
+
+        public static final double SWERVE_DRIVE_OMEGA_KP = 0.0;
+        public static final double SWERVE_DRIVE_OMEGA_KI = 0.0;
+        public static final double SWERVE_DRIVE_OMEGA_KD = 0.0;
+    }
+
+    /**
+     * 
+     */
     public static final class PneumaticConstants {
         public static final int HUB_ID = 50;
 
@@ -258,9 +290,9 @@ public final class Constants {
         private static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(4.5, 4);
         private static final TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(10, 10);
     
-        public static final ProfiledPIDController xController = new ProfiledPIDController(6, 0, 0, X_CONSTRAINTS);
-        public static final ProfiledPIDController yController = new ProfiledPIDController(6, 0, 0, Y_CONSTRAINTS);
-        public static final ProfiledPIDController omegaController = new ProfiledPIDController(200.0, 0, 0, OMEGA_CONSTRAINTS);
+        public static final ProfiledPIDController xController = new ProfiledPIDController(PIDConstants.SWERVE_DRIVE_X_KP, PIDConstants.SWERVE_DRIVE_X_KI, PIDConstants.SWERVE_DRIVE_X_KD, X_CONSTRAINTS);
+        public static final ProfiledPIDController yController = new ProfiledPIDController(PIDConstants.SWERVE_DRIVE_Y_KP, PIDConstants.SWERVE_DRIVE_Y_KI, PIDConstants.SWERVE_DRIVE_Y_KD, Y_CONSTRAINTS);
+        public static final ProfiledPIDController omegaController = new ProfiledPIDController(PIDConstants.SWERVE_DRIVE_OMEGA_KP, PIDConstants.SWERVE_DRIVE_OMEGA_KI, PIDConstants.SWERVE_DRIVE_OMEGA_KD, OMEGA_CONSTRAINTS);
     }
 
     /**

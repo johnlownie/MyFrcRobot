@@ -1,0 +1,318 @@
+{
+  "tabPane": [
+    {
+      "title": "SmartDashboard",
+      "autoPopulate": true,
+      "autoPopulatePrefix": "SmartDashboard/",
+      "widgetPane": {
+        "gridSize": 128.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "titleType": 0,
+        "tiles": {
+          "0,4": {
+            "size": [
+              5,
+              3
+            ],
+            "content": {
+              "_type": "Field",
+              "_source0": "network_table:///SmartDashboard/VisionSystemSim-FrontArduCam/Sim Field",
+              "_title": "VisionSystemSim-FrontArduCam/Sim Field",
+              "_glyph": 148,
+              "_showGlyph": false,
+              "Game/Game": "k2024Crescendo",
+              "Visuals/Robot Icon Size": 50.0,
+              "Visuals/Show Outside Circles": false,
+              "Colors/cameras": "#FFFFFFFF",
+              "Colors/visibleTargetPoses": "#FFFFFFFF",
+              "Colors/apriltag": "#FFFFFFFF"
+            }
+          },
+          "0,0": {
+            "size": [
+              4,
+              3
+            ],
+            "content": {
+              "_type": "Grid Layout",
+              "_title": "Swerve Drive for Path Planner",
+              "_glyph": 149,
+              "_showGlyph": false,
+              "Layout/Number of columns": 3,
+              "Layout/Number of rows": 4,
+              "Layout/Label position": "TOP",
+              "_children": {
+                "2,2": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Autonomous/omegaKd",
+                  "_title": "TunableNumbers/Autonomous/omegaKd",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "1,2": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Autonomous/omegaKi",
+                  "_title": "TunableNumbers/Autonomous/omegaKi",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "0,2": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Autonomous/omegaKp",
+                  "_title": "TunableNumbers/Autonomous/omegaKp",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "2,1": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Autonomous/yKd",
+                  "_title": "TunableNumbers/Autonomous/yKd",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "1,1": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Autonomous/yKi",
+                  "_title": "TunableNumbers/Autonomous/yKi",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "0,1": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Autonomous/yKp",
+                  "_title": "TunableNumbers/Autonomous/yKp",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "2,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Autonomous/xKd",
+                  "_title": "TunableNumbers/Autonomous/xKd",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "0,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Autonomous/xKp",
+                  "_title": "TunableNumbers/Autonomous/xKp",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "1,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Autonomous/xKi",
+                  "_title": "TunableNumbers/Autonomous/xKi",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                }
+              }
+            }
+          },
+          "4,0": {
+            "size": [
+              4,
+              1
+            ],
+            "content": {
+              "_type": "Grid Layout",
+              "_title": "Arm Module",
+              "_glyph": 149,
+              "_showGlyph": false,
+              "Layout/Number of columns": 3,
+              "Layout/Number of rows": 3,
+              "Layout/Label position": "TOP",
+              "_children": {
+                "0,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Arm/kp",
+                  "_title": "TunableNumbers/Arm/kp",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "1,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Arm/ki",
+                  "_title": "TunableNumbers/Arm/ki",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "2,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Arm/kd",
+                  "_title": "TunableNumbers/Arm/kd",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                }
+              }
+            }
+          },
+          "8,0": {
+            "size": [
+              4,
+              4
+            ],
+            "content": {
+              "_type": "Grid Layout",
+              "_title": "Robot Positions",
+              "_glyph": 149,
+              "_showGlyph": false,
+              "Layout/Number of columns": 3,
+              "Layout/Number of rows": 3,
+              "Layout/Label position": "TOP",
+              "_children": {
+                "0,1": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Robot/DesiredArmAngle",
+                  "_title": "TunableNumbers/Robot/DesiredArmAngle",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "1,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Robot/yPosition",
+                  "_title": "TunableNumbers/Robot/yPosition",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "2,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Robot/rAngle",
+                  "_title": "TunableNumbers/Robot/rAngle",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "0,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Robot/xPosition",
+                  "_title": "TunableNumbers/Robot/xPosition",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "0,2": {
+                  "_type": "Toggle Switch",
+                  "_source0": "network_table:///SmartDashboard/Drive Back and Forth",
+                  "_title": "Drive Back and Forth",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "1,2": {
+                  "_type": "Toggle Switch",
+                  "_source0": "network_table:///SmartDashboard/Drive Side to Side",
+                  "_title": "Drive Side to Side",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "2,2": {
+                  "_type": "Toggle Switch",
+                  "_source0": "network_table:///SmartDashboard/Alternate Rotation",
+                  "_title": "Alternate Rotation",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                }
+              }
+            }
+          },
+          "5,4": {
+            "size": [
+              5,
+              3
+            ],
+            "content": {
+              "_type": "Field",
+              "_source0": "network_table:///SmartDashboard/VisionSystemSim-RearArduCam/Sim Field",
+              "_title": "VisionSystemSim-RearArduCam/Sim Field",
+              "_glyph": 148,
+              "_showGlyph": false,
+              "Game/Game": "k2024Crescendo",
+              "Visuals/Robot Icon Size": 50.0,
+              "Visuals/Show Outside Circles": false,
+              "Colors/cameras": "#FFFFFFFF",
+              "Colors/visibleTargetPoses": "#FFFFFFFF",
+              "Colors/apriltag": "#FFFFFFFF"
+            }
+          },
+          "4,1": {
+            "size": [
+              4,
+              2
+            ],
+            "content": {
+              "_type": "Grid Layout",
+              "_title": "Swerve Drive Modules",
+              "_glyph": 149,
+              "_showGlyph": false,
+              "Layout/Number of columns": 3,
+              "Layout/Number of rows": 3,
+              "Layout/Label position": "TOP",
+              "_children": {
+                "0,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Drive/kp",
+                  "_title": "TunableNumbers/Drive/kp",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "1,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Drive/ki",
+                  "_title": "TunableNumbers/Drive/ki",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "2,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Drive/kd",
+                  "_title": "TunableNumbers/Drive/kd",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "0,1": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Turn/kp",
+                  "_title": "TunableNumbers/Turn/kp",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "1,1": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Turn/ki",
+                  "_title": "TunableNumbers/Turn/ki",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "2,1": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/TunableNumbers/Turn/kd",
+                  "_title": "TunableNumbers/Turn/kd",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "LiveWindow",
+      "autoPopulate": true,
+      "autoPopulatePrefix": "LiveWindow/",
+      "widgetPane": {
+        "gridSize": 128.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "titleType": 0,
+        "tiles": {}
+      }
+    }
+  ],
+  "windowGeometry": {
+    "x": -35.0,
+    "y": 313.0,
+    "width": 1920.0,
+    "height": 1160.0
+  }
+}
