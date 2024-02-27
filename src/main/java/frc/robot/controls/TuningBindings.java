@@ -63,6 +63,16 @@ public class TuningBindings {
             )
         );
 
+        //        
+        controller.driverB().ifPresent(
+            trigger -> trigger.onTrue(
+                new InstantCommand(() -> {
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT_SPEAKER);
+                })
+                .until(controller.driverWantsControl())
+            )
+        );
+
         // 
         controller.driverY().ifPresent(
             trigger -> trigger.onTrue(

@@ -291,6 +291,19 @@
                 }
               }
             }
+          },
+          "0,3": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "ComboBox Chooser",
+              "_source0": "network_table:///SmartDashboard/Auto Routine",
+              "_title": "Auto Routine",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
           }
         }
       }
@@ -310,8 +323,8 @@
     }
   ],
   "windowGeometry": {
-    "x": -35.0,
-    "y": 313.0,
+    "x": 6.0,
+    "y": 12.0,
     "width": 1920.0,
     "height": 1160.0
   }

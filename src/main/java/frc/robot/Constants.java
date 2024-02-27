@@ -170,6 +170,12 @@ public final class Constants {
         public static final double ARM_MODULE_KP = 15.0;
         public static final double ARM_MODULE_KI = 0.0;
         public static final double ARM_MODULE_KD = 0.0;
+
+        // PID constants for shooter module
+        public static final double SHOOTER_MODULE_KP = 0.000012;
+        public static final double SHOOTER_MODULE_KI = 0.0002;
+        public static final double SHOOTER_MODULE_KD = 0.0;
+        public static final double SHOOTER_MODULE_KF = 000172;
         
         // PID constants for swerve modules
         public static final double SWERVE_MODULE_DRIVE_KP = 0.112;

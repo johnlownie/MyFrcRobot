@@ -69,7 +69,6 @@ abstract public class RobotContainer {
         /* Subsystems with no simulated modules */
         this.pneumaticSubsystem = new PneumaticSubsystem();
         this.intakeSubsystem = new IntakeSubsystem(new IntakeModule());
-        this.shooterSubsystem = new ShooterSubsystem(new ShooterModule());
         
         this.driverController = new XBoxControlBindings();
         this.operatorController = new XBoxControlBindings();

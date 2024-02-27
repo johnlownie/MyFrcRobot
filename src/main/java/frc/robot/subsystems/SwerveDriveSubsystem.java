@@ -140,12 +140,16 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         Logger.recordOutput("Subsystems/SwerveDrive/Gyro/Acceleration", this.gyro.getAcceleration());
         Logger.recordOutput("Subsystems/SwerveDrive/Gyro/VelocityDegPerSec", this.gyro.getVelocityDegPerSec());
         Logger.recordOutput("Subsystems/SwerveDrive/Gyro/gyroOffset", this.gyroOffset);
-        Logger.recordOutput("Subsystems/SwerveDrive/Field Oriented", this.isFieldRelative);
-        Logger.recordOutput("Subsystems/SwerveDrive/Is OpenLoop", this.isOpenLoop);
-        Logger.recordOutput("Subsystems/SwerveDrive/Is Target Locked", this.isTargetLocked);
-        Logger.recordOutput("Subsystems/SwerveDrive/Actual Module States", getModuleStates());
-        Logger.recordOutput("Subsystems/SwerveDrive/Desired Speeds", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.toString() : "");
-        Logger.recordOutput("Subsystems/SwerveDrive/Actual Speeds", getChassisSpeeds().toString());
+        Logger.recordOutput("Subsystems/SwerveDrive/FieldOriented", this.isFieldRelative);
+        Logger.recordOutput("Subsystems/SwerveDrive/IsOpenLoop", this.isOpenLoop);
+        Logger.recordOutput("Subsystems/SwerveDrive/IsTargetLocked", this.isTargetLocked);
+        Logger.recordOutput("Subsystems/SwerveDrive/ActualModuleStates", getModuleStates());
+        Logger.recordOutput("Subsystems/SwerveDrive/DesiredSpeeds/xMPS", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.vxMetersPerSecond : 0.0);
+        Logger.recordOutput("Subsystems/SwerveDrive/DesiredSpeeds/yMPS", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.vyMetersPerSecond : 0.0);
+        Logger.recordOutput("Subsystems/SwerveDrive/DesiredSpeeds/oRPS", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.omegaRadiansPerSecond : 0.0);
+        Logger.recordOutput("Subsystems/SwerveDrive/ActualSpeeds/xMPS", getChassisSpeeds().vxMetersPerSecond);
+        Logger.recordOutput("Subsystems/SwerveDrive/ActualSpeeds/yMPS", getChassisSpeeds().vyMetersPerSecond);
+        Logger.recordOutput("Subsystems/SwerveDrive/ActualSpeeds/oRPS", getChassisSpeeds().omegaRadiansPerSecond);
 
         // Always reset desiredChassisSpeeds to null to prevent latching to the last state (aka motor safety)!!
         this.desiredChassisSpeeds = null;

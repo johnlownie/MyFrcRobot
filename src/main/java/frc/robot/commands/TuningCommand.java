@@ -173,6 +173,9 @@ public class TuningCommand extends Command {
 
         //     this.swerveDrive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose.getRotation()), false);
         // }
+        else {
+            this.timer.stop();
+        }
     }
 
     @Override

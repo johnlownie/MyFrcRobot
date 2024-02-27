@@ -18,7 +18,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final ShooterModule shooterModule;
 
     public static enum Action { 
-        IDLE, INTAKE, PAUSE, SHOOT_AMP, SHOOT_SPEAKER
+        IDLE, INTAKE, PAUSE, PULLBACK, SHOOT_AMP, SHOOT_SPEAKER
     }
 
     private final StateMachine<Action> stateMachine;
@@ -41,6 +41,7 @@ public class ShooterSubsystem extends SubsystemBase {
         this.stateMachine.setDefaultState(Action.IDLE, this::handleIdle);
         this.stateMachine.addState(Action.INTAKE, this::handleIntake);
         this.stateMachine.addState(Action.PAUSE, this::handlePause);
+        this.stateMachine.addState(Action.PULLBACK, this::handlePullback);
         this.stateMachine.addState(Action.SHOOT_AMP, this::handleShootAmp);
         this.stateMachine.addState(Action.SHOOT_SPEAKER, this::handleShootSpeaker);
 
@@ -94,6 +95,22 @@ public class ShooterSubsystem extends SubsystemBase {
         if (this.timer.hasElapsed(2)) {
             timer.stop();
             this.stateMachine.setState(Action.IDLE);
+        }
+    }
+
+    /**
+     * 
+     */
+    private void handlePullback(StateMetadata<Action> stateMetadata) {
+        if (stateMetadata.isFirstRun()) {
+            this.timer.reset();
+            this.timer.start();
+            this.shooterModule.pullback();
+        }
+
+        if (this.timer.hasElapsed(0.2)) {
+            timer.stop();
+            this.shooterModule.stopKicker();
         }
     }
 
@@ -192,6 +209,7 @@ public class ShooterSubsystem extends SubsystemBase {
         }
 
         Logger.recordOutput("Subsystems/Shooter/Current State", this.stateMachine.getCurrentState());
+        Logger.recordOutput("Subsystems/Shooter/HasNote", hasNote());
         Logger.recordOutput("Subsystems/Shooter/HasShot", this.has_shot);
     }
 }
