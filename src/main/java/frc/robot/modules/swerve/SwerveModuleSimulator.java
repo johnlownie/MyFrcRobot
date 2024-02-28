@@ -23,11 +23,11 @@ import frc.robot.utils.LoggedTunableNumber;
  */
 public class SwerveModuleSimulator extends SwerveModule {
     /* Simulated Drive Motor Characterization Values */
-    private final double DRIVE_KS = 0.0545;  // 0.116970;
-    private final double DRIVE_KV = 0.40126 / 12.0; // 0.133240;
-    private final double DRIVE_KA = 0.0225;  // 0.0;
+    private final double DRIVE_KS = 0.32; //0.0545;  // 0.116970;
+    private final double DRIVE_KV = 1.51; //0.40126 / 12.0; // 0.133240;
+    private final double DRIVE_KA = 0.27; //0.0225;  // 0.0;
 
-    private final SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
+    private final SimpleMotorFeedforward feedForward;
 
     /* Simulated Motors */
     private FlywheelSim driveMotorSim;
@@ -68,6 +68,8 @@ public class SwerveModuleSimulator extends SwerveModule {
         this.driveSimState = this.driveMotor.getSimState();
         this.angleSimState = this.angleMotor.getSimState();
         this.canCoderSimState = this.encoder.getSimState();
+
+        this.feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
     }
 
     /**
@@ -131,11 +133,10 @@ public class SwerveModuleSimulator extends SwerveModule {
             this.driveMotorSim.setInputVoltage(voltage);
             }
         else {
-            double velocityRadiansPerSecond = this.driveSetpointMPS * (2.0 * Math.PI) / (CHOSEN_MODULE.wheelCircumference);
-            double ffOutput = this.feedForward.calculate(velocityRadiansPerSecond); 
-            double pidOutput =  this.driveController.calculate(this.driveVelocityMetersPerSecond, velocityRadiansPerSecond);
+            double radiansPerSecond = Conversions.MPSToRPS(this.driveSetpointMPS, CHOSEN_MODULE.wheelCircumference);
+            double pidOutput =  this.driveController.calculate(this.driveVelocityMetersPerSecond, radiansPerSecond);
             
-            double voltage = MathUtil.clamp(ffOutput + pidOutput, -12.0, 12.0);
+            double voltage = MathUtil.clamp(radiansPerSecond + pidOutput, -12.0, 12.0);
             this.driveMotorSim.setInputVoltage(voltage);
         }
     }
@@ -154,9 +155,6 @@ public class SwerveModuleSimulator extends SwerveModule {
         }
     }
     
-    /**
-     * 
-     */
     @Override
     public void updatePositions() {
         // update the simulated motors

@@ -167,9 +167,9 @@ public final class Constants {
      */
     public static final class PIDConstants {
         // PID constants for arm module
-        public static final double ARM_MODULE_KP = 15.0;
-        public static final double ARM_MODULE_KI = 0.0;
-        public static final double ARM_MODULE_KD = 0.0;
+        public static final double ARM_MODULE_KP = 50.0;
+        public static final double ARM_MODULE_KI = 0.0005;
+        public static final double ARM_MODULE_KD = 0.5;
 
         // PID constants for shooter module
         public static final double SHOOTER_MODULE_KP = 0.000012;
@@ -187,15 +187,15 @@ public final class Constants {
         public static final double SWERVE_MODULE_TURN_KD = 0.0;
         
         // PID constants for autonomous/pathplanner mode
-        public static final double SWERVE_DRIVE_X_KP = 0.0;
+        public static final double SWERVE_DRIVE_X_KP = 6.0;
         public static final double SWERVE_DRIVE_X_KI = 0.0;
         public static final double SWERVE_DRIVE_X_KD = 0.0;
 
-        public static final double SWERVE_DRIVE_Y_KP = 0.0;
+        public static final double SWERVE_DRIVE_Y_KP = 6.0;
         public static final double SWERVE_DRIVE_Y_KI = 0.0;
         public static final double SWERVE_DRIVE_Y_KD = 0.0;
 
-        public static final double SWERVE_DRIVE_OMEGA_KP = 0.0;
+        public static final double SWERVE_DRIVE_OMEGA_KP = 10.0;
         public static final double SWERVE_DRIVE_OMEGA_KI = 0.0;
         public static final double SWERVE_DRIVE_OMEGA_KD = 0.0;
     }

@@ -1,5 +1,7 @@
 package frc.robot.modules.swerve;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -26,9 +28,9 @@ import frc.robot.utils.Conversions;
  */
 public class SwerveModule {
     /* Drive Motor Characterization Values */
-    private final double DRIVE_KS = 0.32 / 12.0;
-    private final double DRIVE_KV = 1.51 / 12.0;
-    private final double DRIVE_KA = 0.27 / 12.0;
+    private final double DRIVE_KS = 0.32; // / 12.0;
+    private final double DRIVE_KV = 1.51; // / 12.0;
+    private final double DRIVE_KA = 0.27; // / 12.0;
 
     // Not sure what these represent, but smaller is faster
     private final double MOTION_MAGIC_VELOCITY = .125;
@@ -36,17 +38,20 @@ public class SwerveModule {
 
     // Default S
     public static final COTSTalonFXSwerveConstants CHOSEN_MODULE = COTSTalonFXSwerveConstants.SDS.MK4i.Falcon500(COTSTalonFXSwerveConstants.SDS.MK4i.driveRatios.L2);
-
-    private final SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
-
-    /* Motors */
-    protected final int module_id;
+    
+    /* Swerve Hardware */
     protected final TalonFX angleMotor;
     protected final TalonFX driveMotor;
- 
     protected final CANcoder encoder;
-
+    
     protected final Rotation2d angleOffset;
+
+    /* Module Variables */
+    protected final int module_id;
+    
+    private final SimpleMotorFeedforward feedForward;
+    private final PositionVoltage positionVoltage;
+    private final VelocityVoltage velocityVoltage;
 
     /**
      * 
@@ -57,6 +62,9 @@ public class SwerveModule {
         this.angleMotor = getAngleMotor(angle_motor_id);
         this.encoder = getEncoder(can_coder_id);
         this.angleOffset = angleOffset;
+        this.feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
+        this.positionVoltage = new PositionVoltage(0);
+        this.velocityVoltage = new VelocityVoltage(0);
     }
 
     /**
@@ -211,8 +219,12 @@ public class SwerveModule {
      * 
      */
     protected void setAngleState(SwerveModuleState desiredState) {
-        PositionVoltage positionVoltage = new PositionVoltage(desiredState.angle.getRotations());
+        PositionVoltage positionVoltage = this.positionVoltage.withPosition(desiredState.angle.getRotations());
         this.angleMotor.setControl(positionVoltage);
+
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/TurnVVPosition", positionVoltage.Position);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/TurnVVVelocity", positionVoltage.Velocity);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/TurnVVFeedforward", positionVoltage.FeedForward);
     }
 
     /**
@@ -222,13 +234,18 @@ public class SwerveModule {
         if(isOpenLoop) {
             double output = desiredState.speedMetersPerSecond / SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
             this.driveMotor.setControl(new DutyCycleOut(output));
+
+            Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/DriveOutput", output);
         }
         else {
-            double velocity = Conversions.MPSToRPS(desiredState.speedMetersPerSecond, CHOSEN_MODULE.wheelCircumference);
-            VelocityVoltage velocityVoltage = new VelocityVoltage(velocity);
+            double radiansPerSecond = Conversions.MPSToRPS(desiredState.speedMetersPerSecond, CHOSEN_MODULE.wheelCircumference);
+            VelocityVoltage velocityVoltage = this.velocityVoltage.withVelocity(radiansPerSecond);
             velocityVoltage.FeedForward = this.feedForward.calculate(desiredState.speedMetersPerSecond);
-
             this.driveMotor.setControl(velocityVoltage);
+
+            Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/DriveVVAcceleration", velocityVoltage.Acceleration);
+            Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/DriveVVVelocity", velocityVoltage.Velocity);
+            Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/DriveVVFeedForward", velocityVoltage.FeedForward);
         }
     }
 

@@ -50,14 +50,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public void enableFieldRelative () { setIsFieldRelative(true ); }
 
     /**
-     * 
+     * Used for autonomous driving in AutoBuilder - chassis speeds are robot relative
      */
     public void drive(ChassisSpeeds chassisSpeeds) {
-        drive(chassisSpeeds, true);
+        drive(chassisSpeeds, false);
     }
 
     /**
-     * 
+     * Used for autonomous driving in commands
      */
     public void drive(ChassisSpeeds chassisSpeeds, boolean isOpenLoop) {
         this.desiredChassisSpeeds = chassisSpeeds;

@@ -225,6 +225,10 @@ public class TuningCommand extends Command {
             double xSpeed = this.xController.calculate(robotPose.getX());
             double ySpeed = this.yController.calculate(robotPose.getY());
             double omegaSpeed = this.omegaController.calculate(robotPose.getRotation().getRadians());
+
+            Logger.recordOutput("Commands/TuningCommand/xSpeed", xSpeed);
+            Logger.recordOutput("Commands/TuningCommand/ySpeed", ySpeed);
+            Logger.recordOutput("Commands/TuningCommand/omegaSpeed", omegaSpeed);
     
             if (this.xController.atGoal()) xSpeed = 0;
             if (this.yController.atGoal()) ySpeed = 0;
