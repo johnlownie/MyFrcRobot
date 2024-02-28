@@ -35,7 +35,7 @@ public final class Constants {
     public static final class RobotConstants {
         public static final double ROBOT_LENGTH = Units.inchesToMeters(38.0);
         public static final double LOOP_PERIOD_SECS = 0.02;
-        public static final boolean TUNING_MODE = true;
+        public static final boolean TUNING_MODE = false;
         
         // FIXME: update for various robots
         public enum Mode { REAL, REPLAY, SIM }
@@ -178,11 +178,11 @@ public final class Constants {
         public static final double SHOOTER_MODULE_KF = 000172;
         
         // PID constants for swerve modules
-        public static final double SWERVE_MODULE_DRIVE_KP = 0.112;
+        public static final double SWERVE_MODULE_DRIVE_KP = 10.0;
         public static final double SWERVE_MODULE_DRIVE_KI = 0.0;
         public static final double SWERVE_MODULE_DRIVE_KD = 0.0;
         
-        public static final double SWERVE_MODULE_TURN_KP = 1.0;
+        public static final double SWERVE_MODULE_TURN_KP = 10.0;
         public static final double SWERVE_MODULE_TURN_KI = 0.0;
         public static final double SWERVE_MODULE_TURN_KD = 0.0;
         
