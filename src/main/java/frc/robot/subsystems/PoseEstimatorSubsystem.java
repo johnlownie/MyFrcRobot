@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.util.Timer;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.utils.Conversions;
 
 /**
  * 
@@ -43,6 +44,8 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
 
     private SwerveDrivePoseEstimator swerveDrivePoseEstimator;
     private Pose2d estimatedPoseWithoutGyro;
+    private Pose2d previousPoseWithoutGyro;
+    private double previousTimestamp = 0.0;
 
     private OriginPosition originPosition = OriginPosition.kRedAllianceWallRightSide;
     private final SwerveModulePosition[] defaultModulePositions = new SwerveModulePosition[] { new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition() };
@@ -117,6 +120,8 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        double timeBetweenUpdates = Timer.getFPGATimestamp() - this.previousTimestamp;
+
         // if the gyro is not connected, use the swerve module positions to estimate the robot's rotation
         if (!isConnected()) {
             SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[this.previousModulePositions.length];
@@ -144,6 +149,13 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
         
         // Update pose estimator with drivetrain sensors
         this.swerveDrivePoseEstimator.updateWithTime(Timer.getFPGATimestamp(), getRotation(), getModulePositions());
+
+        if (!isConnected()) {
+            double velocityMetersPerSecond = Conversions.distanceBetween(estimatedPoseWithoutGyro, previousPoseWithoutGyro) / timeBetweenUpdates;
+            this.previousPoseWithoutGyro = this.estimatedPoseWithoutGyro;
+
+            Logger.recordOutput("Subsystems/PoseEstimator/EstimatedVelocityMPS", velocityMetersPerSecond);
+        }
 
         // log poses, 3D geometry, and swerve module states, gyro offset
         Logger.recordOutput("Subsystems/PoseEstimator/Robot", getCurrentPose());
