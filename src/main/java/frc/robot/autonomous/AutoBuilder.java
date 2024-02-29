@@ -12,9 +12,6 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -22,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.SwerveModuleConstants;
+import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
@@ -60,8 +58,8 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
             this.swerveDriveSubsystem::getChassisSpeeds,
             this.swerveDriveSubsystem::drive,
             new HolonomicPathFollowerConfig(
-                new PIDConstants(5.0, 0.0, 0.0),
-                new PIDConstants(5.0, 0.0, 0.0),
+                new PIDConstants(TeleopConstants.xController.getP(), TeleopConstants.xController.getI(), TeleopConstants.xController.getD()),
+                new PIDConstants(TeleopConstants.omegaController.getP(), TeleopConstants.omegaController.getI(), TeleopConstants.omegaController.getD()),
                 SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND,
                 DriveTrainConstants.TRACK_WIDTH_METERS,
                 new ReplanningConfig()

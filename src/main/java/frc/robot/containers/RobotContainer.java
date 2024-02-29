@@ -130,7 +130,7 @@ abstract public class RobotContainer {
     public void onAllianceChanged(Alliance alliance, int location) {
         location -= 1;
 
-        Pose2d pose2d = AllianceFlipUtil.apply(FieldConstants.SPEAKER_POSES[location]);
+        Pose2d pose2d = AllianceFlipUtil.apply(RobotConstants.TUNING_MODE ? FieldConstants.TUNING_POSES[location] : FieldConstants.SPEAKER_POSES[location]);
         this.poseEstimator.setCurrentPose(pose2d);
     }
 

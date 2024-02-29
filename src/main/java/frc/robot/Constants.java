@@ -30,7 +30,7 @@ public final class Constants {
     public static final class RobotConstants {
         public static final double ROBOT_LENGTH = Units.inchesToMeters(38.0);
         public static final double LOOP_PERIOD_SECS = 0.02;
-        public static final boolean TUNING_MODE = false;
+        public static final boolean TUNING_MODE = true;
         
         // FIXME: update for various robots
         public enum Mode { REAL, REPLAY, SIM }
@@ -127,6 +127,12 @@ public final class Constants {
 
         public static final Pose2d[] SPEAKER_POSES = new Pose2d[] {
             new Pose2d(0.73, 6.76, Rotation2d.fromDegrees(60.0)),
+            new Pose2d(Units.inchesToMeters(36.17) + (RobotConstants.ROBOT_LENGTH / 2), Units.inchesToMeters(218.42), Rotation2d.fromDegrees(0)),
+            new Pose2d(0.73, 4.29, Rotation2d.fromDegrees(-60.0))
+        };
+
+        public static final Pose2d[] TUNING_POSES = new Pose2d[] {
+            new Pose2d(1.00, 7.00, Rotation2d.fromDegrees(0.0)),
             new Pose2d(Units.inchesToMeters(36.17) + (RobotConstants.ROBOT_LENGTH / 2), Units.inchesToMeters(218.42), Rotation2d.fromDegrees(0)),
             new Pose2d(0.73, 4.29, Rotation2d.fromDegrees(-60.0))
         };
