@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.modules.gyro.GyroModule;
 import frc.robot.modules.swerve.SwerveModule;
@@ -31,11 +32,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     /**
      * 
      */
-    public SwerveDriveSubsystem(SwerveModule[] swerveModules, SwerveDriveKinematics swerveDriveKinematics, GyroModule gyro) {
+    public SwerveDriveSubsystem(SwerveModule[] swerveModules, GyroModule gyro) {
         this.swerveModules = swerveModules;
-        this.swerveDriveKinematics = swerveDriveKinematics;
-
         this.gyro = gyro;
+        this.swerveDriveKinematics = DriveTrainConstants.SWERVE_DRIVE_KINEMATICS;
+        
         zeroGyroscope();
         
         this.isFieldRelative = true;

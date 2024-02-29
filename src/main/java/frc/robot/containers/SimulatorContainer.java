@@ -1,6 +1,5 @@
 package frc.robot.containers;
 
-import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.SwerveModuleConstants.Mod0;
 import frc.robot.Constants.SwerveModuleConstants.Mod1;
 import frc.robot.Constants.SwerveModuleConstants.Mod2;
@@ -36,7 +35,7 @@ public class SimulatorContainer extends RobotContainer {
         this.swerveModules = new SwerveModuleSimulator[] { frontLeftModule, frontRightModule, rearLeftModule, rearRightModule};
         this.gyroModule = new GyroModuleSimulator();
         
-        this.swerveDrive = new SwerveDriveSubsystem(this.swerveModules, DriveTrainConstants.SWERVE_DRIVE_KINEMATICS, this.gyroModule);
+        this.swerveDrive = new SwerveDriveSubsystem(this.swerveModules, this.gyroModule);
         this.armSubsystem = new ArmSubsystem(new ArmModuleSimulator());
         this.intakeSubsystem = new IntakeSubsystem(new IntakeModuleSimulator());
         this.shooterSubsystem = new ShooterSubsystem(new ShooterModuleSimulator());

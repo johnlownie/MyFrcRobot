@@ -179,11 +179,11 @@ public final class Constants {
         public static final double SHOOTER_MODULE_KF = 000172;
         
         // PID constants for swerve modules
-        public static final double SWERVE_MODULE_DRIVE_KP = 10.0;
+        public static final double SWERVE_MODULE_DRIVE_KP = 6.0;
         public static final double SWERVE_MODULE_DRIVE_KI = 0.0;
         public static final double SWERVE_MODULE_DRIVE_KD = 0.0;
         
-        public static final double SWERVE_MODULE_TURN_KP = 10.0;
+        public static final double SWERVE_MODULE_TURN_KP = 2.0;
         public static final double SWERVE_MODULE_TURN_KI = 0.0;
         public static final double SWERVE_MODULE_TURN_KD = 0.0;
         
@@ -196,7 +196,7 @@ public final class Constants {
         public static final double SWERVE_DRIVE_Y_KI = 0.0;
         public static final double SWERVE_DRIVE_Y_KD = 0.0;
 
-        public static final double SWERVE_DRIVE_OMEGA_KP = 10.0;
+        public static final double SWERVE_DRIVE_OMEGA_KP = 2.0;
         public static final double SWERVE_DRIVE_OMEGA_KI = 0.0;
         public static final double SWERVE_DRIVE_OMEGA_KD = 0.0;
     }

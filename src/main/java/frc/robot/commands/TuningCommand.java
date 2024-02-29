@@ -181,7 +181,7 @@ public class TuningCommand extends Command {
     @Override
     public void initialize() {
         resetPIDControllers();
-        this.poseEstimator.resetPose(new Pose2d(0, 0, new Rotation2d()));
+        // this.poseEstimator.resetPose(new Pose2d(0, 0, new Rotation2d()));
 
         this.xController.setTolerance(0.02);
         this.yController.setTolerance(0.02);
