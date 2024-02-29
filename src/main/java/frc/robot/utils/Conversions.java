@@ -55,6 +55,16 @@ public class Conversions {
     /**
      * 
      */
+    public static double toMeters(double position, double gear_ratio, double circumference) {
+        double motorRotations = position / SwerveModuleConstants.TICKS_PER_ROTATION;
+        double wheelRotations = motorRotations / gear_ratio;
+
+        return wheelRotations * circumference;
+    }
+
+    /**
+     * 
+     */
     public static double toRPM(double velocity, double gear_ratio) {
         double motorRPM = velocity * 600.0 / SwerveModuleConstants.TICKS_PER_ROTATION;
 

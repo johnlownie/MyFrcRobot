@@ -6,9 +6,11 @@ import frc.robot.Constants.SwerveModuleConstants.Mod1;
 import frc.robot.Constants.SwerveModuleConstants.Mod2;
 import frc.robot.Constants.SwerveModuleConstants.Mod3;
 import frc.robot.modules.gyro.GyroModuleNavx;
+import frc.robot.modules.intake.IntakeModule;
 import frc.robot.modules.shooter.ShooterModule;
 import frc.robot.modules.swerve.SwerveModule;
 import frc.robot.modules.vision.VisionModule;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -33,6 +35,7 @@ public class CrescendoContainer extends RobotContainer {
         this.gyroModule = new GyroModuleNavx();
         
         this.swerveDrive = new SwerveDriveSubsystem(this.swerveModules, DriveTrainConstants.SWERVE_DRIVE_KINEMATICS, this.gyroModule);
+        this.intakeSubsystem = new IntakeSubsystem(new IntakeModule());
         this.shooterSubsystem = new ShooterSubsystem(new ShooterModule());
         this.visionSubsystem = new VisionSubsystem(new VisionModule());
         this.poseEstimator = new PoseEstimatorSubsystem(this.swerveDrive::getModulePositions, this.swerveDrive::getRotation, this.visionSubsystem);

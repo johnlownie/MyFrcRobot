@@ -1,6 +1,7 @@
 package frc.robot.modules.swerve;
 
-import com.ctre.phoenix6.configs.Slot0Configs;
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
@@ -16,7 +17,6 @@ import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.utils.Conversions;
-import frc.robot.utils.LoggedTunableNumber;
 
 /**
  * 
@@ -40,16 +40,6 @@ public class SwerveModuleSimulator extends SwerveModule {
     private TalonFXSimState angleSimState;
 
     private final CANcoderSimState canCoderSimState;
-
-    /* Variables */
-    private double anglePositionDeg = 0.0;
-    private double angleRelativePositionRadians = 0.0;
-    private double angleSetpointDegrees = 0.0;
-    
-    private double driveDistanceMeters = 0.0;
-    private double driveSetpointPercentage = 0.0;
-    private double driveSetpointMPS = 0.0;
-    private double driveVelocityMetersPerSecond = 0.0;
     
     private boolean isOpenLoop = false;
 
@@ -170,5 +160,12 @@ public class SwerveModuleSimulator extends SwerveModule {
 
         applyAngleSettings();
         applyDriveSettings();
+
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/TurnAbsolutePositionDegrees", this.angleAbsolutePositionDeg);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/TurnPositionDegrees", this.anglePositionDeg);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/TurnVelocityRPM", this.angleVelocityRevPerMin);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/DrivePositionDegrees", this.drivePositionDegrees);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/DriveDistanceMeters", this.driveDistanceMeters);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/DriveVelocityMPS", this.driveVelocityMetersPerSecond);
     }
 }

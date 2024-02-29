@@ -53,6 +53,19 @@ public class SwerveModule {
     private final PositionVoltage positionVoltage;
     private final VelocityVoltage velocityVoltage;
 
+    /* Variables to track data */
+    protected double angleAbsolutePositionDeg = 0.0;
+    protected double anglePositionDeg = 0.0;
+    protected double angleRelativePositionRadians = 0.0;
+    protected double angleSetpointDegrees = 0.0;
+    protected double angleVelocityRevPerMin = 0.0;
+    
+    protected double driveDistanceMeters = 0.0;
+    protected double drivePositionDegrees = 0.0;
+    protected double driveSetpointPercentage = 0.0;
+    protected double driveSetpointMPS = 0.0;
+    protected double driveVelocityMetersPerSecond = 0.0;
+
     /**
      * 
      */
@@ -250,9 +263,23 @@ public class SwerveModule {
     }
 
     /**
-     * Only used in simulation
+     *
      */
     public void updatePositions() {
+        this.angleAbsolutePositionDeg = this.encoder.getAbsolutePosition().getValueAsDouble();
+        this.anglePositionDeg = Conversions.toDegrees(this.angleMotor.getPosition().getValueAsDouble(), CHOSEN_MODULE.angleGearRatio);
+        this.angleVelocityRevPerMin = Conversions.toRPM(this.angleMotor.getVelocity().getValueAsDouble(), CHOSEN_MODULE.angleGearRatio);
+
+        this.drivePositionDegrees = Conversions.toDegrees(this.driveMotor.getPosition().getValueAsDouble(), CHOSEN_MODULE.driveGearRatio);
+        this.driveDistanceMeters = Conversions.toMeters(this.driveMotor.getPosition().getValueAsDouble(), CHOSEN_MODULE.driveGearRatio, CHOSEN_MODULE.wheelCircumference);
+        this.driveVelocityMetersPerSecond = Conversions.RPSToMPS(this.driveMotor.getVelocity().getValueAsDouble(), CHOSEN_MODULE.driveGearRatio);
+
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/TurnAbsolutePositionDegrees", this.angleAbsolutePositionDeg);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/TurnPositionDegrees", this.anglePositionDeg);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/TurnVelocityRPM", this.angleVelocityRevPerMin);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/DrivePositionDegrees", this.drivePositionDegrees);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/DriveDistanceMeters", this.driveDistanceMeters);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/DriveVelocityMPS", this.driveVelocityMetersPerSecond);
     }
 
     /**

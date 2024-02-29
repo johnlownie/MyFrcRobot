@@ -18,8 +18,6 @@ import frc.robot.controls.OperatorBindings;
 import frc.robot.controls.TuningBindings;
 import frc.robot.controls.XBoxControlBindings;
 import frc.robot.modules.gyro.GyroModule;
-import frc.robot.modules.intake.IntakeModule;
-import frc.robot.modules.shooter.ShooterModule;
 import frc.robot.modules.swerve.SwerveModule;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -34,8 +32,6 @@ import frc.robot.utils.AllianceFlipUtil;
  * 
  */
 abstract public class RobotContainer {
-   /* Autonomous */
-
     /* Commands */
     protected TeleopDriveCommand teleopDriveCommand;
     protected TuningCommand tuningCommand;
@@ -68,8 +64,7 @@ abstract public class RobotContainer {
     public RobotContainer() {
         /* Subsystems with no simulated modules */
         this.pneumaticSubsystem = new PneumaticSubsystem();
-        this.intakeSubsystem = new IntakeSubsystem(new IntakeModule());
-        
+       
         this.driverController = new XBoxControlBindings();
         this.operatorController = new XBoxControlBindings();
 
