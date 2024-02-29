@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import frc.lib.util.Timer;
 import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SwerveModuleConstants;
@@ -67,7 +68,7 @@ public class SwerveModuleSimulator extends SwerveModule {
      */
     @Override
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(this.driveDistanceMeters, Rotation2d.fromDegrees(this.anglePositionDeg));
+        return new SwerveModulePosition(this.driveDistanceMeters, Rotation2d.fromDegrees(this.anglePositionDEG));
     }
 
     /**
@@ -75,7 +76,7 @@ public class SwerveModuleSimulator extends SwerveModule {
      */
     @Override
     public SwerveModuleState getState() {
-        return new SwerveModuleState(this.driveVelocityMetersPerSecond, Rotation2d.fromDegrees(this.anglePositionDeg));
+        return new SwerveModuleState(this.driveVelocityMPS, Rotation2d.fromDegrees(this.anglePositionDEG));
     }
 
     /**
@@ -85,7 +86,7 @@ public class SwerveModuleSimulator extends SwerveModule {
     protected void setAngleState(SwerveModuleState desiredState) {
         super.setAngleState(desiredState);
 
-        this.angleSetpointDegrees = desiredState.angle.getDegrees();
+        this.angleSetpointDEG = desiredState.angle.getDegrees();
     }
 
     /**
@@ -93,10 +94,11 @@ public class SwerveModuleSimulator extends SwerveModule {
      */
     protected void setDriveState(SwerveModuleState desiredState, boolean isOpenLoop) {
         super.setDriveState(desiredState, isOpenLoop);
+
         this.isOpenLoop = isOpenLoop;
 
         if (isOpenLoop) {
-            this.driveSetpointPercentage = desiredState.speedMetersPerSecond / SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
+            this.driveSetpointPCT = desiredState.speedMetersPerSecond / SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
         }
         else {
             this.driveSetpointMPS = this.feedForward.calculate(desiredState.speedMetersPerSecond);
@@ -107,7 +109,7 @@ public class SwerveModuleSimulator extends SwerveModule {
      * 
      */
     private void applyAngleSettings() {
-        double pidOutput = this.turnController.calculate(this.angleRelativePositionRadians, Math.toRadians(this.angleSetpointDegrees));
+        double pidOutput = this.turnController.calculate(this.angleRelativePositionRAD, Math.toRadians(this.angleSetpointDEG));
 
         double voltage = MathUtil.clamp(pidOutput, -12.0, 12.0);
         this.turnMotorSim.setInputVoltage(voltage);
@@ -119,12 +121,12 @@ public class SwerveModuleSimulator extends SwerveModule {
     private void applyDriveSettings() {
         if (this.isOpenLoop) {
             this.driveController.reset();
-            double voltage = MathUtil.clamp(this.driveSetpointPercentage * 12.0, -12.0, 12.0);
+            double voltage = MathUtil.clamp(this.driveSetpointPCT * 12.0, -12.0, 12.0);
             this.driveMotorSim.setInputVoltage(voltage);
             }
         else {
             double radiansPerSecond = Conversions.MPSToRPS(this.driveSetpointMPS, CHOSEN_MODULE.wheelCircumference);
-            double pidOutput =  this.driveController.calculate(this.driveVelocityMetersPerSecond, radiansPerSecond);
+            double pidOutput = this.driveController.calculate(this.driveVelocityMPS, radiansPerSecond);
             
             double voltage = MathUtil.clamp(radiansPerSecond + pidOutput, -12.0, 12.0);
             this.driveMotorSim.setInputVoltage(voltage);
@@ -148,24 +150,37 @@ public class SwerveModuleSimulator extends SwerveModule {
     @Override
     public void updatePositions() {
         // update the simulated motors
-        this.turnMotorSim.update(RobotConstants.LOOP_PERIOD_SECS);
-        this.driveMotorSim.update(RobotConstants.LOOP_PERIOD_SECS);
+        double timeBetweenUpdates = Timer.getFPGATimestamp() - this.drivePreviousTimestamp;
+
+        this.turnMotorSim.update(timeBetweenUpdates);
+        this.driveMotorSim.update(timeBetweenUpdates);
 
         double angleDiffRadians = this.turnMotorSim.getAngularVelocityRadPerSec() * RobotConstants.LOOP_PERIOD_SECS;
-        this.angleRelativePositionRadians += angleDiffRadians;
-        this.anglePositionDeg = this.angleRelativePositionRadians * (180.0 / Math.PI);
+        this.angleRelativePositionRAD += angleDiffRadians;
+        this.anglePositionDEG = this.angleRelativePositionRAD * (180.0 / Math.PI);
+        this.angleVelocityRPM = Conversions.toRPM(angleDiffRadians, CHOSEN_MODULE.angleGearRatio);
 
-        this.driveVelocityMetersPerSecond = Conversions.RADToMPS(this.driveMotorSim.getAngularVelocityRadPerSec(), CHOSEN_MODULE.wheelCircumference);
-        this.driveDistanceMeters = this.driveDistanceMeters + (this.driveMotorSim.getAngularVelocityRadPerSec() * RobotConstants.LOOP_PERIOD_SECS * (CHOSEN_MODULE.wheelCircumference / (2.0 * Math.PI)));
+        this.driveVelocityMPS = Conversions.RADToMPS(this.driveMotorSim.getAngularVelocityRadPerSec(), CHOSEN_MODULE.wheelCircumference);
 
+        this.driveDistanceMeters = this.driveDistanceMeters + (this.driveVelocityMPS * timeBetweenUpdates);
+        this.driveAccelerationMPS = (this.driveVelocityMPS - this.drivePreviousVelocityMPS) / timeBetweenUpdates;
+        this.drivePreviousVelocityMPS = this.driveVelocityMPS;
+        this.drivePreviousTimestamp = Timer.getFPGATimestamp();
+    
         applyAngleSettings();
         applyDriveSettings();
 
-        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/TurnAbsolutePositionDegrees", this.angleAbsolutePositionDeg);
-        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/TurnPositionDegrees", this.anglePositionDeg);
-        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/TurnVelocityRPM", this.angleVelocityRevPerMin);
-        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/DrivePositionDegrees", this.drivePositionDegrees);
-        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/DriveDistanceMeters", this.driveDistanceMeters);
-        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/DriveVelocityMPS", this.driveVelocityMetersPerSecond);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/AbsolutePositionDEG", this.angleAbsolutePositionDEG);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/PositionDEG", this.anglePositionDEG);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/VelocityRPM", this.angleVelocityRPM);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/AccelerationMPS", this.driveAccelerationMPS);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/DistanceMeters", this.driveDistanceMeters);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/PositionDEG", this.drivePositionDEG);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/PositionDEG", this.drivePositionDEG);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/SetPointMPS", this.driveSetpointMPS);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/SetPointPCT", this.driveSetpointPCT);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/VelocityMPS", this.driveVelocityMPS);
+        
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/AngularVelocityRPM", this.driveMotorSim.getAngularVelocityRPM());
     }
 }
