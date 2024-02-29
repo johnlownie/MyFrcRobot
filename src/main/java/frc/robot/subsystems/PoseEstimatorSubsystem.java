@@ -153,6 +153,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
         if (!isConnected()) {
             double velocityMetersPerSecond = Conversions.distanceBetween(estimatedPoseWithoutGyro, previousPoseWithoutGyro) / timeBetweenUpdates;
             this.previousPoseWithoutGyro = this.estimatedPoseWithoutGyro;
+            this.previousTimestamp = Timer.getFPGATimestamp();
 
             Logger.recordOutput("Subsystems/PoseEstimator/EstimatedVelocityMPS", velocityMetersPerSecond);
         }
@@ -160,6 +161,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
         // log poses, 3D geometry, and swerve module states, gyro offset
         Logger.recordOutput("Subsystems/PoseEstimator/Robot", getCurrentPose());
         Logger.recordOutput("Subsystems/PoseEstimator/RobotNoGyro", this.estimatedPoseWithoutGyro);
+        Logger.recordOutput("Subsystems/PoseEstimator/PreviousRobotNoGyro", this.previousPoseWithoutGyro);
         Logger.recordOutput("Subsystems/PoseEstimator/Rotation", getRotation().getDegrees());
         Logger.recordOutput("Subsystems/PoseEstimator/3DFieldPose", new Pose3d(getCurrentPose()));
         
