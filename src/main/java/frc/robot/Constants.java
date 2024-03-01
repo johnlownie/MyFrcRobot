@@ -168,9 +168,9 @@ public final class Constants {
      */
     public static final class PIDConstants {
         // PID constants for arm module
-        public static final double ARM_MODULE_KP = 50.0;
-        public static final double ARM_MODULE_KI = 0.0005;
-        public static final double ARM_MODULE_KD = 0.5;
+        public static final double ARM_MODULE_KP = 15.0;
+        public static final double ARM_MODULE_KI = 0.0;
+        public static final double ARM_MODULE_KD = 0.0;
 
         // PID constants for shooter module
         public static final double SHOOTER_MODULE_KP = 0.000012;
@@ -322,6 +322,12 @@ public final class Constants {
             new Translation3d(0.0, 0.0, Units.inchesToMeters(16)),
             new Rotation3d(0, Units.degreesToRadians(-40), Math.PI));
         public static final Transform3d ROBOT_TO_REAR_CAMERA = REAR_CAMERA_TO_ROBOT.inverse();
+
+        public static final String NOTE_CAMERA_NAME = "WebCam";
+        public static final Transform3d NOTE_CAMERA_TO_ROBOT = new Transform3d(
+            new Translation3d(RobotConstants.ROBOT_LENGTH / 2, 0.0, Units.inchesToMeters(6)),
+            new Rotation3d(0, Units.degreesToRadians(-10), 0));
+        public static final Transform3d ROBOT_TO_NOTE_CAMERA = REAR_CAMERA_TO_ROBOT.inverse();
 
         /** Minimum target ambiguity. Targets with higher ambiguity will be discarded */
         public static final double APRILTAG_AMBIGUITY_THRESHOLD = 0.2;

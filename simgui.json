@@ -4,6 +4,7 @@
       "/AdvantageKit/RealOutputs/Mechanisms/Visualization": "Mechanism2d",
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/Driver/Autonomous": "String Chooser",
+      "/SmartDashboard/Auto Routine": "String Chooser",
       "/SmartDashboard/SendableChooser[0]": "String Chooser",
       "/SmartDashboard/VisionSystemSim-ARDUCAM_BLUE/Sim Field": "Field2d",
       "/SmartDashboard/VisionSystemSim-FRONT_CAMERA/Sim Field": "Field2d",
@@ -11,6 +12,7 @@
       "/SmartDashboard/VisionSystemSim-LOGITECH_LIFECAM/Sim Field": "Field2d",
       "/SmartDashboard/VisionSystemSim-REAR_CAMERA/Sim Field": "Field2d",
       "/SmartDashboard/VisionSystemSim-RearArduCam/Sim Field": "Field2d",
+      "/SmartDashboard/VisionSystemSim-WebCam/Sim Field": "Field2d",
       "/SmartDashboard/VisionSystemSim-camera1/Sim Field": "Field2d"
     }
   },

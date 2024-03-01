@@ -19,7 +19,7 @@ public class ShooterModuleSimulator extends ShooterModule {
 
     @Override
     public boolean hasNote() {
-        return true;
+        return super.hasNote();
     }
 
     @Override

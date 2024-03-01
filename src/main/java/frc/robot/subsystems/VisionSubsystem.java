@@ -49,6 +49,20 @@ public class VisionSubsystem extends SubsystemBase {
     }
  
     /**
+     *
+     */
+    public double getBestNoteYaw() {
+        return this.visionModule.getBestNoteYaw();
+    }
+    
+    public void resetNoteSim() {
+        // this.timer.stop();
+        // this.timer.reset();
+        // this.isFirstCall = true;
+        // this.simYaw = 45;
+    }
+
+    /**
      * 
      */
     public PhotonTrackedTarget getBestTarget(boolean fromFrontCamera) {

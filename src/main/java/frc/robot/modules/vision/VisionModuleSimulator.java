@@ -1,13 +1,19 @@
 package frc.robot.modules.vision;
 
+import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
+import org.photonvision.simulation.VisionTargetSim;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.note.NoteLoader;
+import frc.lib.util.Timer;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.VisionConstants;
 
@@ -15,12 +21,19 @@ import frc.robot.Constants.VisionConstants;
  * 
  */
 public class VisionModuleSimulator extends VisionModule {
-    private PhotonCameraSim frontCameraSim;
-    private PhotonCameraSim rearCameraSim;
-    private VisionSystemSim frontVisionSystemSim;
-    private VisionSystemSim rearVisionSystemSim;
+    private final PhotonCameraSim frontCameraSim;
+    private final PhotonCameraSim rearCameraSim;
+    private final PhotonCameraSim noteCameraSim;
+    private final VisionSystemSim frontVisionSystemSim;
+    private final VisionSystemSim rearVisionSystemSim;
+    private final VisionSystemSim noteVisionSystemSim;
 
     protected Supplier<Pose2d> poseSupplier;
+
+    // Simulating auto pickup of note
+    private double simYaw;
+    private Timer timer = new Timer();
+    private boolean isFirstCall = true;
 
     /**
      * 
@@ -47,6 +60,15 @@ public class VisionModuleSimulator extends VisionModule {
         this.rearVisionSystemSim.addAprilTags(FieldConstants.TAG_FIELD_LAYOUT);
         this.rearVisionSystemSim.addCamera(this.rearCameraSim, VisionConstants.ROBOT_TO_REAR_CAMERA);
 
+        this.noteCameraSim = new PhotonCameraSim(this.noteCamera, simCameraProperties);
+
+        this.noteVisionSystemSim = new VisionSystemSim(VisionConstants.NOTE_CAMERA_NAME);
+        var visionTargetSims = NoteLoader.getVisionTargets();
+        // for (VisionTargetSim visionTargetSim : visionTargetSims) {
+            // this.noteVisionSystemSim.addVisionTargets("note", visionTargetSim);
+        // }
+        this.noteVisionSystemSim.addCamera(this.noteCameraSim, VisionConstants.ROBOT_TO_NOTE_CAMERA);
+
         this.poseSupplier = null;
     }
 
@@ -60,6 +82,25 @@ public class VisionModuleSimulator extends VisionModule {
         
         processResults(VisionConstants.FRONT_CAMERA_NAME, getFrontCameraResults(), this.frontCameraPhotonPoseEstimator, this.atomicFrontEstimatedRobotPose);
         processResults(VisionConstants.REAR_CAMERA_NAME, getRearCameraResults(), this.rearCameraPhotonPoseEstimator, this.atomicRearEstimatedRobotPose);
+        processResults(VisionConstants.NOTE_CAMERA_NAME, getNoteCameraResults(), this.noteCameraPhotonPoseEstimator, this.atomicNoteEstimatedRobotPose);
+    }
+ 
+    @Override
+    public double getBestNoteYaw() {
+        if (this.isFirstCall) {
+            this.timer.reset();
+            this.timer.start();
+            this.isFirstCall = false;
+            this.simYaw = 45;
+        }
+        else if (this.timer.hasElapsed(0.5)) {
+            this.simYaw -= 1;
+            if (this.simYaw <= 0) this.simYaw = 0;
+
+            return this.simYaw;
+        }
+
+        return 0;
     }
 
     /**

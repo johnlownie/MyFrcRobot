@@ -29,11 +29,14 @@ import frc.robot.Constants.VisionConstants;
 public class VisionModule { //implements Runnable {
     protected PhotonCamera frontCamera;
     protected PhotonCamera rearCamera;
+    protected PhotonCamera noteCamera;
 
     protected final PhotonPoseEstimator frontCameraPhotonPoseEstimator;
     protected final PhotonPoseEstimator rearCameraPhotonPoseEstimator;
+    protected final PhotonPoseEstimator noteCameraPhotonPoseEstimator;
     protected final AtomicReference<EstimatedRobotPose> atomicFrontEstimatedRobotPose;
     protected final AtomicReference<EstimatedRobotPose> atomicRearEstimatedRobotPose;
+    protected final AtomicReference<EstimatedRobotPose> atomicNoteEstimatedRobotPose;
     
     /**
      * 
@@ -41,6 +44,7 @@ public class VisionModule { //implements Runnable {
     public VisionModule() {
         this.frontCamera = new PhotonCamera(VisionConstants.FRONT_CAMERA_NAME);
         this.rearCamera = new PhotonCamera(VisionConstants.REAR_CAMERA_NAME);
+        this.noteCamera = new PhotonCamera(VisionConstants.NOTE_CAMERA_NAME);
 
         this.frontCameraPhotonPoseEstimator = new PhotonPoseEstimator(FieldConstants.TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, this.frontCamera, VisionConstants.ROBOT_TO_FRONT_CAMERA);
         this.frontCameraPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
@@ -48,8 +52,12 @@ public class VisionModule { //implements Runnable {
         this.rearCameraPhotonPoseEstimator = new PhotonPoseEstimator(FieldConstants.TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, this.rearCamera, VisionConstants.ROBOT_TO_REAR_CAMERA);
         this.rearCameraPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
 
+        this.noteCameraPhotonPoseEstimator = new PhotonPoseEstimator(FieldConstants.TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, this.noteCamera, VisionConstants.ROBOT_TO_NOTE_CAMERA);
+        this.noteCameraPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
+
         this.atomicFrontEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
         this.atomicRearEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
+        this.atomicNoteEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
     }
 
     /**
@@ -62,6 +70,7 @@ public class VisionModule { //implements Runnable {
 
         processResults(VisionConstants.FRONT_CAMERA_NAME, getFrontCameraResults(), this.frontCameraPhotonPoseEstimator, this.atomicFrontEstimatedRobotPose);
         processResults(VisionConstants.REAR_CAMERA_NAME, getRearCameraResults(), this.rearCameraPhotonPoseEstimator, this.atomicRearEstimatedRobotPose);
+        processResults(VisionConstants.NOTE_CAMERA_NAME, getNoteCameraResults(), this.noteCameraPhotonPoseEstimator, this.atomicNoteEstimatedRobotPose);
     }
 
     /**
@@ -94,6 +103,24 @@ public class VisionModule { //implements Runnable {
         PhotonPipelineResult results = fromFrontCamera ? getFrontCameraResults() : getRearCameraResults();
 
         return results.hasTargets() ? results.getBestTarget() : null;
+    }
+
+    /**
+     * 
+     */
+    public PhotonTrackedTarget getBestNoteTarget() {
+        PhotonPipelineResult results = getNoteCameraResults();
+
+        return results.hasTargets() ? results.getBestTarget() : null;
+    }
+ 
+    /**
+     * 
+     */
+    public double getBestNoteYaw() {
+        PhotonTrackedTarget target = getBestNoteTarget();
+
+        return target != null ? target.getYaw() : 0;
     }
 
     /**
@@ -137,6 +164,13 @@ public class VisionModule { //implements Runnable {
      */
     protected PhotonPipelineResult getFrontCameraResults() {
         return this.frontCamera.getLatestResult();
+    }
+
+    /**
+     * 
+     */
+    protected PhotonPipelineResult getNoteCameraResults() {
+        return this.noteCamera.getLatestResult();
     }
 
     /**

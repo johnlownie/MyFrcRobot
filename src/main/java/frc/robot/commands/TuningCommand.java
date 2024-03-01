@@ -249,6 +249,11 @@ public class TuningCommand extends Command {
         }
 
         this.swerveDrive.drive(xVelocity, yVelocity, rVelocity, angle, true);
+
+        Logger.recordOutput("Commands/TuningCommand/xVelocity", xVelocity);
+        Logger.recordOutput("Commands/TuningCommand/yVelocity", yVelocity);
+        Logger.recordOutput("Commands/TuningCommand/rVelocity", rVelocity);
+        Logger.recordOutput("Commands/TuningCommand/angle", angle.getDegrees());
     }
 
     /**

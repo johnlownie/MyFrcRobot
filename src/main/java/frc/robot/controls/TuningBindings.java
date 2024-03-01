@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.AlignAndShootTagCommand;
 import frc.robot.commands.DeployGamePieceCommand;
+import frc.robot.commands.DriveAndGrabNoteCommand;
 import frc.robot.commands.DriveFromBestTagCommand;
 import frc.robot.commands.DriveToBestTagCommand;
 import frc.robot.commands.TeleopDriveCommand;
@@ -65,12 +66,28 @@ public class TuningBindings {
 
         //        
         controller.driverB().ifPresent(
-            trigger -> trigger.onTrue(
-                new InstantCommand(() -> {
-                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT_SPEAKER);
-                })
-                .until(controller.driverWantsControl())
+            trigger -> trigger.whileTrue(
+                new DriveAndGrabNoteCommand(
+                    this.swerveDrive,
+                    this.intakeSubsystem,
+                    this.shooterSubsystem,
+                    this.visionSubsystem,
+                    this.poseEstimator.getCurrentPose()::getRotation,
+                    controller.translationX(),
+                    controller.translationY(),
+                    controller.omega(),
+                    this.poseEstimator::getCurrentPose,
+                    this.visionSubsystem::getBestNoteYaw
+                )
+                // .until(controller.driverWantsControl())
+                // .andThen(new ScheduleCommand(this.teleopDriveCommand))
             )
+            // trigger -> trigger.onTrue(
+            //     new InstantCommand(() -> {
+            //         this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT_SPEAKER);
+            //     })
+            //     .until(controller.driverWantsControl())
+            // )
         );
 
         // 
