@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.util.Timer;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.utils.Conversions;
 
 /**
@@ -174,8 +175,15 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
             new Translation3d(getCurrentPose().getX(), getCurrentPose().getY(), Units.inchesToMeters(16)),
             new Rotation3d(0, Units.degreesToRadians(-40), getRotation().getRadians() + Math.PI)
         );
+        
+        Transform3d noteCameraView = new Transform3d(
+            new Translation3d(getCurrentPose().getX() + RobotConstants.ROBOT_LENGTH / 2, getCurrentPose().getY(), Units.inchesToMeters(6)),
+            new Rotation3d(0, Units.degreesToRadians(10), getRotation().getRadians())
+        );
+
         Logger.recordOutput("Subsystems/PoseEstimator/FrontCameraView", frontCameraView);
         Logger.recordOutput("Subsystems/PoseEstimator/RearCameraView", rearCameraView);
+        Logger.recordOutput("Subsystems/PoseEstimator/NoteCameraView", noteCameraView);
     }
 
     /**

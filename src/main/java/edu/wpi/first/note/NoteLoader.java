@@ -1,52 +1,59 @@
 package edu.wpi.first.note;
 
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.json.simple.parser.JSONParser;
 import org.photonvision.simulation.VisionTargetSim;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 
+/**
+ * 
+ */
 public class NoteLoader {
     /**
      * 
      */
-    private static String readJsonFromFile() {
-        try {
-
-            URL path = NoteLoader.class.getResource("test.json");
-            String json = Files.readString(Paths.get(path.toURI()));
-
-            return new JSONParser().parse(json).toString();
-
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    /**
-     * 
-     */
     public static List<VisionTargetSim> getVisionTargets() {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String jsonString = readJsonFromFile();
+        List<VisionTargetSim> visionTargetSims = new ArrayList<VisionTargetSim>();
+        VisionTargetSim visionTargetSim;
 
-            CollectionType typeReference = TypeFactory.defaultInstance().constructCollectionType(List.class, Note.class);
-            List<Note> notes = objectMapper.readValue(jsonString, typeReference);
+        visionTargetSim = new VisionTargetSim(new Pose3d(new Pose2d(new Translation2d(13.638911, 4.1021), new Rotation2d())), null, 1);
+        visionTargetSims.add(visionTargetSim);
 
-            return new ArrayList<VisionTargetSim>();
+        visionTargetSim = new VisionTargetSim(new Pose3d(new Pose2d(new Translation2d(13.638911, 5.5499), new Rotation2d())), null, 2);
+        visionTargetSims.add(visionTargetSim);
 
-        } catch (Exception e) {
-            return new ArrayList<VisionTargetSim>();
-        }
+        visionTargetSim = new VisionTargetSim(new Pose3d(new Pose2d(new Translation2d(13.638911, 6.9977), new Rotation2d())), null, 3);
+        visionTargetSims.add(visionTargetSim);
+
+        visionTargetSim = new VisionTargetSim(new Pose3d(new Pose2d(new Translation2d(8.289671, 7.4549), new Rotation2d())), null, 4);
+        visionTargetSims.add(visionTargetSim);
+
+        visionTargetSim = new VisionTargetSim(new Pose3d(new Pose2d(new Translation2d(8.289671, 5.7785), new Rotation2d())), null, 5);
+        visionTargetSims.add(visionTargetSim);
+
+        visionTargetSim = new VisionTargetSim(new Pose3d(new Pose2d(new Translation2d(8.289671, 4.1021), new Rotation2d())), null, 6);
+        visionTargetSims.add(visionTargetSim);
+
+        visionTargetSim = new VisionTargetSim(new Pose3d(new Pose2d(new Translation2d(8.289671, 2.4257), new Rotation2d())), null, 7);
+        visionTargetSims.add(visionTargetSim);
+
+        visionTargetSim = new VisionTargetSim(new Pose3d(new Pose2d(new Translation2d(8.289671, 0.7493), new Rotation2d())), null, 8);
+        visionTargetSims.add(visionTargetSim);
+
+        visionTargetSim = new VisionTargetSim(new Pose3d(new Pose2d(new Translation2d(2.940431, 6.9977), new Rotation2d())), null, 9);
+        visionTargetSims.add(visionTargetSim);
+
+        visionTargetSim = new VisionTargetSim(new Pose3d(new Pose2d(new Translation2d(2.940431, 5.5499), new Rotation2d())), null, 10);
+        visionTargetSims.add(visionTargetSim);
+
+        visionTargetSim = new VisionTargetSim(new Pose3d(new Pose2d(new Translation2d(2.940431, 4.1021), new Rotation2d())), null, 11);
+        visionTargetSims.add(visionTargetSim);
+
+        return visionTargetSims;
     }
 }

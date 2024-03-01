@@ -64,9 +64,9 @@ public class VisionModuleSimulator extends VisionModule {
 
         this.noteVisionSystemSim = new VisionSystemSim(VisionConstants.NOTE_CAMERA_NAME);
         var visionTargetSims = NoteLoader.getVisionTargets();
-        // for (VisionTargetSim visionTargetSim : visionTargetSims) {
-            // this.noteVisionSystemSim.addVisionTargets("note", visionTargetSim);
-        // }
+        for (VisionTargetSim visionTargetSim : visionTargetSims) {
+            this.noteVisionSystemSim.addVisionTargets("note", visionTargetSim);
+        }
         this.noteVisionSystemSim.addCamera(this.noteCameraSim, VisionConstants.ROBOT_TO_NOTE_CAMERA);
 
         this.poseSupplier = null;
@@ -109,6 +109,7 @@ public class VisionModuleSimulator extends VisionModule {
     protected void processFrame(Pose2d pose2d) {
         this.frontVisionSystemSim.update(pose2d);
         this.rearVisionSystemSim.update(pose2d);
+        this.noteVisionSystemSim.update(pose2d);
     }
     
     @Override
