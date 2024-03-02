@@ -77,7 +77,7 @@ public class TuningBindings {
                     controller.omega(),
                     this.visionSubsystem::getBestNoteTarget
                 )
-                // .until(controller.driverWantsControl())
+                .until(this.shooterSubsystem::hasNote)
                 // .andThen(new ScheduleCommand(this.teleopDriveCommand))
             )
             // trigger -> trigger.onTrue(

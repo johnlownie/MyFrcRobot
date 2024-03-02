@@ -13,6 +13,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.util.ProfiledPIDController;
+import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -37,6 +39,9 @@ public class DriveAndGrabNoteCommand extends Command {
     private final SlewRateLimiter translateXRateLimiter = new SlewRateLimiter(TeleopConstants.X_RATE_LIMIT);
     private final SlewRateLimiter translateYRateLimiter = new SlewRateLimiter(TeleopConstants.Y_RATE_LIMIT);
     private final SlewRateLimiter rotationRateLimiter = new SlewRateLimiter(TeleopConstants.ROTATION_RATE_LIMIT);
+
+    // The maximum yaw that the camera can see the target
+    private final double MAX_YAW_DEGREES = 28.0;
 
     private PhotonTrackedTarget selectedTarget;
     private boolean lostTarget;
@@ -87,23 +92,23 @@ public class DriveAndGrabNoteCommand extends Command {
 
         // check for visible note
         if (this.selectedTarget != null && this.selectedTarget.getYaw() != 0) {
-            // turn on intake
-            if (Math.abs(this.selectedTarget.getYaw()) < 10) {
+            // turn on intake when within 10 degrees yas
+            if (Math.abs(this.selectedTarget.getYaw()) < 10.0) {
                 this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
                 this.shooterSubsystem.addAction(ShooterSubsystem.Action.INTAKE);
             }
 
             // reduce yVelocity as yaw gets closer to 0
-            yVelocity = Math.min(xVelocity, xVelocity * (this.selectedTarget.getYaw() / 15));
+            yVelocity = Math.min(SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND * 0.75, SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND * 0.75 * (this.selectedTarget.getYaw() / MAX_YAW_DEGREES));
             yVelocity *= -1;
 
             // increase xVelocity as yaw gets closer to 0
-            xVelocity -= xVelocity * (this.selectedTarget.getYaw() / 15) * 0.5;
+            xVelocity -= xVelocity * 0.75 * (this.selectedTarget.getYaw() / MAX_YAW_DEGREES);
 
-            // Limit the velocity values
-            xVelocity = this.translateXRateLimiter.calculate(xVelocity);
-            yVelocity = this.translateYRateLimiter.calculate(yVelocity);
-            }
+            // Limit the velocities
+            yVelocity = Math.min(SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND, yVelocity);
+            xVelocity = Math.min(SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND, xVelocity);
+        }
 
         this.swerveDrive.drive(xVelocity, yVelocity, rVelocity, angle, true);
 
@@ -134,7 +139,10 @@ public class DriveAndGrabNoteCommand extends Command {
     private void setTarget() {
         PhotonTrackedTarget target = this.targetSupplier.get();
 
-        if (this.selectedTarget != null && this.selectedTarget.getFiducialId() != target.getFiducialId()) {
+        if (target == null && this.selectedTarget != null) {
+            this.lostTarget = true;
+        }
+        else if (this.selectedTarget != null && this.selectedTarget.getFiducialId() != target.getFiducialId()) {
             this.lostTarget = true;
         }
         else {

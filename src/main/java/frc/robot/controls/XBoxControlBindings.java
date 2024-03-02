@@ -286,7 +286,7 @@ public class XBoxControlBindings implements IControlBindings {
         value = MathUtil.applyDeadband(value, TeleopConstants.DEADBAND);
     
         // Square the axis
-        value = Math.copySign(value * value, value);
+        value = Math.copySign(value, value);
     
         return value;
     }

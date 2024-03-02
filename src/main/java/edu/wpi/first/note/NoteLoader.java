@@ -38,10 +38,10 @@ public class NoteLoader {
         // visionTargetSims.add(visionTargetSim);
 
         visionTargetSim = new VisionTargetSim(new Pose3d(new Pose2d(new Translation2d(8.289671, 7.4549), new Rotation2d())), targetModel, 24);
-        // visionTargetSims.add(visionTargetSim);
+        visionTargetSims.add(visionTargetSim);
 
         visionTargetSim = new VisionTargetSim(new Pose3d(new Pose2d(new Translation2d(8.289671, 5.7785), new Rotation2d())), targetModel, 25);
-        visionTargetSims.add(visionTargetSim);
+        // visionTargetSims.add(visionTargetSim);
 
         visionTargetSim = new VisionTargetSim(new Pose3d(new Pose2d(new Translation2d(8.289671, 4.1021), new Rotation2d())), targetModel, 26);
         // visionTargetSims.add(visionTargetSim);
