@@ -71,13 +71,11 @@ public class TuningBindings {
                     this.swerveDrive,
                     this.intakeSubsystem,
                     this.shooterSubsystem,
-                    this.visionSubsystem,
                     this.poseEstimator.getCurrentPose()::getRotation,
                     controller.translationX(),
                     controller.translationY(),
                     controller.omega(),
-                    this.poseEstimator::getCurrentPose,
-                    this.visionSubsystem::getBestNoteYaw
+                    this.visionSubsystem::getBestNoteTarget
                 )
                 // .until(controller.driverWantsControl())
                 // .andThen(new ScheduleCommand(this.teleopDriveCommand))

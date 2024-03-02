@@ -23,13 +23,11 @@ public class DriveAndGrabNoteCommand extends Command {
     private final IntakeSubsystem intakeSubsystem;
     private final ShooterSubsystem shooterSubsystem;
     private final SwerveDriveSubsystem swerveDrive;
-    private final VisionSubsystem visionSubsystem;
     private final Supplier<Rotation2d> robotAngleSupplier;
     private final DoubleSupplier rotationSupplier;
     private final DoubleSupplier translationXSupplier;
     private final DoubleSupplier translationYSupplier;
-    private final Supplier<Pose2d> poseSupplier;
-    private final DoubleSupplier targetYaw;
+    private final Supplier<PhotonTrackedTarget> targetSupplier;
 
 
     private final ProfiledPIDController xController = TeleopConstants.xController;
@@ -40,25 +38,29 @@ public class DriveAndGrabNoteCommand extends Command {
     private final SlewRateLimiter translateYRateLimiter = new SlewRateLimiter(TeleopConstants.Y_RATE_LIMIT);
     private final SlewRateLimiter rotationRateLimiter = new SlewRateLimiter(TeleopConstants.ROTATION_RATE_LIMIT);
 
+    private PhotonTrackedTarget selectedTarget;
+    private boolean lostTarget;
+
     /**
      * 
      */
-    public DriveAndGrabNoteCommand(SwerveDriveSubsystem swerveDrive, IntakeSubsystem intakeSubsystem, ShooterSubsystem shooterSubsystem, VisionSubsystem visionSubsystem, Supplier<Rotation2d> robotAngleSupplier, DoubleSupplier translationXSupplier, DoubleSupplier translationYSupplier, DoubleSupplier rotationSupplier, Supplier<Pose2d> poseSupplier, DoubleSupplier targetYaw) {
+    public DriveAndGrabNoteCommand(SwerveDriveSubsystem swerveDrive, IntakeSubsystem intakeSubsystem, ShooterSubsystem shooterSubsystem, Supplier<Rotation2d> robotAngleSupplier, DoubleSupplier translationXSupplier, DoubleSupplier translationYSupplier, DoubleSupplier rotationSupplier, Supplier<PhotonTrackedTarget> target) {
         this.swerveDrive = swerveDrive;
         this.intakeSubsystem = intakeSubsystem;
         this.shooterSubsystem = shooterSubsystem;
-        this.visionSubsystem = visionSubsystem;
         this.robotAngleSupplier = robotAngleSupplier;
         this.translationXSupplier = translationXSupplier;
         this.translationYSupplier = translationYSupplier;
         this.rotationSupplier = rotationSupplier;
-        this.poseSupplier = poseSupplier;
-        this.targetYaw = targetYaw;
+        this.targetSupplier = target;
 
         this.xController.setTolerance(0.2);
         this.yController.setTolerance(0.2);
         this.omegaController.setTolerance(Units.degreesToRadians(3));
         this.omegaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        this.selectedTarget = null;
+        this.lostTarget = false;
 
         addRequirements(this.swerveDrive);
     }
@@ -68,7 +70,7 @@ public class DriveAndGrabNoteCommand extends Command {
         this.swerveDrive.stop();
         this.intakeSubsystem.addAction(IntakeSubsystem.Action.IDLE);
         this.shooterSubsystem.addAction(ShooterSubsystem.Action.IDLE);
-        this.visionSubsystem.resetNoteSim();
+        this.selectedTarget = null;
             
         Logger.recordOutput("Commands/Active Command", "");
     }
@@ -81,26 +83,32 @@ public class DriveAndGrabNoteCommand extends Command {
         double yVelocity = this.translateYRateLimiter.calculate(translationYSupplier.getAsDouble());
         double rVelocity = this.rotationRateLimiter.calculate(rotationSupplier.getAsDouble());
 
-        double targetYaw = this.targetYaw.getAsDouble();
+        setTarget();
 
         // check for visible note
-        if (targetYaw != 0) {
+        if (this.selectedTarget != null && this.selectedTarget.getYaw() != 0) {
             // turn on intake
-            if (Math.abs(targetYaw) < 10) {
+            if (Math.abs(this.selectedTarget.getYaw()) < 10) {
                 this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
                 this.shooterSubsystem.addAction(ShooterSubsystem.Action.INTAKE);
             }
 
             // reduce yVelocity as yaw gets closer to 0
-            yVelocity = Math.min(xVelocity, xVelocity * (targetYaw / 45));
+            yVelocity = Math.min(xVelocity, xVelocity * (this.selectedTarget.getYaw() / 15));
             yVelocity *= -1;
 
             // increase xVelocity as yaw gets closer to 0
-            xVelocity -= xVelocity * (targetYaw / 45) * 0.5;
-        }
+            xVelocity -= xVelocity * (this.selectedTarget.getYaw() / 15) * 0.5;
+
+            // Limit the velocity values
+            xVelocity = this.translateXRateLimiter.calculate(xVelocity);
+            yVelocity = this.translateYRateLimiter.calculate(yVelocity);
+            }
 
         this.swerveDrive.drive(xVelocity, yVelocity, rVelocity, angle, true);
 
+        Logger.recordOutput("Commands/DriveAndGrabNoteCommand/targetId", this.selectedTarget != null ? this.selectedTarget.getFiducialId() : 0);
+        Logger.recordOutput("Commands/DriveAndGrabNoteCommand/targetYaw", this.selectedTarget != null ? this.selectedTarget.getYaw() : 0.0);
         Logger.recordOutput("Commands/DriveAndGrabNoteCommand/xVelocity", xVelocity);
         Logger.recordOutput("Commands/DriveAndGrabNoteCommand/yVelocity", yVelocity);
         Logger.recordOutput("Commands/DriveAndGrabNoteCommand/rVelocity", rVelocity);
@@ -109,11 +117,28 @@ public class DriveAndGrabNoteCommand extends Command {
   
     @Override
     public void initialize() {
+        this.lostTarget = false;
+        setTarget();
+
         Logger.recordOutput("Commands/Active Command", this.getName());
     }
 
     @Override
     public boolean isFinished() {
-        return this.shooterSubsystem.hasNote();
+        return this.shooterSubsystem.hasNote() || this.lostTarget;
+    }
+
+    /**
+     * 
+     */
+    private void setTarget() {
+        PhotonTrackedTarget target = this.targetSupplier.get();
+
+        if (this.selectedTarget != null && this.selectedTarget.getFiducialId() != target.getFiducialId()) {
+            this.lostTarget = true;
+        }
+        else {
+            this.selectedTarget = target;
+        }
     }
 }

@@ -1,7 +1,5 @@
 package frc.robot.modules.vision;
 
-import java.util.List;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
@@ -83,24 +81,6 @@ public class VisionModuleSimulator extends VisionModule {
         processResults(VisionConstants.FRONT_CAMERA_NAME, getFrontCameraResults(), this.frontCameraPhotonPoseEstimator, this.atomicFrontEstimatedRobotPose);
         processResults(VisionConstants.REAR_CAMERA_NAME, getRearCameraResults(), this.rearCameraPhotonPoseEstimator, this.atomicRearEstimatedRobotPose);
         processResults(VisionConstants.NOTE_CAMERA_NAME, getNoteCameraResults(), this.noteCameraPhotonPoseEstimator, this.atomicNoteEstimatedRobotPose);
-    }
- 
-    @Override
-    public double getBestNoteYaw() {
-        if (this.isFirstCall) {
-            this.timer.reset();
-            this.timer.start();
-            this.isFirstCall = false;
-            this.simYaw = 45;
-        }
-        else if (this.timer.hasElapsed(0.5)) {
-            this.simYaw -= 1;
-            if (this.simYaw <= 0) this.simYaw = 0;
-
-            return this.simYaw;
-        }
-
-        return 0;
     }
 
     /**

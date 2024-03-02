@@ -113,15 +113,6 @@ public class VisionModule { //implements Runnable {
 
         return results.hasTargets() ? results.getBestTarget() : null;
     }
- 
-    /**
-     * 
-     */
-    public double getBestNoteYaw() {
-        PhotonTrackedTarget target = getBestNoteTarget();
-
-        return target != null ? target.getYaw() : 0;
-    }
 
     /**
      * The standard deviations of the estimated pose from {@link #getEstimatedGlobalPose()}, for use

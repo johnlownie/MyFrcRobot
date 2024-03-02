@@ -177,7 +177,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
         );
         
         Transform3d noteCameraView = new Transform3d(
-            new Translation3d(getCurrentPose().getX() + RobotConstants.ROBOT_LENGTH / 2, getCurrentPose().getY(), Units.inchesToMeters(6)),
+            new Translation3d(getCurrentPose().getX(), getCurrentPose().getY(), Units.inchesToMeters(6)),
             new Rotation3d(0, Units.degreesToRadians(10), getRotation().getRadians())
         );
 
