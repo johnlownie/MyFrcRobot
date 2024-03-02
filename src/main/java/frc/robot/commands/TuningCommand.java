@@ -153,27 +153,24 @@ public class TuningCommand extends Command {
         double rVelocity = this.rotationRateLimiter.calculate(this.controller.omega().getAsDouble());
         Rotation2d angle = this.poseEstimator.getCurrentPose().getRotation();
         
-        // Drive with controller if there is input
-        if (xVelocity != 0 || yVelocity != 0 || rVelocity != 0) {
-            handleDriveWithController(xVelocity, yVelocity, rVelocity, angle);
-        }
-        else if (this.driveBackAndForth.get() || this.driveSideToSide.get() || this.alternateRotation.get()) {
+        if (this.driveBackAndForth.get() || this.driveSideToSide.get() || this.alternateRotation.get()) {
             handleAutonomousDriving();
         }
         // else if (!isAtGoal()) {
-        //     Pose2d robotPose = this.poseEstimator.getCurrentPose();
-
-        //     double xSpeed = this.xController.calculate(robotPose.getX());
-        //     double ySpeed = this.yController.calculate(robotPose.getY());
-        //     double omegaSpeed = this.omegaController.calculate(robotPose.getRotation().getRadians());
-
-        //     if (this.xController.atGoal()) xSpeed = 0;
-        //     if (this.yController.atGoal()) ySpeed = 0;
-        //     if (this.omegaController.atGoal()) omegaSpeed = 0;
-
-        //     this.swerveDrive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose.getRotation()), false);
-        // }
+            //     Pose2d robotPose = this.poseEstimator.getCurrentPose();
+            
+            //     double xSpeed = this.xController.calculate(robotPose.getX());
+            //     double ySpeed = this.yController.calculate(robotPose.getY());
+            //     double omegaSpeed = this.omegaController.calculate(robotPose.getRotation().getRadians());
+            
+            //     if (this.xController.atGoal()) xSpeed = 0;
+            //     if (this.yController.atGoal()) ySpeed = 0;
+            //     if (this.omegaController.atGoal()) omegaSpeed = 0;
+            
+            //     this.swerveDrive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose.getRotation()), false);
+            // }
         else {
+            handleDriveWithController(xVelocity, yVelocity, rVelocity, angle);
             this.timer.stop();
         }
     }
