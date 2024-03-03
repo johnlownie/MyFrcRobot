@@ -2,10 +2,16 @@ package frc.robot.controls;
 
 import static edu.wpi.first.wpilibj2.command.Commands.either;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
+import static edu.wpi.first.wpilibj2.command.Commands.sequence;
+import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.TeleopConstants;
 import frc.robot.commands.DeployGamePieceCommand;
+import frc.robot.commands.DriveAndGrabNoteCommand;
 import frc.robot.commands.DriveFromBestTagCommand;
 import frc.robot.commands.DriveToBestTagCommand;
 import frc.robot.commands.LockedTelopDriveByPoseCommand;
@@ -62,25 +68,90 @@ public class DriverBindings {
                 .andThen(new ScheduleCommand(this.teleopDriveCommand))
             )
         );
+        
+        // Drive Slower
+        controller.slowMode().ifPresent(
+            trigger -> trigger.whileTrue(
+                runOnce(() -> this.swerveDrive.setSpeedModifier(TeleopConstants.SPEED_MODIFIER_THIRTY))
+            )
+            .onFalse(
+                runOnce(() -> this.swerveDrive.setSpeedModifier(TeleopConstants.SPEED_MODIFIER_ONE_HUNDRED))
+            )
+        );
+
+        // Teleop Drive but Grab Note if Visible    
+        controller.driverA().ifPresent(
+            trigger -> trigger.whileTrue(
+                new DriveAndGrabNoteCommand(
+                    this.swerveDrive,
+                    this.intakeSubsystem,
+                    this.shooterSubsystem,
+                    this.poseEstimator.getCurrentPose()::getRotation,
+                    controller.translationX(),
+                    controller.translationY(),
+                    controller.omega(),
+                    this.visionSubsystem::getBestNoteTarget
+                )
+                .until(this.shooterSubsystem::hasNote)
+                // .andThen(new ScheduleCommand(this.teleopDriveCommand))
+            )
+            // trigger -> trigger.onTrue(
+            //     new InstantCommand(() -> {
+            //         this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT_SPEAKER);
+            //     })
+            //     .until(controller.driverWantsControl())
+            // )
+        );
+        
+        // Toggle Intake
+        controller.toggleIntake().ifPresent(
+            trigger -> trigger.whileTrue(
+                sequence(
+                    runOnce(() -> {
+                        this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
+                    }),
+                    waitUntil(this.armSubsystem::isAtAngle),
+                    runOnce(() -> {
+                        this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
+                        this.shooterSubsystem.addAction(ShooterSubsystem.Action.INTAKE);
+                    })
+                )
+            )
+        );
+        
+        // Toggle Outtake
+        controller.toggleOuttake().ifPresent(
+            trigger -> trigger.whileTrue(
+                runOnce(() -> this.intakeSubsystem.addAction(IntakeSubsystem.Action.EJECT))
+            )
+        );
+        
+        // Reset Gyroscope
+        controller.zeroGyro().ifPresent(
+            trigger -> trigger.onTrue(
+                runOnce(() -> this.swerveDrive.zeroGyroscope())
+                .andThen(new ScheduleCommand(this.teleopDriveCommand))
+            )
+        );
 
         // reset the robot pose
         // driverController.resetPose().ifPresent(trigger -> trigger.onTrue(runOnce(this::resetPose)));
 
         // Align and Shoot
-        controller.alignAndShoot().ifPresent(
-            trigger -> trigger.onTrue(
-                new DriveToBestTagCommand(
-                    this.swerveDrive,
-                    this.visionSubsystem,
-                    this.poseEstimator::getCurrentPose,
-                    false)
-                .andThen(
-                    new DeployGamePieceCommand(this.armSubsystem, this.shooterSubsystem, this.visionSubsystem, false)
-                    .until(controller.driverWantsControl())
-                )
-                .until(controller.driverWantsControl())
-            )
-        );
+        // controller.alignAndShoot().ifPresent(
+        //     trigger -> trigger.onTrue(
+        //         new DriveToBestTagCommand(
+        //             this.swerveDrive,
+        //             this.visionSubsystem,
+        //             this.poseEstimator::getCurrentPose,
+        //             false)
+        //         .andThen(
+        //             new DeployGamePieceCommand(this.armSubsystem, this.shooterSubsystem, this.visionSubsystem, false)
+        //             .until(controller.driverWantsControl())
+        //         )
+        //         .until(controller.driverWantsControl())
+        //     )
+        // );
 
         // Drive to Speaker Pose examples
         controller.driveToSpeakerRight().ifPresent(

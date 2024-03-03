@@ -4,6 +4,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -19,7 +20,6 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-import frc.lib.util.ProfiledPIDController;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
 
@@ -30,7 +30,7 @@ public final class Constants {
     public static final class RobotConstants {
         public static final double ROBOT_LENGTH = Units.inchesToMeters(38.0);
         public static final double LOOP_PERIOD_SECS = 0.02;
-        public static final boolean TUNING_MODE = true;
+        public static final boolean TUNING_MODE = false;
         
         // FIXME: update for various robots
         public enum Mode { REAL, REPLAY, SIM }
@@ -196,7 +196,7 @@ public final class Constants {
         public static final double SWERVE_DRIVE_Y_KI = 0.0;
         public static final double SWERVE_DRIVE_Y_KD = 0.0;
 
-        public static final double SWERVE_DRIVE_OMEGA_KP = 2.0;
+        public static final double SWERVE_DRIVE_OMEGA_KP = 6.0;
         public static final double SWERVE_DRIVE_OMEGA_KI = 0.0;
         public static final double SWERVE_DRIVE_OMEGA_KD = 0.0;
     }
@@ -243,34 +243,34 @@ public final class Constants {
         /* Module Specific Constants */
         /* Front Left Module - Module 0 */
         public static final class Mod0 { //TODO: This must be tuned to specific robot
-            public static final int DRIVE_MOTOR_ID = 11;
-            public static final int ANGLE_MOTOR_ID = 12;
-            public static final int CANCODER_ID = 1;
-            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(-317.285156);
+            public static final int DRIVE_MOTOR_ID = 41;
+            public static final int ANGLE_MOTOR_ID = 42;
+            public static final int CANCODER_ID = 4;
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(154.384);
         }
 
         /* Front Right Module - Module 1 */
         public static final class Mod1 { //TODO: This must be tuned to specific robot
-            public static final int DRIVE_MOTOR_ID = 31;
-            public static final int ANGLE_MOTOR_ID = 32;
-            public static final int CANCODER_ID = 3;
-            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(-434.619141);
+            public static final int DRIVE_MOTOR_ID = 11;
+            public static final int ANGLE_MOTOR_ID = 12;
+            public static final int CANCODER_ID = 1;
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(-140.9765625 + 180);
         }
         
         /* Back Left Module - Module 2 */
         public static final class Mod2 { //TODO: This must be tuned to specific robot
-            public static final int DRIVE_MOTOR_ID = 21;
-            public static final int ANGLE_MOTOR_ID = 22;
-            public static final int CANCODER_ID = 2;
-            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(-20.126953);
+            public static final int DRIVE_MOTOR_ID = 31;
+            public static final int ANGLE_MOTOR_ID = 32;
+            public static final int CANCODER_ID = 3;
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(-68.7304);
         }
 
         /* Back Right Module - Module 3 */
         public static final class Mod3 { //TODO: This must be tuned to specific robot
-            public static final int DRIVE_MOTOR_ID = 41;
-            public static final int ANGLE_MOTOR_ID = 42;
-            public static final int CANCODER_ID = 4;
-            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(-200.742188);
+            public static final int DRIVE_MOTOR_ID = 21;
+            public static final int ANGLE_MOTOR_ID = 22;
+            public static final int CANCODER_ID = 2;
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromDegrees(158.642578125 + 180);
         }
     }
 
@@ -292,6 +292,9 @@ public final class Constants {
         public static final double HEADING_kD = 0.0;
     
         public static final double HEADING_TOLERANCE = Units.degreesToRadians(1.5);
+
+        public static final double SPEED_MODIFIER_ONE_HUNDRED = 1.00;
+        public static final double SPEED_MODIFIER_THIRTY = 0.30;
 
         private static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(4.5, 4);
         private static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(4.5, 4);

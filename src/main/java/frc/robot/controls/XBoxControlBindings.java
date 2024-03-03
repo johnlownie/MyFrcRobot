@@ -25,11 +25,30 @@ public class XBoxControlBindings implements IControlBindings {
     /**
      * Game Specific Driver Controls
      */
+    @Override
+    public Optional<Trigger> toggleIntake() {
+        return Optional.of(this.driverController.rightBumper());
+    }
 
-     @Override
-     public Optional<Trigger> alignAndShoot() {
-         return Optional.of(this.driverController.a());
-     }
+    @Override
+    public Optional<Trigger> toggleOuttake() {
+        return Optional.of(this.driverController.leftBumper());
+    }
+
+    @Override
+    public Optional<Trigger> slowMode() {
+        return Optional.of(this.driverController.x());
+    }
+
+    @Override
+    public Optional<Trigger> zeroGyro() {
+        return Optional.of(this.driverController.back());
+    }
+
+    // @Override
+    //  public Optional<Trigger> alignAndShoot() {
+    //      return Optional.of(this.driverController.a());
+    //  }
  
     @Override
     public Optional<Trigger> driveToAmp() {
@@ -61,10 +80,10 @@ public class XBoxControlBindings implements IControlBindings {
         return Optional.of(this.driverController.start());
     }
   
-    @Override
-    public Optional<Trigger> resetPose() {
-        return Optional.of(this.driverController.back());
-    }
+    // @Override
+    // public Optional<Trigger> resetPose() {
+    //     return Optional.of(this.driverController.back());
+    // }
  
     /**
      * Game Specific Operator Controls

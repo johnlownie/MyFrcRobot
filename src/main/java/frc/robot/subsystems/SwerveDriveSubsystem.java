@@ -28,6 +28,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private boolean isFieldRelative;
     private boolean isOpenLoop;
     private boolean isTargetLocked;
+    private double speedModifier;
 
     /**
      * 
@@ -42,6 +43,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         this.isFieldRelative = true;
         this.isOpenLoop = false;
         this.isTargetLocked = false;
+        this.speedModifier = 1;
     }
     
     /**
@@ -70,6 +72,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      */
     public void drive(double xVelocity, double yVelocity, double rVelocity, Rotation2d angle, boolean isOpenLoop) {
         ChassisSpeeds chassisSpeeds = null;
+
+        if (this.speedModifier != 1) {
+            xVelocity *= this.speedModifier;
+            yVelocity *= this.speedModifier;
+        }
 
         if (this.isFieldRelative) {
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xVelocity, yVelocity, rVelocity, angle);
@@ -143,6 +150,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         Logger.recordOutput("Subsystems/SwerveDrive/Gyro/gyroOffset", this.gyroOffset);
         Logger.recordOutput("Subsystems/SwerveDrive/FieldOriented", this.isFieldRelative);
         Logger.recordOutput("Subsystems/SwerveDrive/IsOpenLoop", this.isOpenLoop);
+        Logger.recordOutput("Subsystems/SwerveDrive/SpeedModifier", this.speedModifier);
         Logger.recordOutput("Subsystems/SwerveDrive/IsTargetLocked", this.isTargetLocked);
         Logger.recordOutput("Subsystems/SwerveDrive/ActualModuleStates", getModuleStates());
         Logger.recordOutput("Subsystems/SwerveDrive/DesiredSpeeds/xMPS", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.vxMetersPerSecond : 0.0);
@@ -272,4 +280,5 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public SwerveDriveKinematics getKinematics() { return this.swerveDriveKinematics; }
 
     public void setIsFieldRelative(boolean isFieldRelative) { this.isFieldRelative = isFieldRelative; }
+    public void setSpeedModifier(double speedModifier) { this.speedModifier = speedModifier; }
 }

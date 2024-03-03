@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -13,7 +14,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.led.LEDController;
 import frc.lib.led.LEDPreset;
-import frc.lib.util.ProfiledPIDController;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
@@ -67,7 +67,7 @@ public class LockedTelopDriveByPoseCommand extends Command {
 
         Pose2d robotPose = this.poseProvider.get();
 
-        this.omegaController.reset(robotPose.getRotation().getRadians());
+        // this.omegaController.reset(robotPose.getRotation().getRadians());
         double goalRotation = -getRadiansToTarget();
         this.omegaController.setGoal(goalRotation);
             
@@ -82,11 +82,14 @@ public class LockedTelopDriveByPoseCommand extends Command {
         Logger.recordOutput("Commands/LockedTelopDriveByPoseCommand/angle", angle.getDegrees());
         Logger.recordOutput("Commands/LockedTelopDriveByPoseCommand/RadiansToTarget", getRadiansToTarget());
         Logger.recordOutput("Commands/LockedTelopDriveByPoseCommand/AngleToTarget", Units.radiansToDegrees(getRadiansToTarget()));
+        Logger.recordOutput("Commands/LockedTelopDriveByPoseCommand/TargetPose", this.targetPose);
     }
     
     @Override
     public void initialize() {
         this.targetPose = this.targetPoseProvider.get();
+        Pose2d robotPose = this.poseProvider.get();
+        this.omegaController.reset(robotPose.getRotation().getRadians());
 
         LEDController.set(this.targetPose == null ? LEDPreset.Solid.kRed : LEDPreset.Solid.kGreen);
 

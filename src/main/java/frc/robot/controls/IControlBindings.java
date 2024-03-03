@@ -47,14 +47,19 @@ public interface IControlBindings {
     Optional<Trigger> operatorPovDown();
 
     /* Game Specific Assignments */
-    Optional<Trigger> alignAndShoot();
+    // Optional<Trigger> alignAndShoot();
     Optional<Trigger> driveTeleop();
     Optional<Trigger> driveType();
     Optional<Trigger> driveToAmp();
     Optional<Trigger> driveToSpeakerRight();
     Optional<Trigger> driveToSpeakerCenter();
     Optional<Trigger> driveToSpeakerLeft();
-    Optional<Trigger> resetPose();
+    // Optional<Trigger> resetPose();
+
+    Optional<Trigger> toggleIntake();
+    Optional<Trigger> toggleOuttake();
+    Optional<Trigger> slowMode();
+    Optional<Trigger> zeroGyro();
 
     DoubleSupplier omega();
     DoubleSupplier translationX();
