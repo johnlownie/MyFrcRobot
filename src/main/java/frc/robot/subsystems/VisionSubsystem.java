@@ -11,19 +11,23 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.camera.Camera;
+import frc.robot.Robot;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.modules.vision.AprilTagShootData;
 import frc.robot.modules.vision.VisionModule;
+import frc.robot.modules.vision.VisionModuleSimulator;
 
 /**
  * 
  */
 public class VisionSubsystem extends SubsystemBase {
     /* Modules */
-    private final VisionModule visionModule;
+    private List<VisionModule> visionModules = new ArrayList<VisionModule>();
 
     // The tag data needed to move into position, set arm, and shoot
     private final List<AprilTagShootData> aprilTagShootDataList;
@@ -31,53 +35,86 @@ public class VisionSubsystem extends SubsystemBase {
     /**
      * 
      */
-    public VisionSubsystem(VisionModule visionModule) {
-        this.visionModule = visionModule;
+    public VisionSubsystem(List<Camera> cameras) {
+        for (Camera camera : cameras) {
+            this.visionModules.add(Robot.isReal() ? new VisionModule(camera) : new VisionModuleSimulator(camera));
+        }
+
         this.aprilTagShootDataList = loadAprilTagShootData();
     }
 
     @Override
     public void periodic() {
-        this.visionModule.process();
+        for (VisionModule visionModule : this.visionModules) {
+            visionModule.process();
+        }
     }
 
     /**
-     * 
+     * Use the first AprilTag camera pose estimation
      */
     public EstimatedRobotPose getBestLatestEstimatedPose() {
-        return this.visionModule.getBestLatestEstimatedPose();
+        VisionModule visionModule = getVisionModuleByType(Camera.Type.APRILTAG);
+
+        return visionModule == null ? null : visionModule.getBestLatestEstimatedPose();
     }
  
     /**
-     *
+     * Use target from the first Game Piece camera
      */
     public PhotonTrackedTarget getBestNoteTarget() {
-        return this.visionModule.getBestNoteTarget();
+        VisionModule visionModule = getVisionModuleByType(Camera.Type.GAME_PIECE);
+
+        return visionModule == null ? null : visionModule.getBestTarget();
     }
 
     /**
      * 
      */
-    public PhotonTrackedTarget getBestTarget(boolean fromFrontCamera) {
-        return this.visionModule.getBestTarget(fromFrontCamera);
+    public PhotonTrackedTarget getBestTarget(String cameraName) {
+        VisionModule visionModule = getVisionModuleByName(cameraName);
+
+        return visionModule == null ? null : visionModule.getBestTarget();
     }
  
     /**
      * 
      */
-    public Pose3d getBestTargetPose(boolean fromFrontCamera) {
-        PhotonTrackedTarget target = this.visionModule.getBestTarget(fromFrontCamera);
+    public Pose3d getBestTargetPose(String cameraName) {
+        VisionModule visionModule = getVisionModuleByName(cameraName);
 
-        if (target == null) return null;
-        
-        return getTargetPose(target.getFiducialId());
+        if (visionModule == null) return null;
+
+        PhotonTrackedTarget target = visionModule.getBestTarget();
+
+        return target == null ? null : getTargetPose(target.getFiducialId());
+    }
+
+    /**
+     * 
+     */
+    public double getCameraYaw(String cameraName) {
+        VisionModule visionModule = getVisionModuleByName(cameraName);
+
+        return visionModule == null ? null : visionModule.getCameraYaw();
     }
 
     /**
      * 
      */
     public Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose) {
-        return this.visionModule.getEstimationStdDevs(estimatedPose);
+        VisionModule visionModule = getVisionModuleByType(Camera.Type.APRILTAG);
+
+        return visionModule == null ? null : visionModule.getEstimationStdDevs(estimatedPose);
+    }
+
+    /**
+     * 
+     */
+    public Transform3d getRobotToCamera(String cameraName) {
+        VisionModule visionModule = getVisionModuleByName(cameraName);
+
+        return visionModule == null ? null : visionModule.getCameraRobotToCamera();
     }
 
     /**
@@ -130,6 +167,30 @@ public class VisionSubsystem extends SubsystemBase {
     /**
      * 
      */
+    public VisionModule getVisionModuleByName(String cameraName) {
+        VisionModule visionModule = this.visionModules.stream()
+            .filter(module -> module.getCameraName() == cameraName)
+            .findFirst()
+            .get();
+
+        return visionModule;
+    }
+
+    /**
+     * 
+     */
+    private VisionModule getVisionModuleByType(Camera.Type type) {
+        VisionModule visionModule = this.visionModules.stream()
+            .filter(module -> module.getCameraType() == type)
+            .findFirst()
+            .get();
+
+        return visionModule;
+    }
+
+    /**
+     * 
+     */
     private List<AprilTagShootData> loadAprilTagShootData() {
         List<AprilTagShootData> tagShootList = new ArrayList<AprilTagShootData>();
 
@@ -145,13 +206,17 @@ public class VisionSubsystem extends SubsystemBase {
      * Only used in simulation
      */
     public void resetFieldPosition(Pose2d pose2d) {
-        this.visionModule.resetFieldPosition(pose2d);
+        for (VisionModule visionModule : this.visionModules) {
+            visionModule.resetFieldPosition(pose2d);
+        }
     }
-
+    
     /**
      * Only used in simulation
      */
     public void setPoseSupplier(Supplier<Pose2d> poseSupplier) {
-        this.visionModule.setPoseSupplier(poseSupplier);
+        for (VisionModule visionModule : this.visionModules) {
+            visionModule.setPoseSupplier(poseSupplier);
+        }
     }
 }

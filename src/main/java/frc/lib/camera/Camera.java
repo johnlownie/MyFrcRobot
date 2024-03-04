@@ -1,0 +1,51 @@
+package frc.lib.camera;
+
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+
+/**
+ * 
+ */
+public class Camera {
+    public enum Type { APRILTAG, GAME_PIECE }
+
+    private final String name;
+    private final Type type;
+    private final double x;
+    private final double y;
+    private final double z;
+    private final double roll;
+    private final double pitch;
+    private final double yaw;
+
+    private final Transform3d cameraToRobot;
+
+    /**
+     * Units in Meters and Radians
+     */
+    public Camera(String name, Type type, double x, double y, double z, double roll, double pitch, double yaw) {
+        this.name = name;
+        this.type = type;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.roll = roll;
+        this.pitch = pitch;
+        this.yaw = yaw;
+
+        this.cameraToRobot = new Transform3d (
+            new Translation3d(this.x, this.y, this.z),
+            new Rotation3d(this.roll, this.pitch, this.yaw)
+        );
+    }
+
+    /**
+     * Getters and Setters
+     */
+    public String getName() { return this.name; }
+    public Type getType() { return this.type; }
+    public double getYaw() { return this.yaw; }
+    public Transform3d getCameraToRobot() { return this.cameraToRobot; }
+    public Transform3d getRobotToCamera() { return this.cameraToRobot.inverse(); }
+}

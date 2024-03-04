@@ -15,7 +15,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.TeleopConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -27,7 +26,7 @@ public class DriveFromBestTagCommand extends Command {
     private final VisionSubsystem visionSubsystem;
     private final Supplier<Pose2d> poseProvider;
     private final Transform3d transformation;
-    private final boolean fromFrontCamera;
+    private final String cameraName;
 
     private final ProfiledPIDController xController = TeleopConstants.xController;
     private final ProfiledPIDController yController = TeleopConstants.yController;
@@ -36,12 +35,12 @@ public class DriveFromBestTagCommand extends Command {
     /**
      * Drive to a provided translation/rotation away from vision system best tag
      */
-    public DriveFromBestTagCommand(SwerveDriveSubsystem swerveDrive, VisionSubsystem visionSubsystem, Supplier<Pose2d> poseProvider, Translation3d translation, Rotation3d rotation, boolean fromFrontCamera) {
+    public DriveFromBestTagCommand(SwerveDriveSubsystem swerveDrive, VisionSubsystem visionSubsystem, Supplier<Pose2d> poseProvider, Translation3d translation, Rotation3d rotation, String cameraName) {
         this.swerveDrive = swerveDrive;
         this.visionSubsystem = visionSubsystem;
         this.poseProvider = poseProvider;
         this.transformation = new Transform3d(translation, rotation);
-        this.fromFrontCamera = fromFrontCamera;
+        this.cameraName = cameraName;
 
         this.xController.setTolerance(0.2);
         this.yController.setTolerance(0.2);
@@ -78,11 +77,11 @@ public class DriveFromBestTagCommand extends Command {
      * 
      */
     private Pose2d getBestTagPose(Pose3d currentPose) {
-        PhotonTrackedTarget target = this.visionSubsystem.getBestTarget(this.fromFrontCamera);
+        PhotonTrackedTarget target = this.visionSubsystem.getBestTarget(this.cameraName);
 
         if (target == null) return null;
         
-        Pose3d cameraPose = currentPose.transformBy(this.fromFrontCamera ? VisionConstants.ROBOT_TO_FRONT_CAMERA : VisionConstants.ROBOT_TO_REAR_CAMERA);
+        Pose3d cameraPose = currentPose.transformBy(this.visionSubsystem.getRobotToCamera(this.cameraName));
 
         Transform3d camToTarget = target.getBestCameraToTarget();
         Pose3d targetPose = cameraPose.transformBy(camToTarget);

@@ -18,7 +18,6 @@ import frc.lib.led.LEDController;
 import frc.lib.led.LEDPreset;
 import frc.lib.util.Timer;
 import frc.robot.Constants.TeleopConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -30,7 +29,7 @@ public class AlignAndShootTagCommand extends Command {
     private final ShooterSubsystem shooterSubsystem;
     private final VisionSubsystem visionSubsystem;
     private final Supplier<Pose2d> poseProvider;
-    private final boolean fromFrontCamera;
+    private final String cameraName;
 
     private final ProfiledPIDController xController = TeleopConstants.xController;
     private final ProfiledPIDController yController = TeleopConstants.yController;
@@ -41,13 +40,13 @@ public class AlignAndShootTagCommand extends Command {
     /**
      * 
      */
-    public AlignAndShootTagCommand(SwerveDriveSubsystem swerveDrive, ArmSubsystem armSubsystem, ShooterSubsystem shooterSubsystem, VisionSubsystem visionSubsystem, Supplier<Pose2d> poseProvider, boolean fromFrontCamera) {
+    public AlignAndShootTagCommand(SwerveDriveSubsystem swerveDrive, ArmSubsystem armSubsystem, ShooterSubsystem shooterSubsystem, VisionSubsystem visionSubsystem, Supplier<Pose2d> poseProvider, String cameraName) {
         this.swerveDrive = swerveDrive;
         this.armSubsystem = armSubsystem;
         this.shooterSubsystem = shooterSubsystem;
         this.visionSubsystem = visionSubsystem;
         this.poseProvider = poseProvider;
-        this.fromFrontCamera = fromFrontCamera;
+        this.cameraName = cameraName;
 
         this.xController.setTolerance(0.2);
         this.yController.setTolerance(0.2);
@@ -89,7 +88,7 @@ public class AlignAndShootTagCommand extends Command {
         Pose2d robotPose2d = this.poseProvider.get();
         Pose3d robotPose = new Pose3d(robotPose2d.getX(), robotPose2d.getY(), 0.0, new Rotation3d(0.0, 0.0, robotPose2d.getRotation().getRadians()));
 
-        PhotonTrackedTarget target = this.visionSubsystem.getBestTarget(this.fromFrontCamera);
+        PhotonTrackedTarget target = this.visionSubsystem.getBestTarget(this.cameraName);
         Pose2d goalPose = robotPose2d;
 
         if (target == null) {
@@ -128,13 +127,14 @@ public class AlignAndShootTagCommand extends Command {
      * 
      */
     private Pose2d getBestTagPose(Pose3d currentPose, PhotonTrackedTarget target) {
-        Pose3d cameraPose = currentPose.transformBy(this.fromFrontCamera ? VisionConstants.ROBOT_TO_FRONT_CAMERA : VisionConstants.ROBOT_TO_REAR_CAMERA);
+
+        Pose3d cameraPose = currentPose.transformBy(this.visionSubsystem.getRobotToCamera(this.cameraName));
         
         Transform3d camToTarget = target.getBestCameraToTarget();
         Pose3d targetPose = cameraPose.transformBy(camToTarget);
 
         Translation3d goalTranslation = new Translation3d(currentPose.getX(), currentPose.getY(), 0.0);
-        Rotation3d goalRotation = new Rotation3d(0.0, 0.0, this.fromFrontCamera ? Math.PI : 0.0);
+        Rotation3d goalRotation = new Rotation3d(0.0, 0.0, this.visionSubsystem.getCameraYaw(this.cameraName));
         Transform3d robotToTag = new Transform3d(goalTranslation, goalRotation);
 
         return targetPose.transformBy(robotToTag).toPose2d();

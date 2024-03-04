@@ -1,5 +1,8 @@
 package frc.robot;
 
+import java.util.Arrays;
+import java.util.List;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -20,8 +23,10 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.lib.camera.Camera;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
+
 
 public final class Constants {
     /**
@@ -314,24 +319,24 @@ public final class Constants {
         public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
         public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
 
-        public static final String FRONT_CAMERA_NAME = "FrontArduCam";
-        public static final Transform3d FRONT_CAMERA_TO_ROBOT = new Transform3d(
-            new Translation3d(0.0, 0.0, Units.inchesToMeters(16)),
-            new Rotation3d(0, Units.degreesToRadians(40), 0));
-        public static final Transform3d ROBOT_TO_FRONT_CAMERA = FRONT_CAMERA_TO_ROBOT.inverse();
+        public static final Camera FRONT_CAMERA = new Camera("FrontArduCam",
+            Camera.Type.APRILTAG,
+            0.0, 0.0, Units.inchesToMeters(16),
+            0.0, Units.degreesToRadians(40), 0.0
+        );
+        public static final Camera REAR_CAMERA = new Camera("RearArduCam",
+            Camera.Type.APRILTAG,
+            0.0, 0.0, Units.inchesToMeters(16),
+            0.0, Units.degreesToRadians(-40), Math.PI
+        );
+        public static final Camera NOTE_CAMERA = new Camera("WebCam",
+            Camera.Type.GAME_PIECE,
+            RobotConstants.ROBOT_LENGTH / 2, 0.0, Units.inchesToMeters(16),
+            0.0, Units.degreesToRadians(-40), Math.PI
+        );
 
-        public static final String REAR_CAMERA_NAME = "RearArduCam";
-        public static final Transform3d REAR_CAMERA_TO_ROBOT = new Transform3d(
-            new Translation3d(0.0, 0.0, Units.inchesToMeters(16)),
-            new Rotation3d(0, Units.degreesToRadians(-40), Math.PI));
-        public static final Transform3d ROBOT_TO_REAR_CAMERA = REAR_CAMERA_TO_ROBOT.inverse();
-
-        public static final String NOTE_CAMERA_NAME = "WebCam";
-        public static final Transform3d NOTE_CAMERA_TO_ROBOT = new Transform3d(
-            new Translation3d(RobotConstants.ROBOT_LENGTH / 2, 0.0, Units.inchesToMeters(6)),
-            new Rotation3d(0, Units.degreesToRadians(-10), 0));
-        public static final Transform3d ROBOT_TO_NOTE_CAMERA = NOTE_CAMERA_TO_ROBOT.inverse();
-
+        public static final List<Camera> CAMERAS = Arrays.asList(FRONT_CAMERA, REAR_CAMERA, NOTE_CAMERA);
+        
         /** Minimum target ambiguity. Targets with higher ambiguity will be discarded */
         public static final double APRILTAG_AMBIGUITY_THRESHOLD = 0.2;
 

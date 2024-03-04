@@ -18,8 +18,7 @@ public class DeployGamePieceCommand extends Command {
     private final ArmSubsystem armSubsystem;
     private final ShooterSubsystem shooterSubsystem;
     private final VisionSubsystem visionSubsystem;
-
-    private final boolean fromFrontCamera;
+    private final String cameraName;
 
     private ArmSubsystem.Action moveTo;
     private ShooterSubsystem.Action shootTo;
@@ -29,11 +28,11 @@ public class DeployGamePieceCommand extends Command {
     /**
      * Move arm and shoot note to preset values provided by vision subsystem based on best target fiducial id
      */
-    public DeployGamePieceCommand(ArmSubsystem armSubsystem, ShooterSubsystem shooterSubsystem, VisionSubsystem visionSubsystem, boolean fromFrontCamera) {
+    public DeployGamePieceCommand(ArmSubsystem armSubsystem, ShooterSubsystem shooterSubsystem, VisionSubsystem visionSubsystem, String cameraName) {
         this.armSubsystem = armSubsystem;
         this.shooterSubsystem = shooterSubsystem;
         this.visionSubsystem = visionSubsystem;
-        this.fromFrontCamera = fromFrontCamera;
+        this.cameraName = cameraName;
 
         this.moveTo = null;
         this.shootTo = null;
@@ -72,7 +71,7 @@ public class DeployGamePieceCommand extends Command {
     
     @Override
     public void initialize() {
-        PhotonTrackedTarget target = this.visionSubsystem.getBestTarget(this.fromFrontCamera);
+        PhotonTrackedTarget target = this.visionSubsystem.getBestTarget(this.cameraName);
 
         if (target!= null) {
             this.moveTo = this.visionSubsystem.getMoveTo(target.getFiducialId());

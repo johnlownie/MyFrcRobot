@@ -25,4 +25,9 @@ public class GyroModuleNavx extends GyroModule {
         setPositionDeg(this.gyro.getYaw());
         setVelocityDegPerSec(this.gyro.getGyroFullScaleRangeDPS());
     }
+
+    @Override
+    public void zeroYaw() {
+        this.gyro.zeroYaw();
+    }
 }

@@ -18,59 +18,45 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.lib.camera.Camera;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.VisionConstants;
 
 /**
  * 
  */
-public class VisionModule { //implements Runnable {
-    protected PhotonCamera frontCamera;
-    protected PhotonCamera rearCamera;
-    protected PhotonCamera noteCamera;
+public class VisionModule {
+    protected final Camera camera;
+    protected final PhotonCamera photonCamera;
 
-    protected final PhotonPoseEstimator frontCameraPhotonPoseEstimator;
-    protected final PhotonPoseEstimator rearCameraPhotonPoseEstimator;
-    protected final PhotonPoseEstimator noteCameraPhotonPoseEstimator;
-    protected final AtomicReference<EstimatedRobotPose> atomicFrontEstimatedRobotPose;
-    protected final AtomicReference<EstimatedRobotPose> atomicRearEstimatedRobotPose;
-    protected final AtomicReference<EstimatedRobotPose> atomicNoteEstimatedRobotPose;
+    protected final PhotonPoseEstimator photonPoseEstimator;
+    protected final AtomicReference<EstimatedRobotPose> atomicEstimatedRobotPose;
     
     /**
      * 
      */
-    public VisionModule() {
-        this.frontCamera = new PhotonCamera(VisionConstants.FRONT_CAMERA_NAME);
-        this.rearCamera = new PhotonCamera(VisionConstants.REAR_CAMERA_NAME);
-        this.noteCamera = new PhotonCamera(VisionConstants.NOTE_CAMERA_NAME);
+    public VisionModule(Camera camera) {
+        this.camera = camera;
+        this.photonCamera = new PhotonCamera(camera.getName());
 
-        this.frontCameraPhotonPoseEstimator = new PhotonPoseEstimator(FieldConstants.TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, this.frontCamera, VisionConstants.ROBOT_TO_FRONT_CAMERA);
-        this.frontCameraPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
+        this.photonPoseEstimator = new PhotonPoseEstimator(FieldConstants.TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, this.photonCamera, this.camera.getRobotToCamera());
+        this.photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
 
-        this.rearCameraPhotonPoseEstimator = new PhotonPoseEstimator(FieldConstants.TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, this.rearCamera, VisionConstants.ROBOT_TO_REAR_CAMERA);
-        this.rearCameraPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
-
-        this.noteCameraPhotonPoseEstimator = new PhotonPoseEstimator(FieldConstants.TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, this.noteCamera, VisionConstants.ROBOT_TO_NOTE_CAMERA);
-        this.noteCameraPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
-
-        this.atomicFrontEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
-        this.atomicRearEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
-        this.atomicNoteEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
+        this.atomicEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
     }
 
     /**
      * 
      */
     public void process() {
-        if (this.frontCameraPhotonPoseEstimator == null || this.rearCameraPhotonPoseEstimator == null || this.rearCamera == null) {
+        if (this.photonCamera == null || this.photonPoseEstimator == null) {
             return;
         }
 
-        processResults(VisionConstants.FRONT_CAMERA_NAME, getFrontCameraResults(), this.frontCameraPhotonPoseEstimator, this.atomicFrontEstimatedRobotPose);
-        processResults(VisionConstants.REAR_CAMERA_NAME, getRearCameraResults(), this.rearCameraPhotonPoseEstimator, this.atomicRearEstimatedRobotPose);
-        processResults(VisionConstants.NOTE_CAMERA_NAME, getNoteCameraResults(), this.noteCameraPhotonPoseEstimator, this.atomicNoteEstimatedRobotPose);
+        processResults();
     }
 
     /**
@@ -80,27 +66,18 @@ public class VisionModule { //implements Runnable {
      * @return latest estimated pose
      */
     public EstimatedRobotPose getBestLatestEstimatedPose() {
-        PhotonTrackedTarget frontTarget = getBestTarget(true);
-        PhotonTrackedTarget rearTarget = getBestTarget(false);
+        PhotonTrackedTarget bestTarget = getBestTarget();
 
-        if (frontTarget == null && rearTarget == null) return null;
+        if (bestTarget == null) return null;
 
-        if (frontTarget == null) return this.atomicRearEstimatedRobotPose.getAndSet(null);
-
-        if (rearTarget == null) return this.atomicFrontEstimatedRobotPose.getAndSet(null);
-
-        if (frontTarget.getArea() > rearTarget.getArea()) {
-            return this.atomicFrontEstimatedRobotPose.getAndSet(null);
-        }
-
-        return this.atomicRearEstimatedRobotPose.getAndSet(null);
+        return this.atomicEstimatedRobotPose.getAndSet(null);
     }
 
     /**
      * 
      */
-    public PhotonTrackedTarget getBestTarget(boolean fromFrontCamera) {
-        PhotonPipelineResult results = fromFrontCamera ? getFrontCameraResults() : getRearCameraResults();
+    public PhotonTrackedTarget getBestTarget() {
+        PhotonPipelineResult results = getLatestResult();
 
         return results.hasTargets() ? results.getBestTarget() : null;
     }
@@ -108,10 +85,29 @@ public class VisionModule { //implements Runnable {
     /**
      * 
      */
-    public PhotonTrackedTarget getBestNoteTarget() {
-        PhotonPipelineResult results = getNoteCameraResults();
+    public String getCameraName() {
+        return this.camera.getName();
+    }
 
-        return results.hasTargets() ? results.getBestTarget() : null;
+    /**
+     * 
+     */
+    public Transform3d getCameraRobotToCamera() {
+        return this.camera.getRobotToCamera();
+    }
+
+    /**
+     * 
+     */
+    public Camera.Type getCameraType() {
+        return this.camera.getType();
+    }
+
+    /**
+     * 
+     */
+    public double getCameraYaw() {
+        return this.camera.getYaw();
     }
 
     /**
@@ -123,12 +119,12 @@ public class VisionModule { //implements Runnable {
      */
     public Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose) {
         Matrix<N3, N1> estimatedStdDevs = VisionConstants.SINGLE_TAG_STD_DEVS;
-        List<PhotonTrackedTarget> targets = getFrontCameraResults().getTargets();
+        List<PhotonTrackedTarget> targets = getLatestResult().getTargets();
         int numTags = 0;
         double avgDist = 0;
         
         for (PhotonTrackedTarget target : targets) {
-            Optional<Pose3d> tagPose = this.frontCameraPhotonPoseEstimator.getFieldTags().getTagPose(target.getFiducialId());
+            Optional<Pose3d> tagPose = this.photonPoseEstimator.getFieldTags().getTagPose(target.getFiducialId());
             
             if (tagPose.isEmpty()) continue;
             
@@ -153,36 +149,24 @@ public class VisionModule { //implements Runnable {
     /**
      * 
      */
-    protected PhotonPipelineResult getFrontCameraResults() {
-        return this.frontCamera.getLatestResult();
+    protected PhotonPipelineResult getLatestResult() {
+        return this.photonCamera.getLatestResult();
     }
 
     /**
      * 
      */
-    protected PhotonPipelineResult getNoteCameraResults() {
-        return this.noteCamera.getLatestResult();
-    }
+    protected void processResults() {
+        PhotonPipelineResult results = getLatestResult();
 
-    /**
-     * 
-     */
-    protected PhotonPipelineResult getRearCameraResults() {
-        return this.rearCamera.getLatestResult();
-    }
-
-    /**
-     * 
-     */
-    protected void processResults(String camera, PhotonPipelineResult results, PhotonPoseEstimator poseEstimator, AtomicReference<EstimatedRobotPose> atomicEstimatedRobotPose) {
-        Logger.recordOutput("Subsystems/Vision/" + camera + "/hasTargets", results.hasTargets());
-        Logger.recordOutput("Subsystems/Vision/" + camera + "/TargetCount", results.hasTargets() ? results.getTargets().size() : 0);
+        Logger.recordOutput("Subsystems/Vision/" + this.camera.getName() + "/hasTargets", results.hasTargets());
+        Logger.recordOutput("Subsystems/Vision/" + this.camera.getName() + "/TargetCount", results.hasTargets() ? results.getTargets().size() : 0);
 
         if (!results.hasTargets() || (results.targets.size() > 1 && results.targets.get(0).getPoseAmbiguity() > VisionConstants.APRILTAG_AMBIGUITY_THRESHOLD)) {
             return;
         }
 
-        poseEstimator.update(results).ifPresent(estimatedRobotPose -> {
+        this.photonPoseEstimator.update(results).ifPresent(estimatedRobotPose -> {
             Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
 
             // Make sure the measurement is on the field
@@ -190,7 +174,7 @@ public class VisionModule { //implements Runnable {
                 && estimatedPose.getY() > 0.0 && estimatedPose.getY() <= FieldConstants.WIDTH_METERS
                 && estimatedPose.getZ() > 0.0 && estimatedPose.getZ() <= 0.1) {
                 atomicEstimatedRobotPose.set(estimatedRobotPose);
-                Logger.recordOutput("Subsystems/Vision/" + camera + "/Pose", estimatedRobotPose.estimatedPose);
+                Logger.recordOutput("Subsystems/Vision/" + this.camera.getName() + "/Pose", estimatedRobotPose.estimatedPose);
             }
         });
 
@@ -198,16 +182,16 @@ public class VisionModule { //implements Runnable {
         for (PhotonTrackedTarget target : results.getTargets()) {
             targetIds.add("" + target.getFiducialId());
         }
-        Logger.recordOutput("Subsystems/Vision/" + camera + "/Target Ids", targetIds.toString());
+        Logger.recordOutput("Subsystems/Vision/" + this.camera.getName() + "/Target Ids", targetIds.toString());
 
         if (results.hasTargets()) {
             PhotonTrackedTarget target = results.getBestTarget();
             
-            Logger.recordOutput("Subsystems/Vision/" + camera + "/Best Target Id", String.format("%d", target.getFiducialId()));
-            Logger.recordOutput("Subsystems/Vision/" + camera + "/Best Target Pitch", target.getPitch());
-            Logger.recordOutput("Subsystems/Vision/" + camera + "/Best Target Skew", target.getSkew());
-            Logger.recordOutput("Subsystems/Vision/" + camera + "/Best Target Yaw", target.getYaw());
-            Logger.recordOutput("Subsystems/Vision/" + camera + "/Best Camera to Target", target.getBestCameraToTarget());
+            Logger.recordOutput("Subsystems/Vision/" + this.camera.getName() + "/Best Target Id", String.format("%d", target.getFiducialId()));
+            Logger.recordOutput("Subsystems/Vision/" + this.camera.getName() + "/Best Target Pitch", target.getPitch());
+            Logger.recordOutput("Subsystems/Vision/" + this.camera.getName() + "/Best Target Skew", target.getSkew());
+            Logger.recordOutput("Subsystems/Vision/" + this.camera.getName() + "/Best Target Yaw", target.getYaw());
+            Logger.recordOutput("Subsystems/Vision/" + this.camera.getName() + "/Best Camera to Target", target.getBestCameraToTarget());
         }
     }
 

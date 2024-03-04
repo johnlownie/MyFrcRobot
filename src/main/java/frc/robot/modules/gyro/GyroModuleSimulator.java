@@ -11,4 +11,7 @@ public class GyroModuleSimulator extends GyroModule {
 
     @Override
     public void update() {}
+
+    @Override
+    public void zeroYaw() {}
 }

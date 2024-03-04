@@ -25,7 +25,7 @@ public class DriveToBestTagCommand extends Command {
     private final SwerveDriveSubsystem swerveDrive;
     private final VisionSubsystem visionSubsystem;
     private final Supplier<Pose2d> poseProvider;
-    private final boolean fromFrontCamera;
+    private final String cameraName;
 
     private final ProfiledPIDController xController = TeleopConstants.xController;
     private final ProfiledPIDController yController = TeleopConstants.yController;
@@ -36,11 +36,11 @@ public class DriveToBestTagCommand extends Command {
     /**
      * Drive to a set distance (tag offset) away from vision system best tag
      */
-    public DriveToBestTagCommand(SwerveDriveSubsystem swerveDrive, VisionSubsystem visionSubsystem, Supplier<Pose2d> poseProvider, boolean fromFrontCamera) {
+    public DriveToBestTagCommand(SwerveDriveSubsystem swerveDrive, VisionSubsystem visionSubsystem, Supplier<Pose2d> poseProvider, String cameraName) {
         this.swerveDrive = swerveDrive;
         this.visionSubsystem = visionSubsystem;
         this.poseProvider = poseProvider;
-        this.fromFrontCamera = fromFrontCamera;
+        this.cameraName = cameraName;
 
         this.xController.setTolerance(0.2);
         this.yController.setTolerance(0.2);
@@ -105,18 +105,18 @@ public class DriveToBestTagCommand extends Command {
      * 
      */
     private Pose2d getBestTagPose(Pose3d currentPose) {
-        PhotonTrackedTarget target = this.visionSubsystem.getBestTarget(this.fromFrontCamera);
+        PhotonTrackedTarget target = this.visionSubsystem.getBestTarget(this.cameraName);
 
         if (target == null) return null;
         
-        double cameraYaw = this.fromFrontCamera ? Math.PI : 0.0;
+        double cameraYaw = this.visionSubsystem.getVisionModuleByName(this.cameraName).getCameraYaw();
         double xMetersFromTag = this.visionSubsystem.getTagOffset(target.getFiducialId());
 
         if (xMetersFromTag < 0) return null;
 
         this.ROBOT_TO_TAG = new Transform3d(new Translation3d(xMetersFromTag, 0.0, 0.0), new Rotation3d(0.0, 0.0, cameraYaw));
         
-        Pose3d cameraPose = currentPose.transformBy(this.fromFrontCamera ? VisionConstants.ROBOT_TO_FRONT_CAMERA : VisionConstants.ROBOT_TO_REAR_CAMERA);
+        Pose3d cameraPose = currentPose.transformBy(this.visionSubsystem.getRobotToCamera(this.cameraName));
         Transform3d camToTarget = target.getBestCameraToTarget();
         Pose3d targetPose = cameraPose.transformBy(camToTarget);
         

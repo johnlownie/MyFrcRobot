@@ -16,6 +16,11 @@ abstract public class GyroModule {
     abstract public void update();
 
     /**
+     * 
+     */
+    abstract public void zeroYaw();
+
+    /**
      * Getters and Setters
      */
     public double[] getAcceleration() { return this.acceleration; }
