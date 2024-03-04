@@ -332,7 +332,7 @@ public final class Constants {
         public static final Camera NOTE_CAMERA = new Camera("WebCam",
             Camera.Type.GAME_PIECE,
             RobotConstants.ROBOT_LENGTH / 2, 0.0, Units.inchesToMeters(16),
-            0.0, Units.degreesToRadians(-40), Math.PI
+            0.0, Units.degreesToRadians(10), 0.0
         );
 
         public static final List<Camera> CAMERAS = Arrays.asList(FRONT_CAMERA, REAR_CAMERA, NOTE_CAMERA);
