@@ -228,11 +228,10 @@ public class DriverBindings {
                 new LockedTelopDriveByPoseCommand(
                     this.swerveDrive,
                     () -> this.poseEstimator.getCurrentPose(),
-                    () -> this.visionSubsystem.getBestTargetPose("RearArduCam"),
+                    () -> this.visionSubsystem.getBestTarget("RearArduCam"),
                     () -> this.poseEstimator.getCurrentPose().getRotation(),
                     controller.translationX(),
-                    controller.translationY(),
-                    controller.omega()
+                    controller.translationY()
                 )
                 .until(controller.driverWantsControlRight())
             )

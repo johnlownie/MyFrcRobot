@@ -45,7 +45,7 @@ public class DriveAndGrabNoteCommand extends Command {
     /**
      * 
      */
-    public DriveAndGrabNoteCommand(SwerveDriveSubsystem swerveDrive, IntakeSubsystem intakeSubsystem, ShooterSubsystem shooterSubsystem, Supplier<Rotation2d> robotAngleSupplier, DoubleSupplier translationXSupplier, DoubleSupplier translationYSupplier, DoubleSupplier rotationSupplier, Supplier<PhotonTrackedTarget> target) {
+    public DriveAndGrabNoteCommand(SwerveDriveSubsystem swerveDrive, IntakeSubsystem intakeSubsystem, ShooterSubsystem shooterSubsystem, Supplier<Rotation2d> robotAngleSupplier, DoubleSupplier translationXSupplier, DoubleSupplier translationYSupplier, DoubleSupplier rotationSupplier, Supplier<PhotonTrackedTarget> targetSupplier) {
         this.swerveDrive = swerveDrive;
         this.intakeSubsystem = intakeSubsystem;
         this.shooterSubsystem = shooterSubsystem;
@@ -53,7 +53,7 @@ public class DriveAndGrabNoteCommand extends Command {
         this.translationXSupplier = translationXSupplier;
         this.translationYSupplier = translationYSupplier;
         this.rotationSupplier = rotationSupplier;
-        this.targetSupplier = target;
+        this.targetSupplier = targetSupplier;
 
         this.xController.setTolerance(0.2);
         this.yController.setTolerance(0.2);
@@ -84,7 +84,8 @@ public class DriveAndGrabNoteCommand extends Command {
         double yVelocity = this.translateYRateLimiter.calculate(translationYSupplier.getAsDouble());
         double rVelocity = this.rotationRateLimiter.calculate(rotationSupplier.getAsDouble());
 
-        setTarget();
+        // check for loss of target
+        setAndCheckTarget();
 
         // check for visible note
         if (this.selectedTarget != null && this.selectedTarget.getYaw() != 0) {
@@ -119,7 +120,7 @@ public class DriveAndGrabNoteCommand extends Command {
     @Override
     public void initialize() {
         this.lostTarget = false;
-        setTarget();
+        setAndCheckTarget();
 
         Logger.recordOutput("Commands/Active Command", this.getName());
     }
@@ -132,7 +133,7 @@ public class DriveAndGrabNoteCommand extends Command {
     /**
      * 
      */
-    private void setTarget() {
+    private void setAndCheckTarget() {
         PhotonTrackedTarget target = this.targetSupplier.get();
 
         if (target == null && this.selectedTarget != null) {
