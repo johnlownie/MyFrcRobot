@@ -22,5 +22,4 @@ public class LEDController {
     public static void set(double value) {
         spark.set(value);
     }
-    
 }
