@@ -11,7 +11,6 @@ import frc.lib.statemachine.StateMetadata;
 import frc.lib.util.Timer;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.modules.arm.ArmModule;
-import frc.robot.modules.swerve.SwerveModule;
 
 /**
  * 
@@ -20,7 +19,7 @@ public class ArmSubsystem extends SubsystemBase {
     private final ArmModule armModule;
 
     public static enum Action {
-        IDLE, MOVE_TO_AMP, MOVE_TO_INTAKE, MOVE_TO_SPEAKER, MOVE_TO_STAGE, PAUSE
+        CLIMB, IDLE, MOVE_TO_AMP, MOVE_TO_INTAKE, MOVE_TO_SPEAKER, MOVE_TO_STAGE, PAUSE, STOP
     }
 
     private final StateMachine<Action> stateMachine;
@@ -39,11 +38,13 @@ public class ArmSubsystem extends SubsystemBase {
         // Sets states for the arm, and what methods.
         this.stateMachine = new StateMachine<>("ARM SUBSYSTEM");
         this.stateMachine.setDefaultState(Action.MOVE_TO_INTAKE, this::handleMoveToIntake);
+        this.stateMachine.addState(Action.CLIMB, this::handleClimb);
         this.stateMachine.addState(Action.IDLE, this::handleIdle);
         this.stateMachine.addState(Action.MOVE_TO_AMP, this::handleMoveToAmp);
         this.stateMachine.addState(Action.MOVE_TO_SPEAKER, this::handleMoveToSpeaker);
         this.stateMachine.addState(Action.MOVE_TO_STAGE, this::handleMoveToStage);
         this.stateMachine.addState(Action.PAUSE, this::handlePause);
+        this.stateMachine.addState(Action.STOP, this::handleStop);
 
         this.actionQueue = new LinkedList<Action>();
 
@@ -62,6 +63,23 @@ public class ArmSubsystem extends SubsystemBase {
     /**
      * 
      */
+    private void handleClimb(StateMetadata<Action> stateMetadata) {
+        if (stateMetadata.isFirstRun()) {
+            this.timer.reset();
+            this.timer.start();
+            this.armModule.climb();
+        }
+
+        if (this.timer.hasElapsed(2)) {
+            this.timer.stop();
+            this.stateMachine.setState(Action.STOP);
+        }
+    }
+    
+
+    /**
+     * 
+     */
     private void handleIdle(StateMetadata<Action> stateMetadata) {
     }
     
@@ -70,6 +88,8 @@ public class ArmSubsystem extends SubsystemBase {
      */
     private void handleMoveToAmp(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
+            this.timer.reset();
+            this.timer.start();
             setDesiredAngle(ArmConstants.ANGLE_AMP);
             this.is_at_angle = false;
             this.notify_at_angle = true;
@@ -81,6 +101,8 @@ public class ArmSubsystem extends SubsystemBase {
      */
     private void handleMoveToIntake(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
+            this.timer.reset();
+            this.timer.start();
             setDesiredAngle(ArmConstants.ANGLE_INTAKE);
             this.is_at_angle = false;
             this.notify_at_angle = true;
@@ -92,6 +114,8 @@ public class ArmSubsystem extends SubsystemBase {
      */
     private void handleMoveToSpeaker(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
+            this.timer.reset();
+            this.timer.start();
             setDesiredAngle(ArmConstants.ANGLE_SPEAKER);
             this.is_at_angle = false;
             this.notify_at_angle = true;
@@ -103,6 +127,8 @@ public class ArmSubsystem extends SubsystemBase {
      */
     private void handleMoveToStage(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
+            this.timer.reset();
+            this.timer.start();
             setDesiredAngle(ArmConstants.ANGLE_STAGE);
             this.is_at_angle = false;
             this.notify_at_angle = true;
@@ -121,6 +147,15 @@ public class ArmSubsystem extends SubsystemBase {
         if (this.timer.hasElapsed(1)) {
             this.timer.stop();
             this.stateMachine.setState(Action.IDLE);
+        }
+    }
+
+    /**
+     * 
+     */
+    private void handleStop(StateMetadata<Action> stateMetadata) {
+        if (stateMetadata.isFirstRun()) {
+            this.armModule.stop();
         }
     }
     
@@ -142,6 +177,11 @@ public class ArmSubsystem extends SubsystemBase {
     public void periodic() {
         this.stateMachine.update();
         this.armModule.update();
+
+        // actions run for no longer than 3 seconds
+        if (this.timer.isRunning() && this.timer.hasElapsed(3)) {
+            this.timer.stop();
+        }
 
         if (isActionComplete()) {
             if (this.notify_at_angle) {

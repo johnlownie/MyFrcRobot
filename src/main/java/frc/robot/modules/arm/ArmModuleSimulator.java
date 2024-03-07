@@ -14,13 +14,16 @@ import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import frc.robot.Constants.ArmConstants;
 
 public class ArmModuleSimulator extends ArmModule {
-    private final double ARM_MIN_ANGLE_DEGRESS = -30.0;
-    private final double ARM_MAX_ANGLE_DEGREES = 90.0;
+    private final double ARM_MIN_ANGLE_DEGRESS = ArmConstants.ANGLE_INTAKE;
+    private final double ARM_MAX_ANGLE_DEGREES = ArmConstants.ANGLE_AMP;
     private final double ARM_REDUCTION = 200.0;
     private final double DISTANCE_PER_PULSE = 2.0 * Math.PI / 4096;
-    private final double STARTING_ANGLE_RADIANS = 0.0;
+    private final int ENCODER_CHANNEL_A = 12;
+    private final int ENCODER_CHANNEL_B = 13;
+    private final double STARTING_ANGLE_RADIANS = Units.degreesToRadians(ArmConstants.ANGLE_INTAKE);
     
     private final Vector<N1> STD_DEVS = VecBuilder.fill(DISTANCE_PER_PULSE);
     
@@ -38,11 +41,11 @@ public class ArmModuleSimulator extends ArmModule {
 
         this.gearBox = DCMotor.getFalcon500(2);
         this.motor = new PWMSparkMax(2);
-        this.encoderSim = new EncoderSim(new Encoder(9, 10));
+        this.encoderSim = new EncoderSim(new Encoder(ENCODER_CHANNEL_A, ENCODER_CHANNEL_B));
         this.singleJointedArmSim = new SingleJointedArmSim(
             this.gearBox, 
             ARM_REDUCTION,
-            SingleJointedArmSim.estimateMOI(Units.inchesToMeters(30), 8.0),
+            SingleJointedArmSim.estimateMOI(Units.inchesToMeters(16), 4.0),
             Units.inchesToMeters(16),
             Units.degreesToRadians(ARM_MIN_ANGLE_DEGRESS),
             Units.degreesToRadians(ARM_MAX_ANGLE_DEGREES),
@@ -52,7 +55,6 @@ public class ArmModuleSimulator extends ArmModule {
         );
 
         this.encoderSim.setDistancePerPulse(DISTANCE_PER_PULSE);
-        this.pidController.setTolerance(50);
     }
 
     @Override
@@ -65,9 +67,10 @@ public class ArmModuleSimulator extends ArmModule {
     @Override
     public void update() {
         double pidOutput = this.pidController.calculate(this.encoderSim.getDistance(), Units.degreesToRadians(getDesiredAngle()));
-        this.motor.setVoltage(pidOutput);
+        double voltage = MathUtil.clamp(pidOutput * 12.0, -12.0, 12.0);
+        this.motor.setVoltage(voltage);
 
-        this.singleJointedArmSim.setInput(MathUtil.clamp(this.motor.get() * 12.0, -12.0, 12.0));
+        this.singleJointedArmSim.setInput(voltage);
         this.singleJointedArmSim.update(0.02);
 
         this.encoderSim.setDistance(this.singleJointedArmSim.getAngleRads());
@@ -75,9 +78,10 @@ public class ArmModuleSimulator extends ArmModule {
 
         RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(this.singleJointedArmSim.getCurrentDrawAmps()));
 
-        Logger.recordOutput("Mechanisms/Arm/Desired Angle", getDesiredAngle());
-        Logger.recordOutput("Mechanisms/Arm/Current Angle", getCurrentAngle());
-        Logger.recordOutput("Mechanisms/Arm/PID Output", pidOutput);
+        Logger.recordOutput("Mechanisms/Arm/DesiredAngle", getDesiredAngle());
+        Logger.recordOutput("Mechanisms/Arm/CurrentAngle", getCurrentAngle());
+        Logger.recordOutput("Mechanisms/Arm/PIDOutput", pidOutput);
+        Logger.recordOutput("Mechanisms/Arm/Voltage", voltage);
     }
 
     @Override

@@ -110,8 +110,7 @@ public class SwerveModuleSimulator extends SwerveModule {
      */
     private void applyAngleSettings() {
         double pidOutput = this.turnController.calculate(this.angleRelativePositionRAD, Math.toRadians(this.angleSetpointDEG));
-
-        double voltage = MathUtil.clamp(pidOutput, -12.0, 12.0);
+        double voltage = MathUtil.clamp(pidOutput * 12.0, -12.0, 12.0);
         this.turnMotorSim.setInputVoltage(voltage);
     }
 

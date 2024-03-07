@@ -1,5 +1,7 @@
 package frc.robot.controls;
 
+import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
+
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
@@ -32,5 +34,14 @@ public class OperatorBindings {
      * 
      */
     public void configureButtonBindings(XBoxControlBindings controller) {
+        // Start/Stop Climb
+        controller.operatorStart().ifPresent(
+            trigger -> trigger.onTrue(
+                runOnce(() -> this.armSubsystem.addAction(ArmSubsystem.Action.CLIMB))
+            )
+            .onFalse(
+                runOnce(() -> this.armSubsystem.addAction(ArmSubsystem.Action.STOP))
+            )
+        );
     }
 }

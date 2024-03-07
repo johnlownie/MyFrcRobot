@@ -11,7 +11,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -35,7 +34,7 @@ public final class Constants {
     public static final class RobotConstants {
         public static final double ROBOT_LENGTH = Units.inchesToMeters(38.0);
         public static final double LOOP_PERIOD_SECS = 0.02;
-        public static final boolean TUNING_MODE = false;
+        public static final boolean TUNING_MODE = true;
         
         // FIXME: update for various robots
         public enum Mode { REAL, REPLAY, SIM }
@@ -76,13 +75,16 @@ public final class Constants {
     }
 
     /**
-     * 
+     * TODO: Starting Angle can vary for intake position and horizontal position in simulation
      */
     public static class ArmConstants {
-        public static final int ANGLE_AMP = 70;
-        public static final int ANGLE_INTAKE = -30;
-        public static final int ANGLE_SPEAKER = -10;
-        public static final int ANGLE_STAGE  = 90;
+        public static final int STARTING_ANGLE = -33;
+        public static final int ANGLE_AMP = STARTING_ANGLE + 144;
+        public static final int ANGLE_CLIMB  = STARTING_ANGLE + 90;
+        public static final int ANGLE_INTAKE = STARTING_ANGLE + 0;
+        public static final int ANGLE_PODIUM = STARTING_ANGLE + 21;
+        public static final int ANGLE_SPEAKER = STARTING_ANGLE + 5;
+        public static final int ANGLE_STAGE = STARTING_ANGLE + 33;
     }
 
     /**

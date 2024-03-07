@@ -135,7 +135,6 @@ public class TuningBindings {
                     new WaitUntilCommand(this.armSubsystem::isAtAngle)
                 )
                 .andThen(
-                    Commands.print("*** And Then ***"),
                     new InstantCommand(() -> {
                         this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT_AMP);
                     })
@@ -177,10 +176,11 @@ public class TuningBindings {
             )
         );
 
+        // Shoot Speaker has highest RPM for motors - set arm angle in shuffleboard
         controller.operatorY().ifPresent(
             trigger -> trigger.onTrue(
                 new InstantCommand(() -> {
-                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_STAGE);
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT_SPEAKER);
                 })
                 .until(controller.operatorWantsControl())
             )

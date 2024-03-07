@@ -53,8 +53,8 @@ public class VisionSubsystem extends SubsystemBase {
     /**
      * Use the first AprilTag camera pose estimation
      */
-    public EstimatedRobotPose getBestLatestEstimatedPose() {
-        VisionModule visionModule = getVisionModuleByType(Camera.Type.APRILTAG);
+    public EstimatedRobotPose getBestLatestEstimatedPose(String cameraName) {
+        VisionModule visionModule = getVisionModuleByName(cameraName);
 
         return visionModule == null ? null : visionModule.getBestLatestEstimatedPose();
     }

@@ -117,9 +117,17 @@ public class AlignAndShootTagCommand extends Command {
     }
 
     /**
-     * 
+     * Set arm angle based on target pitch
+     * Pitch and arm angle are zero relative to the horizon
+     * Pitch angle is positive for targets above the horizon
+     * Arm angle is negative for targets above the horizon 
      */
     private double getBestArmAngle(PhotonTrackedTarget target) {
+        if (target == null) return 0.0;
+
+        if (isBetween(target.getPitch(), 5.0, 20.0)) {
+            return 0.0;
+        }
         return 0.0;
     }
 
@@ -145,6 +153,13 @@ public class AlignAndShootTagCommand extends Command {
      */
     private boolean isAtGoal() {
         return this.xController.atGoal() && this.yController.atGoal() && this.omegaController.atGoal();
+    }
+
+    /**
+     * 
+     */
+    private boolean isBetween(double value, double lower, double upper) {
+        return lower <= value && value <= upper;
     }
 
     /**

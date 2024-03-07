@@ -134,12 +134,12 @@ public class XBoxControlBindings implements IControlBindings {
 
     @Override
     public Optional<Trigger> driverLeftBumper() {
-        return Optional.of(this.driverController.leftTrigger());
+        return Optional.of(this.driverController.leftBumper());
     }
 
     @Override
     public Optional<Trigger> driverRightBumper() {
-        return Optional.of(this.driverController.rightTrigger());
+        return Optional.of(this.driverController.rightBumper());
     }
 
     @Override
@@ -217,12 +217,12 @@ public class XBoxControlBindings implements IControlBindings {
 
     @Override
     public Optional<Trigger> operatorLeftBumper() {
-        return Optional.of(this.operatorController.leftTrigger());
+        return Optional.of(this.operatorController.leftBumper());
     }
 
     @Override
     public Optional<Trigger> operatorRightBumper() {
-        return Optional.of(this.operatorController.rightTrigger());
+        return Optional.of(this.operatorController.rightBumper());
     }
 
     @Override

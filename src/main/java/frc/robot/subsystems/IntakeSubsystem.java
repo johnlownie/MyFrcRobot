@@ -110,7 +110,7 @@ public class IntakeSubsystem extends SubsystemBase {
         this.intakeModule.update();
 
         // actions run for no longer than 3 seconds
-        if (this.timer.hasElapsed(3)) {
+        if (this.timer.isRunning() && this.timer.hasElapsed(3)) {
             this.timer.stop();
         }
 

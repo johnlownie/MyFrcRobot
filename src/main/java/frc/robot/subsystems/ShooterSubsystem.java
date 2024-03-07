@@ -78,6 +78,7 @@ public class ShooterSubsystem extends SubsystemBase {
             this.timer.reset();
             this.timer.start();
             this.has_note = false;
+            this.has_shot = false;
             this.notify_on_note = true;
             this.shooterModule.intake();
         }
@@ -186,8 +187,8 @@ public class ShooterSubsystem extends SubsystemBase {
         this.stateMachine.update();
         this.shooterModule.update();
 
-        // actions run for no longer than 2 seconds
-        if (this.timer.hasElapsed(2)) {
+        // actions run for no longer than 3 seconds
+        if (this.timer.isRunning() && this.timer.hasElapsed(3)) {
             this.timer.stop();
         }
 
