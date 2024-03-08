@@ -45,7 +45,7 @@ public class VisionModuleSimulator extends VisionModule {
             this.visionSystemSim.addAprilTags(FieldConstants.TAG_FIELD_LAYOUT);
 
         }
-        else if (this.camera.getType() == Camera.Type.GAME_PIECE) {
+        else if (this.camera.getType() == Camera.Type.COLOURED_SHAPE) {
             var visionTargetSims = NoteLoader.getVisionTargets();
             for (VisionTargetSim visionTargetSim : visionTargetSims) {
                 this.visionSystemSim.addVisionTargets("note", visionTargetSim);

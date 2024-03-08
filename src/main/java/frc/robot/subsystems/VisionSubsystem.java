@@ -64,7 +64,7 @@ public class VisionSubsystem extends SubsystemBase {
      * Use target from the first Game Piece camera
      */
     public PhotonTrackedTarget getBestNoteTarget() {
-        VisionModule visionModule = getVisionModuleByType(Camera.Type.GAME_PIECE);
+        VisionModule visionModule = getVisionModuleByType(Camera.Type.COLOURED_SHAPE);
 
         return visionModule == null ? null : visionModule.getBestTarget();
     }
