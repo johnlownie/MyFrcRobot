@@ -322,17 +322,17 @@ public final class Constants {
         public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
 
         public static final Camera FRONT_CAMERA = new Camera("Arducam_OV9281-2",
-            Camera.Type.APRILTAG,
+            Camera.Type.APRILTAG, 0,
             Units.inchesToMeters(-10.0), Units.inchesToMeters(-6.25), Units.inchesToMeters(23.75),
             0.0, Units.degreesToRadians(40), 0.0
         );
         public static final Camera REAR_CAMERA = new Camera("Arducam_OV9281-1",
-            Camera.Type.APRILTAG,
+            Camera.Type.APRILTAG, 0,
             Units.inchesToMeters(-12.0), Units.inchesToMeters(-6.25), Units.inchesToMeters(23.75),
             0.0, Units.degreesToRadians(-40), Math.PI
         );
         public static final Camera NOTE_CAMERA = new Camera("WebCam",
-            Camera.Type.GAME_PIECE,
+            Camera.Type.GAME_PIECE, 0,
             RobotConstants.ROBOT_LENGTH / 2, 0.0, Units.inchesToMeters(16),
             0.0, Units.degreesToRadians(10), 0.0
         );

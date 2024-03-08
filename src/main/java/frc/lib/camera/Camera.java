@@ -12,6 +12,7 @@ public class Camera {
 
     private final String name;
     private final Type type;
+    private final int pipeline_index;
     private final double x;
     private final double y;
     private final double z;
@@ -24,9 +25,10 @@ public class Camera {
     /**
      * Units in Meters and Radians
      */
-    public Camera(String name, Type type, double x, double y, double z, double roll, double pitch, double yaw) {
+    public Camera(String name, Type type, int pipeline_index, double x, double y, double z, double roll, double pitch, double yaw) {
         this.name = name;
         this.type = type;
+        this.pipeline_index = pipeline_index;
         this.x = x;
         this.y = y;
         this.z = z;
@@ -45,6 +47,7 @@ public class Camera {
      */
     public String getName() { return this.name; }
     public Type getType() { return this.type; }
+    public int getPipelineIndex() { return this.pipeline_index; }
     public double getYaw() { return this.yaw; }
     public Transform3d getCameraToRobot() { return this.cameraToRobot; }
     public Transform3d getRobotToCamera() { return this.cameraToRobot.inverse(); }

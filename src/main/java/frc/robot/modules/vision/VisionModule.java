@@ -41,6 +41,7 @@ public class VisionModule {
     public VisionModule(Camera camera) {
         this.camera = camera;
         this.photonCamera = new PhotonCamera(camera.getName());
+        this.photonCamera.setPipelineIndex(camera.getPipelineIndex());
 
         this.photonPoseEstimator = new PhotonPoseEstimator(FieldConstants.TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, this.photonCamera, this.camera.getRobotToCamera());
         this.photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
