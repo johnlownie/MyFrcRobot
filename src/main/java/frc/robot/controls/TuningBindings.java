@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AlignAndShootTagCommand;
 import frc.robot.commands.DriveAndGrabNoteCommand;
 import frc.robot.commands.DriveFromBestTagCommand;
@@ -62,7 +63,7 @@ public class TuningBindings {
                     this.armSubsystem,
                     this.shooterSubsystem,
                     this.visionSubsystem, this.poseEstimator::getCurrentPose,
-                    "RearArduCam"
+                    VisionConstants.DATA_FROM_CAMERA
                 )
                 .until(controller.driverWantsControl())
             )
@@ -101,7 +102,7 @@ public class TuningBindings {
                     this.poseEstimator::getCurrentPose,
                     FieldConstants.SPEAKER_POSE_TRANSLATIONS[2],
                     FieldConstants.SPEAKER_POSE_ROTATIONS[2],
-                    "RearArduCam"
+                    VisionConstants.DATA_FROM_CAMERA
                 )
                 // .andThen(
                     // new DeployGamePieceCommand(this.armSubsystem, this.shooterSubsystem, this.visionSubsystem, false)

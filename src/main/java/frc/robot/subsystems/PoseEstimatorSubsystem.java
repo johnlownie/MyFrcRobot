@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.util.Timer;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.utils.Conversions;
 
 /**
@@ -139,7 +140,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
         }
     
         // Process the data from the vision module
-        EstimatedRobotPose visionPose = this.visionSubsystem.getBestLatestEstimatedPose("RearArduCam");
+        EstimatedRobotPose visionPose = this.visionSubsystem.getBestLatestEstimatedPose(VisionConstants.DATA_FROM_CAMERA);
         if (visionPose != null) {
             Pose2d pose2d = visionPose.estimatedPose.toPose2d();
             Matrix<N3, N1> estimatedStdDevs = this.visionSubsystem.getEstimationStdDevs(pose2d);

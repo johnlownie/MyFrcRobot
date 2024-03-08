@@ -37,7 +37,8 @@ public class VisionSubsystem extends SubsystemBase {
      */
     public VisionSubsystem(List<Camera> cameras) {
         for (Camera camera : cameras) {
-            this.visionModules.add(Robot.isReal() ? new VisionModule(camera) : new VisionModuleSimulator(camera));
+            // this.visionModules.add(Robot.isReal() ? new VisionModule(camera) : new VisionModuleSimulator(camera));
+            this.visionModules.add(new VisionModule(camera));
         }
 
         this.aprilTagShootDataList = loadAprilTagShootData();

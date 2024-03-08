@@ -8,6 +8,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.TeleopConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.DeployGamePieceCommand;
 import frc.robot.commands.DriveAndGrabNoteCommand;
 import frc.robot.commands.DriveFromBestTagCommand;
@@ -159,14 +160,14 @@ public class DriverBindings {
                     this.poseEstimator::getCurrentPose,
                     FieldConstants.SPEAKER_POSE_TRANSLATIONS[0],
                     FieldConstants.SPEAKER_POSE_ROTATIONS[0],
-                    "RearArduCam"
+                    VisionConstants.DATA_FROM_CAMERA
                 )
                 .andThen(
                     new DeployGamePieceCommand(
                         this.armSubsystem,
                         this.shooterSubsystem,
                         this.visionSubsystem,
-                        "RearArduCam")
+                        VisionConstants.DATA_FROM_CAMERA)
                     .until(controller.driverWantsControl())
                 )
                 .until(controller.driverWantsControl())
@@ -183,14 +184,14 @@ public class DriverBindings {
                     this.poseEstimator::getCurrentPose,
                     FieldConstants.SPEAKER_POSE_TRANSLATIONS[1],
                     FieldConstants.SPEAKER_POSE_ROTATIONS[1],
-                    "RearArduCam"
+                    VisionConstants.DATA_FROM_CAMERA
                 )
                 .andThen(
                     new DeployGamePieceCommand(
                         this.armSubsystem,
                         this.shooterSubsystem,
                         this.visionSubsystem,
-                        "RearArduCam"
+                        VisionConstants.DATA_FROM_CAMERA
                         )
                     .until(controller.driverWantsControl())
                 )
@@ -207,14 +208,14 @@ public class DriverBindings {
                     this.poseEstimator::getCurrentPose,
                     FieldConstants.SPEAKER_POSE_TRANSLATIONS[2],
                     FieldConstants.SPEAKER_POSE_ROTATIONS[2],
-                    "RearArduCam"
+                    VisionConstants.DATA_FROM_CAMERA
                     )
                 .andThen(
                     new DeployGamePieceCommand(
                         this.armSubsystem,
                         this.shooterSubsystem,
                         this.visionSubsystem,
-                        "RearArduCam"
+                        VisionConstants.DATA_FROM_CAMERA
                         )
                     .until(controller.driverWantsControl())
                 )
@@ -228,7 +229,7 @@ public class DriverBindings {
                 new LockedTelopDriveByPoseCommand(
                     this.swerveDrive,
                     () -> this.poseEstimator.getCurrentPose(),
-                    () -> this.visionSubsystem.getBestTarget("RearArduCam"),
+                    () -> this.visionSubsystem.getBestTarget(VisionConstants.DATA_FROM_CAMERA),
                     () -> this.poseEstimator.getCurrentPose().getRotation(),
                     controller.translationX(),
                     controller.translationY()

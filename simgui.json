@@ -19,6 +19,9 @@
   "NetworkTables": {
     "transitory": {
       "photonvision": {
+        "Arducam_OV9281-1": {
+          "open": true
+        },
         "open": true
       }
     }

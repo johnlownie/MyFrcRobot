@@ -321,14 +321,14 @@ public final class Constants {
         public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
         public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
 
-        public static final Camera FRONT_CAMERA = new Camera("FrontArduCam",
+        public static final Camera FRONT_CAMERA = new Camera("Arducam_OV9281-2",
             Camera.Type.APRILTAG,
-            0.0, 0.0, Units.inchesToMeters(16),
+            Units.inchesToMeters(-10.0), Units.inchesToMeters(-6.25), Units.inchesToMeters(23.75),
             0.0, Units.degreesToRadians(40), 0.0
         );
-        public static final Camera REAR_CAMERA = new Camera("RearArduCam",
+        public static final Camera REAR_CAMERA = new Camera("Arducam_OV9281-1",
             Camera.Type.APRILTAG,
-            0.0, 0.0, Units.inchesToMeters(16),
+            Units.inchesToMeters(-12.0), Units.inchesToMeters(-6.25), Units.inchesToMeters(23.75),
             0.0, Units.degreesToRadians(-40), Math.PI
         );
         public static final Camera NOTE_CAMERA = new Camera("WebCam",
@@ -337,7 +337,8 @@ public final class Constants {
             0.0, Units.degreesToRadians(10), 0.0
         );
 
-        public static final List<Camera> CAMERAS = Arrays.asList(FRONT_CAMERA, REAR_CAMERA, NOTE_CAMERA);
+        public static final List<Camera> CAMERAS = Arrays.asList(REAR_CAMERA);
+        public static final String DATA_FROM_CAMERA = REAR_CAMERA.getName();
         
         /** Minimum target ambiguity. Targets with higher ambiguity will be discarded */
         public static final double APRILTAG_AMBIGUITY_THRESHOLD = 0.2;
