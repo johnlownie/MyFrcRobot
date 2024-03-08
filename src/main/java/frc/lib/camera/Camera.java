@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Translation3d;
  * 
  */
 public class Camera {
-    public enum Type { APRILTAG, GAME_PIECE }
+    public enum Type { APRILTAG, COLOURED_SHAPE }
 
     private final String name;
     private final Type type;

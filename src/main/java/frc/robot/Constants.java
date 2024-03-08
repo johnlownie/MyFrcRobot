@@ -332,7 +332,7 @@ public final class Constants {
             0.0, Units.degreesToRadians(-40), Math.PI
         );
         public static final Camera NOTE_CAMERA = new Camera("WebCam",
-            Camera.Type.GAME_PIECE, 0,
+            Camera.Type.COLOURED_SHAPE, 0,
             RobotConstants.ROBOT_LENGTH / 2, 0.0, Units.inchesToMeters(16),
             0.0, Units.degreesToRadians(10), 0.0
         );
