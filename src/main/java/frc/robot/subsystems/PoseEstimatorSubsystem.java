@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
@@ -140,12 +141,14 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
         }
     
         // Process the data from the vision module
-        EstimatedRobotPose visionPose = this.visionSubsystem.getBestLatestEstimatedPose(VisionConstants.DATA_FROM_CAMERA);
-        if (visionPose != null) {
+        List<EstimatedRobotPose> visionPoses = this.visionSubsystem.getBestLatestEstimatedPoses();
+        int index = 0;
+        for (EstimatedRobotPose visionPose : visionPoses) {
             Pose2d pose2d = visionPose.estimatedPose.toPose2d();
             Matrix<N3, N1> estimatedStdDevs = this.visionSubsystem.getEstimationStdDevs(pose2d);
             this.swerveDrivePoseEstimator.addVisionMeasurement(pose2d, visionPose.timestampSeconds, estimatedStdDevs);
-            Logger.recordOutput("Subsystems/PoseEstimator/VisionPose", pose2d);
+            Logger.recordOutput("Subsystems/PoseEstimator/VisionPose["  + index + "]", pose2d);
+            index++;
         }
         
         // Update pose estimator with drivetrain sensors

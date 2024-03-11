@@ -324,12 +324,12 @@ public final class Constants {
         public static final Camera FRONT_CAMERA = new Camera("Arducam_OV9281-2",
             Camera.Type.APRILTAG, 0,
             Units.inchesToMeters(-10.0), Units.inchesToMeters(-6.25), Units.inchesToMeters(23.75),
-            0.0, Units.degreesToRadians(40), 0.0
+            0.0, Units.degreesToRadians(24), 0.0
         );
         public static final Camera REAR_CAMERA = new Camera("Arducam_OV9281-1",
             Camera.Type.APRILTAG, 0,
             Units.inchesToMeters(-12.0), Units.inchesToMeters(-6.25), Units.inchesToMeters(23.75),
-            0.0, Units.degreesToRadians(-40), Math.PI
+            0.0, Units.degreesToRadians(-35), Math.PI
         );
         public static final Camera NOTE_CAMERA = new Camera("WebCam",
             Camera.Type.COLOURED_SHAPE, 0,

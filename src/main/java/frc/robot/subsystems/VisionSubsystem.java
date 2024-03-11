@@ -52,12 +52,18 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     /**
-     * Use the first AprilTag camera pose estimation
+     * Use AprilTag camera pose estimation
      */
-    public EstimatedRobotPose getBestLatestEstimatedPose(String cameraName) {
-        VisionModule visionModule = getVisionModuleByName(cameraName);
+    public List<EstimatedRobotPose> getBestLatestEstimatedPoses() {
+        List<EstimatedRobotPose> poses = new ArrayList<EstimatedRobotPose>();
 
-        return visionModule == null ? null : visionModule.getBestLatestEstimatedPose();
+        for (VisionModule visionModule : this.visionModules) {
+            if (visionModule.getCameraType() != Camera.Type.APRILTAG) continue;
+
+            poses.add(visionModule.getBestLatestEstimatedPose());
+        }
+
+        return poses;
     }
  
     /**
