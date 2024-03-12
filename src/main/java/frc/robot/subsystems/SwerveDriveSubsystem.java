@@ -81,7 +81,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      * Used for autonomous driving in AutoBuilder - chassis speeds are robot relative
      */
     public void drive(ChassisSpeeds chassisSpeeds) {
-        drive(chassisSpeeds, false);
+        drive(chassisSpeeds, true);
     }
 
     /**
@@ -167,17 +167,20 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             swerveModule.updatePositions();
         }
 
+        // monitor collisions
+        detectCollision();
+
         // log poses, 3D geometry, and swerve module states, gyro offset
         Logger.recordOutput("Subsystems/SwerveDrive/Gyro/isConnected", this.gyro.isConnected());
         Logger.recordOutput("Subsystems/SwerveDrive/Gyro/PositionDeg", this.gyro.getPositionDeg());
         Logger.recordOutput("Subsystems/SwerveDrive/Gyro/Acceleration", this.gyro.getAcceleration());
         Logger.recordOutput("Subsystems/SwerveDrive/Gyro/VelocityDegPerSec", this.gyro.getVelocityDegPerSec());
         Logger.recordOutput("Subsystems/SwerveDrive/Gyro/gyroOffset", this.gyroOffset);
-        Logger.recordOutput("Subsystems/SwerveDrive/FieldOriented", this.isFieldRelative);
-        Logger.recordOutput("Subsystems/SwerveDrive/IsOpenLoop", this.isOpenLoop);
-        Logger.recordOutput("Subsystems/SwerveDrive/SpeedModifier", this.speedModifier);
         Logger.recordOutput("Subsystems/SwerveDrive/hadCollision", this.hadCollision);
+        Logger.recordOutput("Subsystems/SwerveDrive/IsFieldOriented", this.isFieldRelative);
+        Logger.recordOutput("Subsystems/SwerveDrive/IsOpenLoop", this.isOpenLoop);
         Logger.recordOutput("Subsystems/SwerveDrive/IsTargetLocked", this.isTargetLocked);
+        Logger.recordOutput("Subsystems/SwerveDrive/SpeedModifier", this.speedModifier);
         Logger.recordOutput("Subsystems/SwerveDrive/ActualModuleStates", getModuleStates());
         Logger.recordOutput("Subsystems/SwerveDrive/DesiredSpeeds/xMPS", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.vxMetersPerSecond : 0.0);
         Logger.recordOutput("Subsystems/SwerveDrive/DesiredSpeeds/yMPS", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.vyMetersPerSecond : 0.0);

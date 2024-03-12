@@ -6,29 +6,32 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.Constants.TeleopConstants;
-import frc.robot.commands.DriveToPoseCommand;
+import frc.robot.commands.TargetAndGrabNoteCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
-import frc.robot.utils.AllianceFlipUtil;
+import frc.robot.subsystems.VisionSubsystem;
 
 public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
     /* Subsystems */
@@ -37,19 +40,25 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
     private final ArmSubsystem armSubsystem;
     private final IntakeSubsystem intakeSubsystem;
     private final ShooterSubsystem shooterSubsystem;
+    private final VisionSubsystem visionSubsystem;
+
+    private final PathConstraints constraints = new PathConstraints(
+        SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND,
+        4.0,
+        Units.degreesToRadians(540), Units.degreesToRadians(720));
 
     /* Autonomous */
     private LoggedDashboardChooser<Command> autonomousChooser;
-
     /**
      * 
      */
-    public AutoBuilder(PoseEstimatorSubsystem poseEstimatorSubsystem, SwerveDriveSubsystem swerveDriveSubsystem, ArmSubsystem armSubsystem, IntakeSubsystem intakeSubsystem, ShooterSubsystem shooterSubsystem) {
+    public AutoBuilder(PoseEstimatorSubsystem poseEstimatorSubsystem, SwerveDriveSubsystem swerveDriveSubsystem, ArmSubsystem armSubsystem, IntakeSubsystem intakeSubsystem, ShooterSubsystem shooterSubsystem, VisionSubsystem visionSubsystem) {
         this.poseEstimatorSubsystem = poseEstimatorSubsystem;
         this.swerveDriveSubsystem = swerveDriveSubsystem;
         this.armSubsystem = armSubsystem;
         this.intakeSubsystem = intakeSubsystem;
         this.shooterSubsystem = shooterSubsystem;
+        this.visionSubsystem = visionSubsystem;
     }
 
     /**
@@ -65,7 +74,7 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
                 new PIDConstants(TeleopConstants.xController.getP(), TeleopConstants.xController.getI(), TeleopConstants.xController.getD()),
                 new PIDConstants(TeleopConstants.omegaController.getP(), TeleopConstants.omegaController.getI(), TeleopConstants.omegaController.getD()),
                 SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND,
-                DriveTrainConstants.TRACK_WIDTH_METERS,
+                Math.hypot(DriveTrainConstants.TRACK_WIDTH_METERS / 2, DriveTrainConstants.WHEEL_BASE_METERS / 2),
                 new ReplanningConfig()
             ), 
             () -> {
@@ -282,20 +291,19 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
                 this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT);
             }),
             new WaitUntilCommand(this.shooterSubsystem::hasShot),
-            new ParallelCommandGroup(
-                new InstantCommand(() -> {
-                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
-                    this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
-                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.INTAKE);
-                }),
+            new ParallelDeadlineGroup(
+                new TargetAndGrabNoteCommand(
+                    this.armSubsystem,
+                    this.intakeSubsystem,
+                    this.shooterSubsystem,
+                    this.visionSubsystem::getBestNoteTarget),
                 AutoBuilder.followPath(pathGroup.get(5))
             ),
-            new WaitUntilCommand(this.shooterSubsystem::hasNote),
             new ParallelCommandGroup(
-                new DriveToPoseCommand(
-                    this.swerveDriveSubsystem,
-                    this.poseEstimatorSubsystem::getCurrentPose,
-                    FieldConstants.AUTONOMOUS_SHOOTING_POSE),
+                AutoBuilder.pathfindToPoseFlipped(
+                    FieldConstants.AUTONOMOUS_SHOOTING_POSE,
+                    constraints, 0.0, 0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
+                ),
                 new InstantCommand(() -> {
                     this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_SPEAKER);
                     this.shooterSubsystem.addAction(ShooterSubsystem.Action.SPINUP_FOR_SPEAKER);

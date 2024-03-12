@@ -91,8 +91,8 @@ public final class Constants {
      * 
      */
     public static final class DriveTrainConstants {
-        public static final double TRACK_WIDTH_METERS = Units.inchesToMeters(18.75);
-        public static final double WHEEL_BASE_METERS = Units.inchesToMeters(18.75);
+        public static final double TRACK_WIDTH_METERS = Units.inchesToMeters(24);
+        public static final double WHEEL_BASE_METERS = Units.inchesToMeters(24.0);
         public static final boolean INVERT_GYRO = true; // Always ensure Gyro is CCW+ CW-
     
         public static final SwerveDriveKinematics SWERVE_DRIVE_KINEMATICS = new SwerveDriveKinematics(
