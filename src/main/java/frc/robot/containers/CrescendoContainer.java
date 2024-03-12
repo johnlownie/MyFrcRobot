@@ -1,11 +1,13 @@
 package frc.robot.containers;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.SwerveModuleConstants.Mod0;
 import frc.robot.Constants.SwerveModuleConstants.Mod1;
 import frc.robot.Constants.SwerveModuleConstants.Mod2;
 import frc.robot.Constants.SwerveModuleConstants.Mod3;
 import frc.robot.modules.gyro.GyroModuleNavx;
+import frc.robot.modules.gyro.GyroModuleSimulator;
 import frc.robot.modules.intake.IntakeModule;
 import frc.robot.modules.shooter.ShooterModule;
 import frc.robot.modules.swerve.SwerveModule;
@@ -31,7 +33,14 @@ public class CrescendoContainer extends RobotContainer {
         SwerveModule rearRightModule  = new SwerveModule(3, Mod3.DRIVE_MOTOR_ID, Mod3.ANGLE_MOTOR_ID, Mod3.CANCODER_ID, Mod3.ANGLE_OFFSET);
 
         this.swerveModules = new SwerveModule[] { frontLeftModule, frontRightModule, rearLeftModule, rearRightModule};
-        this.gyroModule = new GyroModuleNavx();
+        try {
+            
+            this.gyroModule = new GyroModuleNavx();
+
+        } catch (RuntimeException e) {
+            DriverStation.reportError("Error instantiating navX-MXP:  " + e.getMessage(), true);
+            this.gyroModule = new GyroModuleSimulator();
+        }
         
         this.swerveDrive = new SwerveDriveSubsystem(this.swerveModules, this.gyroModule);
         this.intakeSubsystem = new IntakeSubsystem(new IntakeModule());

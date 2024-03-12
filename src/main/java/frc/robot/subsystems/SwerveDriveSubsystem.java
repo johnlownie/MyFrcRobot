@@ -19,6 +19,8 @@ import frc.robot.modules.swerve.SwerveModule;
  * 
  */
 public class SwerveDriveSubsystem extends SubsystemBase {
+    final static double COLLISION_THRESHOLD_DELTA_G = 0.5f;
+
     private final SwerveModule[] swerveModules;
     private final SwerveDriveKinematics swerveDriveKinematics;
     private final GyroModule gyro;
@@ -28,6 +30,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private boolean isFieldRelative;
     private boolean isOpenLoop;
     private boolean isTargetLocked;
+    private boolean hadCollision;
+    private double[] last_acceleration;
     private double speedModifier;
 
     /**
@@ -43,6 +47,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         this.isFieldRelative = true;
         this.isOpenLoop = false;
         this.isTargetLocked = false;
+        this.hadCollision = false;
+        this.last_acceleration = new double[]{ 0.0, 0.0 };
         this.speedModifier = 1;
     }
     
@@ -51,6 +57,25 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      */
     public void disableFieldRelative() { setIsFieldRelative(false); }
     public void enableFieldRelative () { setIsFieldRelative(true ); }
+
+    /**
+     * 
+     */
+    private void detectCollision() {
+        this.hadCollision = false;
+          
+        double[] current_acceleration = this.gyro.getAcceleration();
+        double currentJerkX = current_acceleration[0] - last_acceleration[0];
+        double currentJerkY = current_acceleration[1] - last_acceleration[1];
+        
+        if ( ( Math.abs(currentJerkX) > COLLISION_THRESHOLD_DELTA_G ) ||
+             ( Math.abs(currentJerkY) > COLLISION_THRESHOLD_DELTA_G) ) {
+            this.hadCollision = true;
+        }
+
+        last_acceleration[0] = current_acceleration[0];
+        last_acceleration[1] = current_acceleration[1];
+    }
 
     /**
      * Used for autonomous driving in AutoBuilder - chassis speeds are robot relative
@@ -151,6 +176,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         Logger.recordOutput("Subsystems/SwerveDrive/FieldOriented", this.isFieldRelative);
         Logger.recordOutput("Subsystems/SwerveDrive/IsOpenLoop", this.isOpenLoop);
         Logger.recordOutput("Subsystems/SwerveDrive/SpeedModifier", this.speedModifier);
+        Logger.recordOutput("Subsystems/SwerveDrive/hadCollision", this.hadCollision);
         Logger.recordOutput("Subsystems/SwerveDrive/IsTargetLocked", this.isTargetLocked);
         Logger.recordOutput("Subsystems/SwerveDrive/ActualModuleStates", getModuleStates());
         Logger.recordOutput("Subsystems/SwerveDrive/DesiredSpeeds/xMPS", this.desiredChassisSpeeds != null ? this.desiredChassisSpeeds.vxMetersPerSecond : 0.0);

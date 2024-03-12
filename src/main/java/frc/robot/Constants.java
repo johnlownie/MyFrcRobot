@@ -132,6 +132,8 @@ public final class Constants {
         //     new Pose2d(Units.inchesToMeters(36.17 / 2) + (RobotConstants.ROBOT_LENGTH / 4), Units.inchesToMeters(218.42 - 31.3) - (RobotConstants.ROBOT_LENGTH / 4), Rotation2d.fromDegrees(-60.0))
         // };
 
+        public static final Pose2d AUTONOMOUS_SHOOTING_POSE = new Pose2d(3.90, 5.54, Rotation2d.fromDegrees(0.0));
+
         public static final Pose2d[] SPEAKER_POSES = new Pose2d[] {
             new Pose2d(0.73, 6.76, Rotation2d.fromDegrees(60.0)),
             new Pose2d(Units.inchesToMeters(36.17) + (RobotConstants.ROBOT_LENGTH / 2), Units.inchesToMeters(218.42), Rotation2d.fromDegrees(0)),
@@ -180,7 +182,7 @@ public final class Constants {
         public static final double ARM_MODULE_KD = 0.0;
 
         // PID constants for shooter module
-        public static final double SHOOTER_MODULE_KP = 0.000012;
+        public static final double SHOOTER_MODULE_KP = 15.0;
         public static final double SHOOTER_MODULE_KI = 0.0002;
         public static final double SHOOTER_MODULE_KD = 0.0;
         public static final double SHOOTER_MODULE_KF = 000172;
@@ -203,7 +205,7 @@ public final class Constants {
         public static final double SWERVE_DRIVE_Y_KI = 0.0;
         public static final double SWERVE_DRIVE_Y_KD = 0.0;
 
-        public static final double SWERVE_DRIVE_OMEGA_KP = 6.0;
+        public static final double SWERVE_DRIVE_OMEGA_KP = 2.0;
         public static final double SWERVE_DRIVE_OMEGA_KI = 0.0;
         public static final double SWERVE_DRIVE_OMEGA_KD = 0.0;
     }
@@ -337,7 +339,7 @@ public final class Constants {
             0.0, Units.degreesToRadians(10), 0.0
         );
 
-        public static final List<Camera> CAMERAS = Arrays.asList(REAR_CAMERA);
+        public static final List<Camera> CAMERAS = Arrays.asList(FRONT_CAMERA, REAR_CAMERA, NOTE_CAMERA);
         public static final String DATA_FROM_CAMERA = REAR_CAMERA.getName();
         
         /** Minimum target ambiguity. Targets with higher ambiguity will be discarded */

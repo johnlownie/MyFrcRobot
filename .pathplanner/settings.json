@@ -3,6 +3,7 @@
   "robotLength": 0.61,
   "holonomicMode": true,
   "pathFolders": [
+    "2056",
     "Station 1 Paths",
     "Station 3 Paths",
     "Station 4 Paths"

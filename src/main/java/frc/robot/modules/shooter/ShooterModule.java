@@ -85,7 +85,7 @@ public class ShooterModule {
      * 
      */
     public boolean hasNote() {
-        return !this.intakeLimitSwitch.get();
+        return this.intakeLimitSwitch.get();
     }
 
     /**
@@ -165,4 +165,9 @@ public class ShooterModule {
         Logger.recordOutput("Mechanisms/Shooter/Right Velocity", this.rightEncoder.getVelocity());
         Logger.recordOutput("Mechanisms/Shooter/Kicker Output Current", this.kickerMotor.getOutputCurrent());
     }
+
+    /**
+     * Getters and Setters - used only in simulation
+     */
+    public void setHasNote(boolean has_note) {}
 }

@@ -1,0 +1,55 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.19,
+      "y": 6.88
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Step 1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Step 2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Step 3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Step 4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Step 5"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Step 6"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

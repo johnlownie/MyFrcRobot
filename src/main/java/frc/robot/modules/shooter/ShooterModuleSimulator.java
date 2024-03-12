@@ -56,4 +56,9 @@ public class ShooterModuleSimulator extends ShooterModule {
 
         super.update();
     }
+
+    /**
+     * Getters and Setters
+     */
+    public void setHasNote(boolean has_note) { this.has_note = has_note; }
 }

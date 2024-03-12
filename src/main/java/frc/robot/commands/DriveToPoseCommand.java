@@ -11,6 +11,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.utils.AllianceFlipUtil;
 
 /**
  *
@@ -18,7 +19,7 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 public class DriveToPoseCommand extends Command {
     private final SwerveDriveSubsystem swerveDrive;
     private final Supplier<Pose2d> poseProvider;
-    private final Pose2d goalPose;
+    private Pose2d goalPose;
 
     private final ProfiledPIDController xController = TeleopConstants.xController;
     private final ProfiledPIDController yController = TeleopConstants.yController;
@@ -65,6 +66,9 @@ public class DriveToPoseCommand extends Command {
     @Override
     public void initialize() {
         resetPIDControllers();
+
+        // Flip pose if red alliance
+        this.goalPose = AllianceFlipUtil.apply(goalPose);
 
         this.xController.setGoal(this.goalPose.getX());
         this.yController.setGoal(this.goalPose.getY());

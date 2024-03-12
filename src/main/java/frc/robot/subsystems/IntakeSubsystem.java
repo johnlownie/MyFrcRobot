@@ -54,20 +54,20 @@ public class IntakeSubsystem extends SubsystemBase {
     /**
      * 
      */
-    private void handleIdle(StateMetadata<Action> stateMetadata) {
+    private void handleEject(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
-            this.intakeModule.stop();
+            this.timer.reset();
+            this.timer.start();
+            this.intakeModule.eject();
         }
     }
 
     /**
      * 
      */
-    private void handleEject(StateMetadata<Action> stateMetadata) {
+    private void handleIdle(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
-            this.timer.reset();
-            this.timer.start();
-            this.intakeModule.eject();
+            this.intakeModule.stop();
         }
     }
 

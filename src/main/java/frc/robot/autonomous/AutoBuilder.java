@@ -17,14 +17,18 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.Robot;
 import frc.robot.Constants.DriveTrainConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.Constants.TeleopConstants;
+import frc.robot.commands.DriveToPoseCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.utils.AllianceFlipUtil;
 
 public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
     /* Subsystems */
@@ -79,6 +83,7 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
         this.autonomousChooser = new LoggedDashboardChooser<Command>("Auto Routine", AutoBuilder.buildAutoChooser());
         this.autonomousChooser.addOption("Station 3 - Shoot and Move Away", getShootAndMoveAway());
         this.autonomousChooser.addOption("Station 1 - Drive First", getBlue1DriveFirst());
+        this.autonomousChooser.addOption("2056", get2056());
 
         // Add chooser to the shuffleboard
         // ShuffleboardTab tab = Shuffleboard.getTab("Driver");
@@ -197,6 +202,114 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
             ),
 
             Commands.print("*** Finished Blue1DriveFirst ***")
+        );
+
+        return command;
+    }
+
+    /**
+     * 
+     */
+    private Command get2056() {
+        List<PathPlannerPath> pathGroup = PathPlannerAuto.getPathGroupFromAutoFile("2056");
+
+        if (pathGroup == null) {
+            return Commands.print("*** Failed to build 2056");
+        }
+
+        // Set the note if running in simulator
+        if (Robot.isSimulation()) {
+            this.shooterSubsystem.setHasNote(true);
+        }
+
+        Command command = Commands.sequence(
+            Commands.print("*** Starting 2056 ***"),
+            
+            new ParallelCommandGroup(
+                new InstantCommand(() -> {
+                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_SPEAKER);
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.SPINUP_FOR_SPEAKER);
+                }),
+                AutoBuilder.followPath(pathGroup.get(0))
+            ),
+            new WaitUntilCommand(this.armSubsystem::isAtAngle),
+            new WaitUntilCommand(this.shooterSubsystem::isSpunupForSpeaker),
+            new InstantCommand(() -> {
+                this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT);
+            }),
+            new WaitUntilCommand(this.shooterSubsystem::hasShot),
+            new ParallelCommandGroup(
+                new InstantCommand(() -> {
+                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
+                    this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.INTAKE);
+                }),
+                AutoBuilder.followPath(pathGroup.get(1))
+            ),
+            new WaitUntilCommand(this.shooterSubsystem::hasNote),
+            new ParallelCommandGroup(
+                AutoBuilder.followPath(pathGroup.get(2)),
+                new InstantCommand(() -> {
+                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_SPEAKER);
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.SPINUP_FOR_SPEAKER);
+                })
+            ),
+            new WaitUntilCommand(this.armSubsystem::isAtAngle),
+            new WaitUntilCommand(this.shooterSubsystem::isSpunupForSpeaker),
+            new InstantCommand(() -> {
+                this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT);
+            }),
+            new WaitUntilCommand(this.shooterSubsystem::hasShot),
+            new ParallelCommandGroup(
+                new InstantCommand(() -> {
+                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
+                    this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.INTAKE);
+                }),
+                AutoBuilder.followPath(pathGroup.get(3))
+            ),
+            new WaitUntilCommand(this.shooterSubsystem::hasNote),
+            new ParallelCommandGroup(
+                AutoBuilder.followPath(pathGroup.get(4)),
+                new InstantCommand(() -> {
+                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_SPEAKER);
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.SPINUP_FOR_SPEAKER);
+                })
+            ),
+            new WaitUntilCommand(this.armSubsystem::isAtAngle),
+            new WaitUntilCommand(this.shooterSubsystem::isSpunupForSpeaker),
+            new InstantCommand(() -> {
+                this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT);
+            }),
+            new WaitUntilCommand(this.shooterSubsystem::hasShot),
+            new ParallelCommandGroup(
+                new InstantCommand(() -> {
+                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
+                    this.intakeSubsystem.addAction(IntakeSubsystem.Action.INTAKE);
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.INTAKE);
+                }),
+                AutoBuilder.followPath(pathGroup.get(5))
+            ),
+            new WaitUntilCommand(this.shooterSubsystem::hasNote),
+            new ParallelCommandGroup(
+                new DriveToPoseCommand(
+                    this.swerveDriveSubsystem,
+                    this.poseEstimatorSubsystem::getCurrentPose,
+                    FieldConstants.AUTONOMOUS_SHOOTING_POSE),
+                new InstantCommand(() -> {
+                    this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_SPEAKER);
+                    this.shooterSubsystem.addAction(ShooterSubsystem.Action.SPINUP_FOR_SPEAKER);
+                })
+            ),
+            new InstantCommand(() -> {
+                this.shooterSubsystem.addAction(ShooterSubsystem.Action.SHOOT);
+            }),
+            new WaitUntilCommand(this.shooterSubsystem::hasShot),
+            new InstantCommand(() -> {
+                this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
+            }),
+
+            Commands.print("*** Finished 2056 ***")
         );
 
         return command;

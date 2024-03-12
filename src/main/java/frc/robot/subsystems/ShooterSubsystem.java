@@ -18,7 +18,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final ShooterModule shooterModule;
 
     public static enum Action { 
-        IDLE, INTAKE, PAUSE, PULLBACK, SHOOT_AMP, SHOOT_SPEAKER
+        HOLD_SPEED, IDLE, INTAKE, PAUSE, PULLBACK, SHOOT, SHOOT_AMP, SHOOT_SPEAKER, SPINUP_FOR_SPEAKER
     }
 
     private final StateMachine<Action> stateMachine;
@@ -39,12 +39,15 @@ public class ShooterSubsystem extends SubsystemBase {
         // Sets states for the arm, and what methods.
         this.stateMachine = new StateMachine<>("SHOOTER SUBSYSTEM");
         this.stateMachine.setDefaultState(Action.IDLE, this::handleIdle);
+        this.stateMachine.addState(Action.HOLD_SPEED, this::handleHoldSpeed);
         this.stateMachine.addState(Action.INTAKE, this::handleIntake);
         this.stateMachine.addState(Action.PAUSE, this::handlePause);
         this.stateMachine.addState(Action.PULLBACK, this::handlePullback);
+        this.stateMachine.addState(Action.SHOOT, this::handleShoot);
         this.stateMachine.addState(Action.SHOOT_AMP, this::handleShootAmp);
         this.stateMachine.addState(Action.SHOOT_SPEAKER, this::handleShootSpeaker);
-
+        this.stateMachine.addState(Action.SPINUP_FOR_SPEAKER, this::handleSpinupForSpeaker);
+        
         this.actionQueue = new LinkedList<Action>();
 
         this.timer = new Timer();
@@ -59,6 +62,12 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public void addAction(Action action) {
         this.actionQueue.add(action);
+    }
+
+    /**
+     * 
+     */
+    private void handleHoldSpeed(StateMetadata<Action> stateMetadata) {
     }
 
     /**
@@ -118,6 +127,20 @@ public class ShooterSubsystem extends SubsystemBase {
     /**
      * 
      */
+    private void handleShoot(StateMetadata<Action> stateMetadata) {
+        if (stateMetadata.isFirstRun()) {
+            this.timer.reset();
+            this.timer.start();
+            this.has_shot = false;
+            this.notify_on_shoot = true;
+
+            this.shooterModule.shoot();
+        }
+    }
+
+    /**
+     * 
+     */
     private void handleShootAmp(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
             this.timer.reset();
@@ -151,6 +174,18 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
 
+    /**
+     * 
+     */
+    private void handleSpinupForSpeaker(StateMetadata<Action> stateMetadata) {
+        if (stateMetadata.isFirstRun()) {
+            this.timer.reset();
+            this.timer.start();
+             
+            this.shooterModule.spinupForSpeaker();
+       }
+    }
+
     public boolean hasNote() {
         return this.shooterModule.hasNote();
     }
@@ -159,10 +194,10 @@ public class ShooterSubsystem extends SubsystemBase {
      * 
      */
     public boolean hasShot() {
-        boolean has_shot = this.has_shot;
-        this.has_shot = false;
+        // boolean has_shot = this.has_shot;
+        // this.has_shot = false;
 
-        return has_shot;
+        return !this.shooterModule.hasNote();
     }
     
     /**
@@ -170,9 +205,16 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     private boolean isActionComplete() {
         switch (this.stateMachine.getCurrentState()) {
+            case HOLD_SPEED:
+                return false;
+
             case INTAKE:
                 return hasNote() || !this.timer.isRunning();
 
+            case SPINUP_FOR_SPEAKER:
+                return isSpunupForSpeaker() || !this.timer.isRunning();
+
+            case SHOOT:
             case SHOOT_AMP:
             case SHOOT_SPEAKER:
                 return hasShot() || !this.timer.isRunning();
@@ -180,6 +222,13 @@ public class ShooterSubsystem extends SubsystemBase {
             default:
                 return !this.timer.isRunning();
         }
+    }
+
+    /**
+     * 
+     */
+    public boolean isSpunupForSpeaker() {
+        return this.shooterModule.isSpunupForSpeaker();
     }
     
     @Override
@@ -198,11 +247,12 @@ public class ShooterSubsystem extends SubsystemBase {
                 this.notify_on_shoot = false;
             }
 
-            this.stateMachine.setState(Action.IDLE);
+            Action nextAction = this.stateMachine.getCurrentState().equals(Action.SPINUP_FOR_SPEAKER) ? Action.HOLD_SPEED : Action.IDLE;
+            this.stateMachine.setState(nextAction);
         }
 
         // Run any action in the queue
-        if (this.stateMachine.getCurrentState() == Action.IDLE && this.actionQueue.size() > 0) {
+        if ((this.stateMachine.getCurrentState() == Action.IDLE || this.stateMachine.getCurrentState() == Action.HOLD_SPEED) && this.actionQueue.size() > 0) {
             try { 
                 Action nextAction = this.actionQueue.removeFirst();
                 this.stateMachine.setState(nextAction);
@@ -212,5 +262,14 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Subsystems/Shooter/Current State", this.stateMachine.getCurrentState());
         Logger.recordOutput("Subsystems/Shooter/HasNote", hasNote());
         Logger.recordOutput("Subsystems/Shooter/HasShot", this.has_shot);
+        Logger.recordOutput("Subsystems/Shooter/IsSpunupForAmp", this.shooterModule.isSpunupForAmp());
+        Logger.recordOutput("Subsystems/Shooter/IsSpunupForSpeaker", this.shooterModule.isSpunupForSpeaker());
+    }
+
+    /**
+     * 
+     */
+    public void setHasNote(boolean has_note) {
+        this.shooterModule.setHasNote(has_note);
     }
 }

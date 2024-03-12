@@ -25,8 +25,6 @@ public class ArmSubsystem extends SubsystemBase {
     private final StateMachine<Action> stateMachine;
     private final LinkedList<Action> actionQueue;
 
-    private boolean is_at_angle;
-    private boolean notify_at_angle;
     private Timer timer;
 
     /**
@@ -48,8 +46,6 @@ public class ArmSubsystem extends SubsystemBase {
 
         this.actionQueue = new LinkedList<Action>();
 
-        this.is_at_angle = false;
-        this.notify_at_angle = false;
         this.timer = new Timer();
     }
 
@@ -91,8 +87,6 @@ public class ArmSubsystem extends SubsystemBase {
             this.timer.reset();
             this.timer.start();
             setDesiredAngle(ArmConstants.ANGLE_AMP);
-            this.is_at_angle = false;
-            this.notify_at_angle = true;
         }
     }
 
@@ -104,8 +98,6 @@ public class ArmSubsystem extends SubsystemBase {
             this.timer.reset();
             this.timer.start();
             setDesiredAngle(ArmConstants.ANGLE_INTAKE);
-            this.is_at_angle = false;
-            this.notify_at_angle = true;
         }
     }
 
@@ -117,8 +109,6 @@ public class ArmSubsystem extends SubsystemBase {
             this.timer.reset();
             this.timer.start();
             setDesiredAngle(ArmConstants.ANGLE_SPEAKER);
-            this.is_at_angle = false;
-            this.notify_at_angle = true;
         }
     }
 
@@ -130,8 +120,6 @@ public class ArmSubsystem extends SubsystemBase {
             this.timer.reset();
             this.timer.start();
             setDesiredAngle(ArmConstants.ANGLE_STAGE);
-            this.is_at_angle = false;
-            this.notify_at_angle = true;
         }
     }
 
@@ -163,14 +151,14 @@ public class ArmSubsystem extends SubsystemBase {
      * 
      */
     private boolean isActionComplete() {
-        return (this.armModule.isAtAngle() || this.stateMachine.getCurrentState() == Action.IDLE) && !this.timer.isRunning();
+        return (this.armModule.isAtAngle() || this.stateMachine.getCurrentState() == Action.IDLE) || !this.timer.isRunning();
     }
 
     /**
      * 
      */
     public boolean isAtAngle() {
-        return this.is_at_angle;
+        return this.armModule.isAtAngle();
     }
     
     @Override
@@ -184,11 +172,6 @@ public class ArmSubsystem extends SubsystemBase {
         }
 
         if (isActionComplete()) {
-            if (this.notify_at_angle) {
-                this.is_at_angle = true;
-                this.notify_at_angle = false;
-            }
-
             this.stateMachine.setState(Action.IDLE);
         }
 

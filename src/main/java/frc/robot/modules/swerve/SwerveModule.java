@@ -13,6 +13,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -36,6 +37,8 @@ public class SwerveModule {
     // Not sure what these represent, but smaller is faster
     private final double MOTION_MAGIC_VELOCITY = .125;
     private final double MOTION_MAGIC_ACCELERATION = .0625;
+
+    private final double VOLTAGE_LIMIT = 11.0;
 
     // Default S
     public static final COTSTalonFXSwerveConstants CHOSEN_MODULE = COTSTalonFXSwerveConstants.SDS.MK4i.Falcon500(COTSTalonFXSwerveConstants.SDS.MK4i.driveRatios.L2);
@@ -250,7 +253,8 @@ public class SwerveModule {
     protected void setDriveState(SwerveModuleState desiredState, boolean isOpenLoop) {
         if(isOpenLoop) {
             double output = desiredState.speedMetersPerSecond / SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
-            this.driveMotor.setControl(new DutyCycleOut(output));
+            double voltage = MathUtil.clamp(output * VOLTAGE_LIMIT, -VOLTAGE_LIMIT, VOLTAGE_LIMIT);
+            this.driveMotor.setControl(new DutyCycleOut(voltage));
 
             Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/Output", output);
         }

@@ -7,6 +7,8 @@
       "/SmartDashboard/Auto Routine": "String Chooser",
       "/SmartDashboard/SendableChooser[0]": "String Chooser",
       "/SmartDashboard/VisionSystemSim-ARDUCAM_BLUE/Sim Field": "Field2d",
+      "/SmartDashboard/VisionSystemSim-Arducam_OV9281-1/Sim Field": "Field2d",
+      "/SmartDashboard/VisionSystemSim-Arducam_OV9281-2/Sim Field": "Field2d",
       "/SmartDashboard/VisionSystemSim-FRONT_CAMERA/Sim Field": "Field2d",
       "/SmartDashboard/VisionSystemSim-FrontArduCam/Sim Field": "Field2d",
       "/SmartDashboard/VisionSystemSim-LOGITECH_LIFECAM/Sim Field": "Field2d",

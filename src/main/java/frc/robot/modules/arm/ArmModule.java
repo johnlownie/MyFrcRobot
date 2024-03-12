@@ -75,7 +75,7 @@ public class ArmModule {
      * 
      */
     public boolean isUpperLimitSwitchTriggered() {
-        return !this.upperLimitSwitch.get();
+        return this.upperLimitSwitch.get();
     }
 
     /**

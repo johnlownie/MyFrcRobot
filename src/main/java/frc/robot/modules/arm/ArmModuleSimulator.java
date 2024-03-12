@@ -60,7 +60,8 @@ public class ArmModuleSimulator extends ArmModule {
     @Override
     public boolean isAtAngle(double angle) {
         double difference = Units.radiansToDegrees(this.singleJointedArmSim.getAngleRads()) - angle;
-
+        Logger.recordOutput("Mechanisms/Arm/Difference", difference);
+        
         return -1.0 <= difference && difference <= 1.0;
     }
     
