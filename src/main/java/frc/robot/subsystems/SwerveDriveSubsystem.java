@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.modules.gyro.GyroModule;
-import frc.robot.modules.swerve.SwerveModule;
+import frc.robot.modules.swerve.SwerveModuleTalonFX;
 
 /**
  * 
@@ -21,7 +21,7 @@ import frc.robot.modules.swerve.SwerveModule;
 public class SwerveDriveSubsystem extends SubsystemBase {
     final static double COLLISION_THRESHOLD_DELTA_G = 0.5f;
 
-    private final SwerveModule[] swerveModules;
+    private final SwerveModuleTalonFX[] swerveModules;
     private final SwerveDriveKinematics swerveDriveKinematics;
     private final GyroModule gyro;
 
@@ -37,7 +37,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     /**
      * 
      */
-    public SwerveDriveSubsystem(SwerveModule[] swerveModules, GyroModule gyro) {
+    public SwerveDriveSubsystem(SwerveModuleTalonFX[] swerveModules, GyroModule gyro) {
         this.swerveModules = swerveModules;
         this.gyro = gyro;
         this.swerveDriveKinematics = DriveTrainConstants.SWERVE_DRIVE_KINEMATICS;
@@ -116,7 +116,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public double getCharacterizationVelocity() {
         double driveVelocityAverage = 0.0;
 
-        for (SwerveModule swerveModule : this.swerveModules) {
+        for (SwerveModuleTalonFX swerveModule : this.swerveModules) {
             driveVelocityAverage += swerveModule.getState().speedMetersPerSecond;
         }
 
@@ -163,7 +163,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         }
 
         // update and log the swerve module position
-        for (SwerveModule swerveModule : this.swerveModules) {
+        for (SwerveModuleTalonFX swerveModule : this.swerveModules) {
             swerveModule.updatePositions();
         }
 
@@ -195,7 +195,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     /** Runs forwards at the commanded voltage. */
     public void runCharacterizationVolts(double volts) {
-        for (SwerveModule swerveModule : swerveModules) {
+        for (SwerveModuleTalonFX swerveModule : swerveModules) {
             // swerveModule.setVoltageForCharacterization(volts);
         }
     }
@@ -230,7 +230,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public void setModuleStates(SwerveModuleState[] states, boolean isOpenLoop) {
         SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND);
 
-        for (SwerveModule swerveModule : this.swerveModules) {
+        for (SwerveModuleTalonFX swerveModule : this.swerveModules) {
             swerveModule.setDesiredState(states[swerveModule.getModuleId()], isOpenLoop);
         }
 
@@ -278,7 +278,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      * 
      */
     public void updateDrivePID(double kP, double kI, double kD) {
-        for (SwerveModule swerveModule : this.swerveModules) {
+        for (SwerveModuleTalonFX swerveModule : this.swerveModules) {
             swerveModule.updateDrivePID(kP, kI, kD);
         }
     }
@@ -287,7 +287,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      * 
      */
     public void updateTurnPID(double kP, double kI, double kD) {
-        for (SwerveModule swerveModule : this.swerveModules) {
+        for (SwerveModuleTalonFX swerveModule : this.swerveModules) {
             swerveModule.updateTurnPID(kP, kI, kD);
         }
     }

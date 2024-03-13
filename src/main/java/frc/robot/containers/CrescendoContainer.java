@@ -10,7 +10,7 @@ import frc.robot.modules.gyro.GyroModuleNavx;
 import frc.robot.modules.gyro.GyroModuleSimulator;
 import frc.robot.modules.intake.IntakeModule;
 import frc.robot.modules.shooter.ShooterModule;
-import frc.robot.modules.swerve.SwerveModule;
+import frc.robot.modules.swerve.SwerveModuleTalonFX;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -27,12 +27,12 @@ public class CrescendoContainer extends RobotContainer {
     public CrescendoContainer() {
         super();
 
-        SwerveModule frontLeftModule  = new SwerveModule(0, Mod0.DRIVE_MOTOR_ID, Mod0.ANGLE_MOTOR_ID, Mod0.CANCODER_ID, Mod0.ANGLE_OFFSET);
-        SwerveModule frontRightModule = new SwerveModule(1, Mod1.DRIVE_MOTOR_ID, Mod1.ANGLE_MOTOR_ID, Mod1.CANCODER_ID, Mod1.ANGLE_OFFSET);
-        SwerveModule rearLeftModule   = new SwerveModule(2, Mod2.DRIVE_MOTOR_ID, Mod2.ANGLE_MOTOR_ID, Mod2.CANCODER_ID, Mod2.ANGLE_OFFSET);
-        SwerveModule rearRightModule  = new SwerveModule(3, Mod3.DRIVE_MOTOR_ID, Mod3.ANGLE_MOTOR_ID, Mod3.CANCODER_ID, Mod3.ANGLE_OFFSET);
+        SwerveModuleTalonFX frontLeftModule  = new SwerveModuleTalonFX(0, Mod0.DRIVE_MOTOR_ID, Mod0.ANGLE_MOTOR_ID, Mod0.CANCODER_ID, Mod0.ANGLE_OFFSET);
+        SwerveModuleTalonFX frontRightModule = new SwerveModuleTalonFX(1, Mod1.DRIVE_MOTOR_ID, Mod1.ANGLE_MOTOR_ID, Mod1.CANCODER_ID, Mod1.ANGLE_OFFSET);
+        SwerveModuleTalonFX rearLeftModule   = new SwerveModuleTalonFX(2, Mod2.DRIVE_MOTOR_ID, Mod2.ANGLE_MOTOR_ID, Mod2.CANCODER_ID, Mod2.ANGLE_OFFSET);
+        SwerveModuleTalonFX rearRightModule  = new SwerveModuleTalonFX(3, Mod3.DRIVE_MOTOR_ID, Mod3.ANGLE_MOTOR_ID, Mod3.CANCODER_ID, Mod3.ANGLE_OFFSET);
 
-        this.swerveModules = new SwerveModule[] { frontLeftModule, frontRightModule, rearLeftModule, rearRightModule};
+        this.swerveModules = new SwerveModuleTalonFX[] { frontLeftModule, frontRightModule, rearLeftModule, rearRightModule};
         try {
             
             this.gyroModule = new GyroModuleNavx();

@@ -17,7 +17,7 @@ import frc.robot.controls.OperatorBindings;
 import frc.robot.controls.TuningBindings;
 import frc.robot.controls.XBoxControlBindings;
 import frc.robot.modules.gyro.GyroModule;
-import frc.robot.modules.swerve.SwerveModule;
+import frc.robot.modules.swerve.SwerveModuleTalonFX;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PneumaticSubsystem;
@@ -41,7 +41,7 @@ abstract public class RobotContainer {
 
     /* Modules */
     protected GyroModule gyroModule;
-    protected SwerveModule[] swerveModules;
+    protected SwerveModuleTalonFX[] swerveModules;
     
     /* Subsystems */
     protected ArmSubsystem armSubsystem;

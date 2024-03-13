@@ -22,7 +22,7 @@ import frc.robot.utils.Conversions;
 /**
  * 
  */
-public class SwerveModuleSimulator extends SwerveModule {
+public class SwerveModuleSimulator extends SwerveModuleTalonFX {
     /* Simulated Drive Motor Characterization Values */
     private final double DRIVE_KS = 0.32; //0.0545;  // 0.116970;
     private final double DRIVE_KV = 1.51; //0.40126 / 12.0; // 0.133240;
