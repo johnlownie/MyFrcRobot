@@ -197,11 +197,11 @@ public final class Constants {
         public static final double SWERVE_MODULE_TURN_KD = 0.0;
         
         // PID constants for autonomous/pathplanner mode
-        public static final double SWERVE_DRIVE_X_KP = 6.0;
+        public static final double SWERVE_DRIVE_X_KP = 1.0;
         public static final double SWERVE_DRIVE_X_KI = 0.0;
         public static final double SWERVE_DRIVE_X_KD = 0.0;
 
-        public static final double SWERVE_DRIVE_Y_KP = 6.0;
+        public static final double SWERVE_DRIVE_Y_KP = 1.0;
         public static final double SWERVE_DRIVE_Y_KI = 0.0;
         public static final double SWERVE_DRIVE_Y_KD = 0.0;
 
