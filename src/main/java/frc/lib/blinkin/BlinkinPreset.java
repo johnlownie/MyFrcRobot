@@ -1,13 +1,13 @@
-package frc.lib.led;
+package frc.lib.blinkin;
 
 /**
  * 
  */
-public class LEDPreset {
+public class BlinkinPreset {
     /**
      * 
      */
-    public enum Rainbow implements ILEDPreset {
+    public enum Rainbow implements IBlinkinPreset {
         kRainbow(-0.99),
         kParty(-0.97),
         kOcean(-0.95),
@@ -34,7 +34,7 @@ public class LEDPreset {
     /**
      * 
      */
-    public enum Shot implements ILEDPreset {
+    public enum Shot implements IBlinkinPreset {
         kRed(-0.85),
         kBlue(-0.83),
         kWhite(-0.81);
@@ -57,7 +57,7 @@ public class LEDPreset {
     /**
      * 
      */
-    public enum Sinelon implements ILEDPreset {
+    public enum Sinelon implements IBlinkinPreset {
         kRainbow(-0.79),
         kParty(-0.77),
         kOcean(-0.75),
@@ -82,7 +82,7 @@ public class LEDPreset {
     /**
      * 
      */
-    public enum BeatsPerMinute implements ILEDPreset {
+    public enum BeatsPerMinute implements IBlinkinPreset {
         kRainbow(-0.69),
         kParty(-0.67),
         kOcean(-0.65),
@@ -107,7 +107,7 @@ public class LEDPreset {
     /**
      * 
      */
-    public enum Fire implements ILEDPreset {
+    public enum Fire implements IBlinkinPreset {
         kRainbow(-0.59),
         kParty(-0.57);
 
@@ -129,7 +129,7 @@ public class LEDPreset {
     /**
      * 
      */
-    public enum Twinkles implements ILEDPreset {
+    public enum Twinkles implements IBlinkinPreset {
         kRainbow(-0.55),
         kParty(-0.53),
         kOcean(-0.51),
@@ -154,7 +154,7 @@ public class LEDPreset {
     /**
      * 
      */
-    public enum ColorWaves implements ILEDPreset {
+    public enum ColorWaves implements IBlinkinPreset {
         kRainbow(-0.45),
         kParty(-0.43),
         kOcean(-0.41),
@@ -179,7 +179,7 @@ public class LEDPreset {
     /**
      * 
      */
-    public enum LarsonScanner implements ILEDPreset {
+    public enum LarsonScanner implements IBlinkinPreset {
         kRed(-0.35),
         kGray(-0.33);
 
@@ -201,7 +201,7 @@ public class LEDPreset {
     /**
      * 
      */
-    public enum LightChase implements ILEDPreset {
+    public enum LightChase implements IBlinkinPreset {
         kRed(-0.31),
         kBlue(-0.29),
         kGray(-0.27);
@@ -224,7 +224,7 @@ public class LEDPreset {
     /**
      * 
      */
-    public enum Heartbeat implements ILEDPreset {
+    public enum Heartbeat implements IBlinkinPreset {
         kRed(-0.25),
         kBlue(-0.23),
         kWhite(-0.21),
@@ -248,7 +248,7 @@ public class LEDPreset {
     /**
      * 
      */
-    public enum Breath implements ILEDPreset {
+    public enum Breath implements IBlinkinPreset {
         kRed(-0.17),
         kBlue(-0.15),
         kGray(-0.13);
@@ -271,7 +271,7 @@ public class LEDPreset {
     /**
      * 
      */
-    public enum Strobe implements ILEDPreset {
+    public enum Strobe implements IBlinkinPreset {
         kRed(-0.11),
         kBlue(-0.09),
         kGold(-0.07),
@@ -295,7 +295,7 @@ public class LEDPreset {
     /**
      * 
      */
-    public enum Color1 implements ILEDPreset {
+    public enum Color1 implements IBlinkinPreset {
         kEndToEndBlendToBlack(-0.03),
         kLarsonScanner(-0.01),
         kLightChase(0.01),
@@ -325,7 +325,7 @@ public class LEDPreset {
     /**
      * 
      */
-    public enum Color2 implements ILEDPreset {
+    public enum Color2 implements IBlinkinPreset {
         kEndToEndBlendToBlack(0.17),
         kLarsonScanner(0.19),
         kLightChase(0.21),
@@ -355,7 +355,7 @@ public class LEDPreset {
     /**
      * 
      */
-    public enum Color1And2 implements ILEDPreset {
+    public enum Color1And2 implements IBlinkinPreset {
         kSparkle(0.37),
         kSparkleInverted(0.39),
         kGradient(0.41),
@@ -385,7 +385,7 @@ public class LEDPreset {
     /**
      * 
      */
-    public enum Solid implements ILEDPreset {
+    public enum Solid implements IBlinkinPreset {
         kHotPink(0.57),
         kDarkRed(0.59),
         kRed(0.61),

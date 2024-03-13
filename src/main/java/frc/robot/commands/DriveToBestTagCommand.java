@@ -14,8 +14,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.lib.led.LEDController;
-import frc.lib.led.LEDPreset;
+import frc.lib.blinkin.BlinkinController;
+import frc.lib.blinkin.BlinkinPreset;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -83,10 +83,10 @@ public class DriveToBestTagCommand extends Command {
         Pose2d goalPose = getBestTagPose(robotPose);
         if (goalPose == null) {
             goalPose = robotPose2d;
-            LEDController.set(LEDPreset.Solid.kRed);
+            BlinkinController.set(BlinkinPreset.Solid.kRed);
         }
         else {
-            LEDController.set(LEDPreset.Solid.kGreen);
+            BlinkinController.set(BlinkinPreset.Solid.kGreen);
         }
 
         this.xController.setGoal(goalPose.getX());

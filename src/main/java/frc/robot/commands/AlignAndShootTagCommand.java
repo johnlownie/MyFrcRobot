@@ -14,8 +14,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.lib.led.LEDController;
-import frc.lib.led.LEDPreset;
+import frc.lib.blinkin.BlinkinController;
+import frc.lib.blinkin.BlinkinPreset;
 import frc.lib.util.Timer;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.ArmSubsystem;
@@ -92,12 +92,12 @@ public class AlignAndShootTagCommand extends Command {
         Pose2d goalPose = robotPose2d;
 
         if (target == null) {
-            LEDController.set(LEDPreset.Solid.kRed);
+            BlinkinController.set(BlinkinPreset.Solid.kRed);
         }
         else {
             goalPose = getBestTagPose(robotPose, target);
             
-            LEDController.set(LEDPreset.Solid.kGreen);
+            BlinkinController.set(BlinkinPreset.Solid.kGreen);
         }
 
         this.xController.setGoal(goalPose.getX());

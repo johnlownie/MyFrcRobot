@@ -4,8 +4,8 @@ import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.lib.led.LEDController;
-import frc.lib.led.LEDPreset;
+import frc.lib.blinkin.BlinkinController;
+import frc.lib.blinkin.BlinkinPreset;
 import frc.lib.util.Timer;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -47,7 +47,7 @@ public class DeployGamePieceCommand extends Command {
     public void end(boolean interrupted) {
         this.armSubsystem.addAction(ArmSubsystem.Action.MOVE_TO_INTAKE);
         this.shooterSubsystem.addAction(ShooterSubsystem.Action.IDLE);
-        LEDController.set(LEDPreset.Solid.kBlack);
+        BlinkinController.set(BlinkinPreset.Solid.kBlack);
         this.timer.stop();
         
         Logger.recordOutput("Commands/Active Command", "");
@@ -56,7 +56,7 @@ public class DeployGamePieceCommand extends Command {
     @Override
     public void execute() {
         if (this.moveTo == null || this.shootTo == null) {
-            LEDController.set(LEDPreset.Solid.kRed);
+            BlinkinController.set(BlinkinPreset.Solid.kRed);
             return;
         }
 
