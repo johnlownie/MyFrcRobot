@@ -101,7 +101,7 @@ public class Robot extends LoggedRobot {
                 break;
             
             case SIM:
-                Logger.addDataReceiver(new WPILOGWriter(""));
+                Logger.addDataReceiver(new WPILOGWriter("logs/"));
                 Logger.addDataReceiver(new NT4Publisher());
 
                 this.robotContainer = new SimulatorContainer();
