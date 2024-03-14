@@ -20,6 +20,7 @@ import frc.robot.modules.gyro.GyroModule;
 import frc.robot.modules.swerve.SwerveModuleTalonFX;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.PneumaticSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -46,9 +47,10 @@ abstract public class RobotContainer {
     /* Subsystems */
     protected ArmSubsystem armSubsystem;
     protected IntakeSubsystem intakeSubsystem;
-    protected ShooterSubsystem shooterSubsystem;
+    protected LEDSubsystem ledSubsystem;
     protected PneumaticSubsystem pneumaticSubsystem;
     protected PoseEstimatorSubsystem poseEstimator;
+    protected ShooterSubsystem shooterSubsystem;
     protected SwerveDriveSubsystem swerveDrive;
     protected VisionSubsystem visionSubsystem;
 

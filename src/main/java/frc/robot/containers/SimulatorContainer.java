@@ -1,5 +1,6 @@
 package frc.robot.containers;
 
+import frc.lib.led.LEDController;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.SwerveModuleConstants.Mod0;
 import frc.robot.Constants.SwerveModuleConstants.Mod1;
@@ -12,6 +13,7 @@ import frc.robot.modules.shooter.ShooterModuleSimulator;
 import frc.robot.modules.swerve.SwerveModuleSimulator;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -41,6 +43,7 @@ public class SimulatorContainer extends RobotContainer {
         this.shooterSubsystem = new ShooterSubsystem(new ShooterModuleSimulator());
         this.visionSubsystem = new VisionSubsystem(VisionConstants.CAMERAS);
         this.poseEstimator = new PoseEstimatorSubsystem(this.swerveDrive::getModulePositions, this.swerveDrive::getRotation, this.visionSubsystem);
+        this.ledSubsystem = new LEDSubsystem(this.armSubsystem, this.intakeSubsystem, this.shooterSubsystem);
 
         setCommands();
 

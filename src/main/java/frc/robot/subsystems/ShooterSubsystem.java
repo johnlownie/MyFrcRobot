@@ -67,6 +67,13 @@ public class ShooterSubsystem extends SubsystemBase {
     /**
      * 
      */
+    public Action getCurrentState() {
+        return this.stateMachine.getCurrentState();
+    }
+
+    /**
+     * 
+     */
     private void handleHoldSpeed(StateMetadata<Action> stateMetadata) {
     }
 

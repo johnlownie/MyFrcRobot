@@ -54,6 +54,13 @@ public class IntakeSubsystem extends SubsystemBase {
     /**
      * 
      */
+    public Action getCurrentState() {
+        return this.stateMachine.getCurrentState();
+    }
+
+    /**
+     * 
+     */
     private void handleEject(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
             this.timer.reset();

@@ -59,6 +59,13 @@ public class ArmSubsystem extends SubsystemBase {
     /**
      * 
      */
+    public Action getCurrentState() {
+        return this.stateMachine.getCurrentState();
+    }
+
+    /**
+     * 
+     */
     private void handleClimb(StateMetadata<Action> stateMetadata) {
         if (stateMetadata.isFirstRun()) {
             this.timer.reset();
