@@ -25,6 +25,7 @@ import frc.lib.led.LEDController;
 import frc.lib.util.LocalADStarAK;
 import frc.robot.Constants.MechanismConstants;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.RobotConstants.DriveModeType;
 import frc.robot.containers.CrescendoContainer;
 import frc.robot.containers.RobotContainer;
 import frc.robot.containers.SimulatorContainer;
@@ -215,6 +216,7 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
+        Logger.recordOutput("Subsystems/SwerveDrive/DriveMode", this.robotContainer.getDriveModeType() == DriveModeType.SPEAKER ? "SPEAKER" : "AMP");
     }
 
     /** This function is called once when the robot is disabled. */

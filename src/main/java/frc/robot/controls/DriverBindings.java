@@ -5,14 +5,19 @@ import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 import static edu.wpi.first.wpilibj2.command.Commands.sequence;
 import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 
+import java.util.function.Supplier;
+
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.RobotConstants.DriveModeType;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.DeployGamePieceCommand;
 import frc.robot.commands.DriveAndGrabNoteCommand;
 import frc.robot.commands.DriveFromBestTagCommand;
 import frc.robot.commands.LockedTelopDriveByPoseCommand;
+import frc.robot.commands.PathFinderAndFollow;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -32,6 +37,9 @@ public class DriverBindings {
 
     /* Commands */
     private final TeleopDriveCommand teleopDriveCommand;
+
+    /* Variables */
+    private DriveModeType driveModeType = DriveModeType.SPEAKER;
 
     /**
      * 
@@ -100,6 +108,20 @@ public class DriverBindings {
             //     .until(controller.driverWantsControl())
             // )
         );
+
+        // Toggle driver mode
+        controller.driverB().ifPresent(
+            trigger -> trigger.whileTrue(
+                Commands.runOnce(() -> toggleDriveMode())
+            )
+        );
+
+        controller.driverRightTrigger().ifPresent(
+            trigger -> trigger.whileTrue(
+                new PathFinderAndFollow(getDriveModeType())
+            )
+        );
+
         
         // Toggle Intake
         controller.toggleIntake().ifPresent(
@@ -237,5 +259,23 @@ public class DriverBindings {
                 .until(controller.driverWantsControlRight())
             )
         );
+    }
+
+    /**
+     * Gets the current drive mode.
+     *
+     * @return The supplier that provides the current drive mode.
+     */
+    public Supplier<DriveModeType> getDriveModeType() {
+        return () -> this.driveModeType;
+    }
+
+    /** Toggles the drive mode between AMP and SPEAKER. */
+    public void toggleDriveMode() {
+        if (this.driveModeType == DriveModeType.AMP) {
+            this.driveModeType = DriveModeType.SPEAKER;
+        } else {
+            this.driveModeType = DriveModeType.AMP;
+        }
     }
 }

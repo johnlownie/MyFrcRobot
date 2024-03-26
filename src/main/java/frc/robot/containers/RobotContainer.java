@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.util.Timer;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.RobotConstants.DriveModeType;
 import frc.robot.autonomous.AutoBuilder;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.commands.TuningCommand;
@@ -57,6 +58,9 @@ abstract public class RobotContainer {
     /* Autonomous */
     LoggedDashboardChooser<Command> autonomousChooser;
 
+    /* Variables */
+    DriverBindings driverBindings;
+    OperatorBindings operatorBindings;
     private final Timer reseedTimer = new Timer();
 
     /**
@@ -90,16 +94,14 @@ abstract public class RobotContainer {
             TuningBindings tuningBindings = new TuningBindings(this.swerveDrive, this.poseEstimator, this.armSubsystem, this.intakeSubsystem, this.shooterSubsystem, this.visionSubsystem, this.teleopDriveCommand);
             tuningBindings.configureDriverButtonBindings(this.driverController);
             tuningBindings.configureOperatorButtonBindings(this.operatorController);
-            return;
         }
+        else {
+            this.driverBindings = new DriverBindings(this.swerveDrive, this.poseEstimator, this.armSubsystem, this.intakeSubsystem, this.shooterSubsystem, this.visionSubsystem, this.teleopDriveCommand);
+            this.driverBindings.configureButtonBindings(this.driverController);
 
-        /* Driver Buttons */
-        DriverBindings driverBindings = new DriverBindings(this.swerveDrive, this.poseEstimator, this.armSubsystem, this.intakeSubsystem, this.shooterSubsystem, this.visionSubsystem, this.teleopDriveCommand);
-        driverBindings.configureButtonBindings(this.driverController);
-
-        /* Operator Buttons */
-        OperatorBindings operatorBindings = new OperatorBindings(this.swerveDrive, this.poseEstimator, this.armSubsystem, this.intakeSubsystem, this.shooterSubsystem, this.visionSubsystem);
-        operatorBindings.configureButtonBindings(this.operatorController);
+            this.operatorBindings = new OperatorBindings(this.swerveDrive, this.poseEstimator, this.armSubsystem, this.intakeSubsystem, this.shooterSubsystem, this.visionSubsystem);
+            this.operatorBindings.configureButtonBindings(this.operatorController);
+        }
     }
 
     /**
@@ -122,6 +124,13 @@ abstract public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         return this.autonomousChooser.get();
+    }
+
+    /**
+     * 
+     */
+    public DriveModeType getDriveModeType() {
+        return this.driverBindings.getDriveModeType().get();
     }
         
     /**
