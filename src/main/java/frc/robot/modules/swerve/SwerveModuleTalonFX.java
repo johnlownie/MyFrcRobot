@@ -18,6 +18,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import frc.lib.util.COTSTalonFXSwerveConstants;
 import frc.lib.util.Timer;
 import frc.robot.Constants.PIDConstants;
@@ -44,11 +45,11 @@ public class SwerveModuleTalonFX extends SwerveModule {
     public static final COTSTalonFXSwerveConstants CHOSEN_MODULE = COTSTalonFXSwerveConstants.SDS.MK4i.Falcon500(COTSTalonFXSwerveConstants.SDS.MK4i.driveRatios.L2);
     
     /* Swerve Hardware */
-    protected final TalonFX angleMotor;
     protected final TalonFX driveMotor;
-    protected final CANcoder encoder;
+    protected final TalonFX turnMotor;
+    protected final CANcoder cancoder;
     
-    protected final Rotation2d angleOffset;
+    protected final Rotation2d absoluteEncoderOffset;
 
     /* Module Variables */
     protected final int module_id;
@@ -60,57 +61,15 @@ public class SwerveModuleTalonFX extends SwerveModule {
     /**
      * 
      */
-    public SwerveModuleTalonFX(int module_id, int drive_motor_id, int angle_motor_id, int can_coder_id, Rotation2d angleOffset) {
+    public SwerveModuleTalonFX(int module_id, int drive_motor_id, int angle_motor_id, int can_coder_id, Rotation2d absoluteEncoderOffset) {
         this.module_id = module_id;
         this.driveMotor = getDriveMotor(drive_motor_id);
-        this.angleMotor = getAngleMotor(angle_motor_id);
-        this.encoder = getEncoder(can_coder_id);
-        this.angleOffset = angleOffset;
+        this.turnMotor = getTurnMotor(angle_motor_id);
+        this.cancoder = getEncoder(can_coder_id);
+        this.absoluteEncoderOffset = absoluteEncoderOffset;
         this.feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
         this.positionVoltage = new PositionVoltage(0);
         this.velocityVoltage = new VelocityVoltage(0);
-    }
-
-    /**
-     * 
-     */
-    private TalonFX getAngleMotor(int motor_id) {
-        TalonFX motor = new TalonFX(motor_id);
-        TalonFXConfiguration talonFXConfiguration = getAngleMotorConfiguration();
-
-        motor.getConfigurator().apply(talonFXConfiguration);
-
-        return motor;
-    }
-
-    /**
-     * 
-     */
-    private TalonFXConfiguration getAngleMotorConfiguration() {
-        TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
-
-        talonFXConfiguration.MotorOutput.Inverted = CHOSEN_MODULE.angleMotorInvert;
-        talonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-
-        talonFXConfiguration.Feedback.SensorToMechanismRatio = CHOSEN_MODULE.angleGearRatio;
-        talonFXConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
-
-        talonFXConfiguration.CurrentLimits.SupplyCurrentLimit = SwerveModuleConstants.ANGLE_CURRENT_LIMIT;
-        talonFXConfiguration.CurrentLimits.SupplyCurrentThreshold = SwerveModuleConstants.ANGLE_CURRENT_THRESHOLD;
-        talonFXConfiguration.CurrentLimits.SupplyTimeThreshold = SwerveModuleConstants.ANGLE_TIME_THRESHOLD;
-        talonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-        talonFXConfiguration.CurrentLimits.StatorCurrentLimit = SwerveModuleConstants.STATOR_CURRENT_LIMIT;
-        talonFXConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
-
-        talonFXConfiguration.Slot0.kP = PIDConstants.SWERVE_MODULE_TURN_KP;
-        talonFXConfiguration.Slot0.kI = PIDConstants.SWERVE_MODULE_TURN_KI;
-        talonFXConfiguration.Slot0.kD = PIDConstants.SWERVE_MODULE_TURN_KD;
-
-        // talonFXConfiguration.MotionMagic.MotionMagicCruiseVelocity = 2.0 / MOTION_MAGIC_VELOCITY / this.angleEncoderVelocityCoefficient;
-        // talonFXConfiguration.MotionMagic.MotionMagicAcceleration = (8.0 - 2.0) / MOTION_MAGIC_ACCELERATION / this.angleEncoderVelocityCoefficient;
-    
-        return talonFXConfiguration;
     }
     
     /**
@@ -160,6 +119,48 @@ public class SwerveModuleTalonFX extends SwerveModule {
     /**
      * 
      */
+    private TalonFX getTurnMotor(int motor_id) {
+        TalonFX motor = new TalonFX(motor_id);
+        TalonFXConfiguration talonFXConfiguration = getTurnMotorConfiguration();
+
+        motor.getConfigurator().apply(talonFXConfiguration);
+
+        return motor;
+    }
+
+    /**
+     * 
+     */
+    private TalonFXConfiguration getTurnMotorConfiguration() {
+        TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
+
+        talonFXConfiguration.MotorOutput.Inverted = CHOSEN_MODULE.angleMotorInvert;
+        talonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+        talonFXConfiguration.Feedback.SensorToMechanismRatio = CHOSEN_MODULE.angleGearRatio;
+        talonFXConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
+
+        talonFXConfiguration.CurrentLimits.SupplyCurrentLimit = SwerveModuleConstants.ANGLE_CURRENT_LIMIT;
+        talonFXConfiguration.CurrentLimits.SupplyCurrentThreshold = SwerveModuleConstants.ANGLE_CURRENT_THRESHOLD;
+        talonFXConfiguration.CurrentLimits.SupplyTimeThreshold = SwerveModuleConstants.ANGLE_TIME_THRESHOLD;
+        talonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+        talonFXConfiguration.CurrentLimits.StatorCurrentLimit = SwerveModuleConstants.STATOR_CURRENT_LIMIT;
+        talonFXConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        talonFXConfiguration.Slot0.kP = PIDConstants.SWERVE_MODULE_TURN_KP;
+        talonFXConfiguration.Slot0.kI = PIDConstants.SWERVE_MODULE_TURN_KI;
+        talonFXConfiguration.Slot0.kD = PIDConstants.SWERVE_MODULE_TURN_KD;
+
+        // talonFXConfiguration.MotionMagic.MotionMagicCruiseVelocity = 2.0 / MOTION_MAGIC_VELOCITY / this.angleEncoderVelocityCoefficient;
+        // talonFXConfiguration.MotionMagic.MotionMagicAcceleration = (8.0 - 2.0) / MOTION_MAGIC_ACCELERATION / this.angleEncoderVelocityCoefficient;
+    
+        return talonFXConfiguration;
+    }
+
+    /**
+     * 
+     */
     private CANcoder getEncoder(int can_coder_id) {
         CANcoder canCoder = new CANcoder(can_coder_id);
         CANcoderConfiguration canCoderConfiguration = getEncoderConfiguration();
@@ -195,7 +196,7 @@ public class SwerveModuleTalonFX extends SwerveModule {
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
             Conversions.RPSToMPS(this.driveMotor.getPosition().getValue(), CHOSEN_MODULE.wheelCircumference), 
-                Rotation2d.fromRotations(this.angleMotor.getPosition().getValue())
+                Rotation2d.fromRotations(this.turnMotor.getPosition().getValue())
         );
     }
 
@@ -205,7 +206,7 @@ public class SwerveModuleTalonFX extends SwerveModule {
     public SwerveModuleState getState() {
         return new SwerveModuleState(
             Conversions.RPSToMPS(this.driveMotor.getVelocity().getValue(), CHOSEN_MODULE.wheelCircumference), 
-            Rotation2d.fromRotations(this.angleMotor.getPosition().getValue())
+            Rotation2d.fromRotations(this.turnMotor.getPosition().getValue())
         );
     }
 
@@ -224,7 +225,7 @@ public class SwerveModuleTalonFX extends SwerveModule {
      */
     protected void setAngleState(SwerveModuleState desiredState) {
         PositionVoltage positionVoltage = this.positionVoltage.withPosition(desiredState.angle.getRotations());
-        this.angleMotor.setControl(positionVoltage);
+        this.turnMotor.setControl(positionVoltage);
 
         Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/VVPosition", positionVoltage.Position);
         Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/VVVelocity", positionVoltage.Velocity);
@@ -239,8 +240,6 @@ public class SwerveModuleTalonFX extends SwerveModule {
             double output = desiredState.speedMetersPerSecond / SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
             double voltage = MathUtil.clamp(output * VOLTAGE_LIMIT, -VOLTAGE_LIMIT, VOLTAGE_LIMIT);
             this.driveMotor.setControl(new DutyCycleOut(voltage));
-
-            Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/Output", output);
         }
         else {
             double radiansPerSecond = Conversions.MPSToRPS(desiredState.speedMetersPerSecond, CHOSEN_MODULE.wheelCircumference);
@@ -260,21 +259,33 @@ public class SwerveModuleTalonFX extends SwerveModule {
     public void updatePositions() {
         double timeBetweenUpdates = Timer.getFPGATimestamp() - this.drivePreviousTimestamp;
 
-        this.angleAbsolutePositionDEG = this.encoder.getAbsolutePosition().getValueAsDouble();
-        this.anglePositionDEG = Conversions.toDegrees(this.angleMotor.getPosition().getValueAsDouble(), CHOSEN_MODULE.angleGearRatio);
-        this.angleVelocityRPM = Conversions.toRPM(this.angleMotor.getVelocity().getValueAsDouble(), CHOSEN_MODULE.angleGearRatio);
+        this.drivePositionRAD = Units.rotationsToRadians(this.driveMotor.getPosition().getValueAsDouble()) / CHOSEN_MODULE.driveGearRatio;
+        this.driveVelocityRPS = Units.rotationsToRadians(this.driveMotor.getVelocity().getValueAsDouble()) / CHOSEN_MODULE.driveGearRatio;
+        this.driveAppliedVolts = this.driveMotor.getMotorVoltage().getValueAsDouble();
+        this.driveCurrentAmps = new double[] { this.driveMotor.getStatorCurrent().getValueAsDouble() };
+
+        this.turnAbsolutePosition = Rotation2d.fromRotations(this.cancoder.getAbsolutePosition().getValueAsDouble()).minus(this.absoluteEncoderOffset);
+        this.turnPosition = Rotation2d.fromRotations(this.turnMotor.getPosition().getValueAsDouble() / CHOSEN_MODULE.angleGearRatio);
+        this.turnVelocityRPS = Units.rotationsToRadians(this.turnMotor.getVelocity().getValueAsDouble()) / CHOSEN_MODULE.angleGearRatio;
+        this.turnAppliedVolts = this.turnMotor.getMotorVoltage().getValueAsDouble();
+        this.turnCurrentAmps = new double[] { this.turnMotor.getStatorCurrent().getValueAsDouble() };
 
         this.drivePositionDEG = Conversions.toDegrees(this.driveMotor.getPosition().getValueAsDouble(), CHOSEN_MODULE.driveGearRatio);
         this.driveDistanceMeters = Conversions.toMeters(this.driveMotor.getPosition().getValueAsDouble(), CHOSEN_MODULE.driveGearRatio, CHOSEN_MODULE.wheelCircumference);
         this.driveVelocityMPS = Conversions.RPSToMPS(this.driveMotor.getVelocity().getValueAsDouble(), CHOSEN_MODULE.driveGearRatio);
-        // this.driveVelocityMPS = this.getState().speedMetersPerSecond;
         this.driveAccelerationMPS = (this.driveVelocityMPS - this.drivePreviousVelocityMPS) / timeBetweenUpdates;
         this.drivePreviousVelocityMPS = this.driveVelocityMPS;
         this.drivePreviousTimestamp = Timer.getFPGATimestamp();
 
-        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/AbsolutePositionDEG", this.angleAbsolutePositionDEG);
-        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/PositionDEG", this.anglePositionDEG);
-        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/VelocityRPM", this.angleVelocityRPM);
+        this.turnAbsolutePositionDEG = this.cancoder.getAbsolutePosition().getValueAsDouble();
+        this.turnPositionDEG = Conversions.toDegrees(this.turnMotor.getPosition().getValueAsDouble(), CHOSEN_MODULE.angleGearRatio);
+        this.turnVelocityRPM = Conversions.toRPM(this.turnMotor.getVelocity().getValueAsDouble(), CHOSEN_MODULE.angleGearRatio);
+
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/PositionRAD", this.drivePositionRAD);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/VelocityRPS", this.driveVelocityRPS);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/AppliedVolts", this.driveAppliedVolts);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/CurrentAmps", this.driveCurrentAmps);
+
         Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/AccelerationMPS", this.driveAccelerationMPS);
         Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/DistanceMeters", this.driveDistanceMeters);
         Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/PositionDegrees", this.drivePositionDEG);
@@ -282,6 +293,16 @@ public class SwerveModuleTalonFX extends SwerveModule {
         Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/SetPointPCT", this.driveSetpointPCT);
         Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/MyVelocityMPS", this.driveVelocityMPS);
         Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/ModVelocityMPS", this.getState().speedMetersPerSecond);
+
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/AbsolutePosition", this.turnAbsolutePosition);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/Position", this.turnPosition);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/VelocityRPS", this.turnVelocityRPS);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/AppliedVolts", this.turnAppliedVolts);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/CurrentAmps", this.turnCurrentAmps);
+
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/AbsolutePositionDEG", this.turnAbsolutePositionDEG);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/PositionDEG", this.turnPositionDEG);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/VelocityRPM", this.turnVelocityRPM);
     }
 
     /**
@@ -306,7 +327,7 @@ public class SwerveModuleTalonFX extends SwerveModule {
             slot0Configs.kP = kP;
             slot0Configs.kI = kI;
             slot0Configs.kD = kD;
-            this.angleMotor.getConfigurator().refresh(slot0Configs);
+            this.turnMotor.getConfigurator().refresh(slot0Configs);
         }
     }
 }

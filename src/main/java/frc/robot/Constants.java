@@ -202,6 +202,15 @@ public final class Constants {
         public static final double SWERVE_MODULE_TURN_KI = 0.0;
         public static final double SWERVE_MODULE_TURN_KD = 0.0;
         
+        // PID constants for simulated swerve modules
+        public static final double SIM_SWERVE_MODULE_DRIVE_KP = 1.0;
+        public static final double SIM_SWERVE_MODULE_DRIVE_KI = 0.0;
+        public static final double SIM_SWERVE_MODULE_DRIVE_KD = 0.0;
+        
+        public static final double SIM_SWERVE_MODULE_TURN_KP = 1.0;
+        public static final double SIM_SWERVE_MODULE_TURN_KI = 0.0;
+        public static final double SIM_SWERVE_MODULE_TURN_KD = 0.0;
+        
         // PID constants for autonomous/pathplanner mode
         public static final double SWERVE_DRIVE_X_KP = 1.0;
         public static final double SWERVE_DRIVE_X_KI = 0.0;
