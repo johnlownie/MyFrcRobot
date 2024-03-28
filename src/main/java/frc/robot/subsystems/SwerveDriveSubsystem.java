@@ -196,7 +196,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     /** Runs forwards at the commanded voltage. */
     public void runCharacterizationVolts(double volts) {
         for (SwerveModuleTalonFX swerveModule : swerveModules) {
-            // swerveModule.setVoltageForCharacterization(volts);
+            swerveModule.setVoltageForCharacterization(volts);
         }
     }
     

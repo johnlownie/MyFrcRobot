@@ -25,7 +25,7 @@ import frc.robot.utils.Conversions;
 public class SwerveModuleSimulator extends SwerveModuleTalonFX {
     /* Simulated Drive Motor Characterization Values */
     private final double DRIVE_KS = 0.0; //0.0545;  // 0.116970;
-    private final double DRIVE_KV = 0.13; //0.40126 / 12.0; // 0.133240;
+    private final double DRIVE_KV = 0.1205; //0.40126 / 12.0; // 0.133240;
     private final double DRIVE_KA = 0.0; //0.0225;  // 0.0;
 
     private final SimpleMotorFeedforward feedForward;
@@ -44,7 +44,6 @@ public class SwerveModuleSimulator extends SwerveModuleTalonFX {
     
     /* Variables */
     private final Rotation2d turnAbsoluteInitialPosition = new Rotation2d(Math.random() * 2.0 * Math.PI);
-    private boolean isOpenLoop = false;
 
     /**
      * 

@@ -5,6 +5,7 @@ import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 
 @AutoLog
 abstract public class SwerveModule implements LoggableInputs {
@@ -34,6 +35,21 @@ abstract public class SwerveModule implements LoggableInputs {
     public double turnRelativePositionRAD = 0.0;
     public double turnSetpointRAD = 0.0;
     public double turnVelocityRPM = 0.0;
+
+    public boolean isOpenLoop = false;
+
+    /**
+     * Set the drive motor to the specified voltage. This is only used for characterization via the
+     * FeedForwardCharacterization command. The module will be set to 0 degrees throughout the
+     * characterization; as a result, the wheels don't need to be clamped to hold them straight.
+     *
+     * @param voltage the specified voltage for the drive motor
+     */
+    public void setVoltageForCharacterization(double voltage) {
+        this.turnSetpointRAD = Units.degreesToRadians(0.0);
+        this.driveSetpointPCT = voltage;
+        this.isOpenLoop = true;
+    }
 
     @Override
     public void toLog(LogTable table) {
