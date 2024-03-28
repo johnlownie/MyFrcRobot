@@ -225,7 +225,7 @@ public final class Constants {
         public static final double SIM_SWERVE_MODULE_DRIVE_KI = 0.0;
         public static final double SIM_SWERVE_MODULE_DRIVE_KD = 0.0;
         
-        public static final double SIM_SWERVE_MODULE_TURN_KP = 0.0;
+        public static final double SIM_SWERVE_MODULE_TURN_KP = 1.0;
         public static final double SIM_SWERVE_MODULE_TURN_KI = 0.0;
         public static final double SIM_SWERVE_MODULE_TURN_KD = 0.0;
         
@@ -238,7 +238,7 @@ public final class Constants {
         public static final double SIM_SWERVE_DRIVE_Y_KI = 0.0;
         public static final double SIM_SWERVE_DRIVE_Y_KD = 0.0;
 
-        public static final double SIM_SWERVE_DRIVE_OMEGA_KP = 0.1;
+        public static final double SIM_SWERVE_DRIVE_OMEGA_KP = 0.0;
         public static final double SIM_SWERVE_DRIVE_OMEGA_KI = 0.0;
         public static final double SIM_SWERVE_DRIVE_OMEGA_KD = 0.0;
 
