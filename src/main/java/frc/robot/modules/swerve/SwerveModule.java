@@ -32,7 +32,7 @@ abstract public class SwerveModule implements LoggableInputs {
     public double turnAbsolutePositionDEG = 0.0;
     public double turnPositionDEG = 0.0;
     public double turnRelativePositionRAD = 0.0;
-    public double turnSetpointDEG = 0.0;
+    public double turnSetpointRAD = 0.0;
     public double turnVelocityRPM = 0.0;
 
     @Override

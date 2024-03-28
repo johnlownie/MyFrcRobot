@@ -24,9 +24,9 @@ import frc.robot.utils.Conversions;
  */
 public class SwerveModuleSimulator extends SwerveModuleTalonFX {
     /* Simulated Drive Motor Characterization Values */
-    private final double DRIVE_KS = 0.32; //0.0545;  // 0.116970;
-    private final double DRIVE_KV = 1.51; //0.40126 / 12.0; // 0.133240;
-    private final double DRIVE_KA = 0.27; //0.0225;  // 0.0;
+    private final double DRIVE_KS = 0.0; //0.0545;  // 0.116970;
+    private final double DRIVE_KV = 0.13; //0.40126 / 12.0; // 0.133240;
+    private final double DRIVE_KA = 0.0; //0.0225;  // 0.0;
 
     private final SimpleMotorFeedforward feedForward;
 
@@ -84,16 +84,6 @@ public class SwerveModuleSimulator extends SwerveModuleTalonFX {
     /**
      * 
      */
-    @Override
-    protected void setAngleState(SwerveModuleState desiredState) {
-        super.setAngleState(desiredState);
-
-        this.turnSetpointDEG = desiredState.angle.getDegrees();
-    }
-
-    /**
-     * 
-     */
     protected void setDriveState(SwerveModuleState desiredState, boolean isOpenLoop) {
         super.setDriveState(desiredState, isOpenLoop);
 
@@ -103,8 +93,20 @@ public class SwerveModuleSimulator extends SwerveModuleTalonFX {
             this.driveSetpointPCT = desiredState.speedMetersPerSecond / SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND;
         }
         else {
-            this.driveSetpointMPS = this.feedForward.calculate(desiredState.speedMetersPerSecond);
+            // this.driveSetpointMPS = this.feedForward.calculate(desiredState.speedMetersPerSecond);
+            this.driveSetpointMPS = desiredState.speedMetersPerSecond * Math.cos(this.turnController.getPositionError());
+
         }
+    }
+
+    /**
+     * 
+     */
+    @Override
+    protected void setTurnState(SwerveModuleState desiredState) {
+        super.setTurnState(desiredState);
+
+        this.turnSetpointRAD = desiredState.angle.getRadians();
     }
 
     /**
@@ -115,12 +117,16 @@ public class SwerveModuleSimulator extends SwerveModuleTalonFX {
             this.driveController.reset();
             this.driveAppliedVolts = MathUtil.clamp(this.driveSetpointPCT * 12.0, -12.0, 12.0);
             this.driveMotorSim.setInputVoltage(this.driveAppliedVolts);
-            }
+            this.driveSimState.setSupplyVoltage(this.driveAppliedVolts);
+        }
         else {
-            double radiansPerSecond = Conversions.MPSToRPS(this.driveSetpointMPS, CHOSEN_MODULE.wheelCircumference);
-            double pidOutput = this.driveController.calculate(this.driveVelocityMPS, radiansPerSecond);
+            // double radiansPerSecond = Conversions.MPSToRPS(this.driveSetpointMPS, CHOSEN_MODULE.wheelCircumference);
+            // double pidOutput = this.driveController.calculate(this.driveVelocityMPS, radiansPerSecond);
+            // this.driveAppliedVolts = MathUtil.clamp(radiansPerSecond + pidOutput, -12.0, 12.0);
             
-            this.driveAppliedVolts = MathUtil.clamp(radiansPerSecond + pidOutput, -12.0, 12.0);
+            double velocityRPS = this.driveSetpointMPS / (CHOSEN_MODULE.wheelDiameter / 2);
+            double voltage = this.feedForward.calculate(velocityRPS) + this.driveController.calculate(this.driveVelocityRPS, velocityRPS);
+            this.driveAppliedVolts = MathUtil.clamp(voltage, -12.0, 12.0);
             this.driveMotorSim.setInputVoltage(this.driveAppliedVolts);
         }
     }
@@ -128,9 +134,10 @@ public class SwerveModuleSimulator extends SwerveModuleTalonFX {
     /**
      * 
      */
-    private void applyAngleSettings() {
-        double pidOutput = this.turnController.calculate(this.turnRelativePositionRAD, Math.toRadians(this.turnSetpointDEG));
+    private void applyTurnSettings() {
+        double pidOutput = this.turnController.calculate(this.turnRelativePositionRAD, this.turnSetpointRAD);
         this.turnAppliedVolts = MathUtil.clamp(pidOutput * 12.0, -12.0, 12.0);
+
         this.turnMotorSim.setInputVoltage(this.turnAppliedVolts);
     }
 
@@ -176,7 +183,7 @@ public class SwerveModuleSimulator extends SwerveModuleTalonFX {
         this.turnPositionDEG = this.turnRelativePositionRAD * (180.0 / Math.PI);
         this.turnVelocityRPM = Conversions.toRPM(angleDiffRadians, CHOSEN_MODULE.angleGearRatio);
     
-        applyAngleSettings();
+        applyTurnSettings();
         applyDriveSettings();
 
         Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Drive/PositionRAD", this.drivePositionRAD);
@@ -201,6 +208,8 @@ public class SwerveModuleSimulator extends SwerveModuleTalonFX {
         
         Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/AbsolutePositionDEG", this.turnAbsolutePositionDEG);
         Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/PositionDEG", this.turnPositionDEG);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/RelativePositionRAD", this.turnRelativePositionRAD);
+        Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/SetpointRAD", this.turnSetpointRAD);
         Logger.recordOutput("Mechanisms/SwerveModules/Mod" + this.module_id + "/Turn/VelocityRPM", this.turnVelocityRPM);
     }
 }

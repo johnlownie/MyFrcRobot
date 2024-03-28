@@ -31,9 +31,9 @@ import frc.robot.utils.Conversions;
  */
 public class SwerveModuleTalonFX extends SwerveModule {
     /* Drive Motor Characterization Values */
-    private final double DRIVE_KS = 0.32; // / 12.0;
-    private final double DRIVE_KV = 1.51; // / 12.0;
-    private final double DRIVE_KA = 0.27; // / 12.0;
+    private final double DRIVE_KS = 0.0; // 0.32; // / 12.0;
+    private final double DRIVE_KV = 0.0; // 1.51; // / 12.0;
+    private final double DRIVE_KA = 0.0; // 0.27; // / 12.0;
 
     // Not sure what these represent, but smaller is faster
     private final double MOTION_MAGIC_VELOCITY = .125;
@@ -216,14 +216,14 @@ public class SwerveModuleTalonFX extends SwerveModule {
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop){
         desiredState = SwerveModuleState.optimize(desiredState, getState().angle);
 
-        setAngleState(desiredState);
+        setTurnState(desiredState);
         setDriveState(desiredState, isOpenLoop);
     }
 
     /**
      * 
      */
-    protected void setAngleState(SwerveModuleState desiredState) {
+    protected void setTurnState(SwerveModuleState desiredState) {
         PositionVoltage positionVoltage = this.positionVoltage.withPosition(desiredState.angle.getRotations());
         this.turnMotor.setControl(positionVoltage);
 

@@ -11,6 +11,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -27,10 +28,9 @@ public class DriveAndGrabNoteCommand extends Command {
     private final DoubleSupplier translationYSupplier;
     private final Supplier<PhotonTrackedTarget> targetSupplier;
 
-
-    private final ProfiledPIDController xController = TeleopConstants.xController;
-    private final ProfiledPIDController yController = TeleopConstants.yController;
-    private final ProfiledPIDController omegaController = TeleopConstants.omegaController;
+    private final ProfiledPIDController xController;
+    private final ProfiledPIDController yController;
+    private final ProfiledPIDController omegaController;
   
     private final SlewRateLimiter translateXRateLimiter = new SlewRateLimiter(TeleopConstants.X_RATE_LIMIT);
     private final SlewRateLimiter translateYRateLimiter = new SlewRateLimiter(TeleopConstants.Y_RATE_LIMIT);
@@ -54,6 +54,14 @@ public class DriveAndGrabNoteCommand extends Command {
         this.translationYSupplier = translationYSupplier;
         this.rotationSupplier = rotationSupplier;
         this.targetSupplier = targetSupplier;
+
+        double[] driveXPIDs = PIDConstants.getDriveXPIDs();
+        double[] driveYPIDs = PIDConstants.getDriveXPIDs();
+        double[] driveOmegaPIDs = PIDConstants.getDriveOmegaPIDs();
+
+        this.xController = new ProfiledPIDController(driveXPIDs[0], driveXPIDs[1], driveXPIDs[2], TeleopConstants.X_CONSTRAINTS);
+        this.yController = new ProfiledPIDController(driveYPIDs[0], driveYPIDs[1], driveYPIDs[2], TeleopConstants.Y_CONSTRAINTS);
+        this.omegaController = new ProfiledPIDController(driveOmegaPIDs[0], driveOmegaPIDs[1], driveOmegaPIDs[2], TeleopConstants.OMEGA_CONSTRAINTS);
 
         this.xController.setTolerance(0.2);
         this.yController.setTolerance(0.2);

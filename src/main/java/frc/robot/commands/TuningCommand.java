@@ -11,8 +11,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.util.Timer;
+import frc.robot.Robot;
 import frc.robot.Constants.PIDConstants;
-import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.controls.XBoxControlBindings;
 import frc.robot.subsystems.ArmSubsystem;
@@ -30,31 +30,31 @@ public class TuningCommand extends Command {
     private final XBoxControlBindings controller;
 
     /* Tunable PID for arm module */
-    private final LoggedTunableNumber armKp = new LoggedTunableNumber("Arm/kp", PIDConstants.ARM_MODULE_KP);
-    private final LoggedTunableNumber armKi = new LoggedTunableNumber("Arm/ki", PIDConstants.ARM_MODULE_KI);
-    private final LoggedTunableNumber armKd = new LoggedTunableNumber("Arm/kd", PIDConstants.ARM_MODULE_KD);
+    private LoggedTunableNumber armKp;
+    private LoggedTunableNumber armKi;
+    private LoggedTunableNumber armKd;
 
     /* Tunable PID for individual swerve modules */
-    private final LoggedTunableNumber driveKp = new LoggedTunableNumber("Drive/kp", PIDConstants.SWERVE_MODULE_DRIVE_KP);
-    private final LoggedTunableNumber driveKi = new LoggedTunableNumber("Drive/ki", PIDConstants.SWERVE_MODULE_DRIVE_KI);
-    private final LoggedTunableNumber driveKd = new LoggedTunableNumber("Drive/kd", PIDConstants.SWERVE_MODULE_DRIVE_KD);
+    private LoggedTunableNumber driveKp;
+    private LoggedTunableNumber driveKi;
+    private LoggedTunableNumber driveKd;
 
-    private final LoggedTunableNumber turnKp = new LoggedTunableNumber("Turn/kp", PIDConstants.SWERVE_MODULE_TURN_KP);
-    private final LoggedTunableNumber turnKi = new LoggedTunableNumber("Turn/ki", PIDConstants.SWERVE_MODULE_TURN_KI);
-    private final LoggedTunableNumber turnKd = new LoggedTunableNumber("Turn/kd", PIDConstants.SWERVE_MODULE_TURN_KD);
+    private LoggedTunableNumber turnKp;
+    private LoggedTunableNumber turnKi;
+    private LoggedTunableNumber turnKd;
 
     /* Tunable PID used only for Path Planner autonomous mode in the DrivePathCommand */
-    private final LoggedTunableNumber xKp = new LoggedTunableNumber("Autonomous/xKp", PIDConstants.SWERVE_DRIVE_X_KP);
-    private final LoggedTunableNumber xKi = new LoggedTunableNumber("Autonomous/xKi", PIDConstants.SWERVE_DRIVE_X_KI);
-    private final LoggedTunableNumber xKd = new LoggedTunableNumber("Autonomous/xKd", PIDConstants.SWERVE_DRIVE_X_KD);
+    private LoggedTunableNumber xKp;
+    private LoggedTunableNumber xKi;
+    private LoggedTunableNumber xKd;
 
-    private final LoggedTunableNumber yKp = new LoggedTunableNumber("Autonomous/yKp", PIDConstants.SWERVE_DRIVE_Y_KP);
-    private final LoggedTunableNumber yKi = new LoggedTunableNumber("Autonomous/yKi", PIDConstants.SWERVE_DRIVE_Y_KI);
-    private final LoggedTunableNumber yKd = new LoggedTunableNumber("Autonomous/yKd", PIDConstants.SWERVE_DRIVE_Y_KD);
+    private LoggedTunableNumber yKp;
+    private LoggedTunableNumber yKi;
+    private LoggedTunableNumber yKd;
 
-    private final LoggedTunableNumber omegaKp = new LoggedTunableNumber("Autonomous/omegaKp", PIDConstants.SWERVE_DRIVE_OMEGA_KP);
-    private final LoggedTunableNumber omegaKi = new LoggedTunableNumber("Autonomous/omegaKi", PIDConstants.SWERVE_DRIVE_OMEGA_KI);
-    private final LoggedTunableNumber omegaKd = new LoggedTunableNumber("Autonomous/omegaKd", PIDConstants.SWERVE_DRIVE_OMEGA_KD);
+    private LoggedTunableNumber omegaKp;
+    private LoggedTunableNumber omegaKi;
+    private LoggedTunableNumber omegaKd;
 
     // Tunables used to set the robot to a particular Pose2d
     private final LoggedTunableNumber xPosition = new LoggedTunableNumber("Robot/xPosition", 0.0);
@@ -69,9 +69,9 @@ public class TuningCommand extends Command {
     private final LoggedTunableNumber desiredAngle = new LoggedTunableNumber("Robot/DesiredArmAngle", 0.0);
 
     /* These are used only for Path Planner autonomous mode in the DrivePathCommand */
-    private final ProfiledPIDController xController = TeleopConstants.xController;
-    private final ProfiledPIDController yController = TeleopConstants.yController;
-    private final ProfiledPIDController omegaController = TeleopConstants.omegaController;
+    private final ProfiledPIDController xController;
+    private final ProfiledPIDController yController;
+    private final ProfiledPIDController omegaController;
   
     // Limiters used when driving by controller
     private final SlewRateLimiter translateXRateLimiter = new SlewRateLimiter(TeleopConstants.X_RATE_LIMIT);
@@ -83,13 +83,26 @@ public class TuningCommand extends Command {
     private final Timer timer;
 
     /**
-     * 
+     * This command should only be run in robot tuning mode
      */
     public TuningCommand(SwerveDriveSubsystem swerveDrive, ArmSubsystem armSubsystem, PoseEstimatorSubsystem poseEstimator, XBoxControlBindings controller) {
         this.swerveDrive = swerveDrive;
         this.armSubsystem = armSubsystem;
         this.poseEstimator = poseEstimator;
         this.controller = controller;
+
+        double[] driveXPIDs = PIDConstants.getDriveXPIDs();
+        double[] driveYPIDs = PIDConstants.getDriveXPIDs();
+        double[] driveOmegaPIDs = PIDConstants.getDriveOmegaPIDs();
+
+        this.xController = new ProfiledPIDController(driveXPIDs[0], driveXPIDs[1], driveXPIDs[2], TeleopConstants.X_CONSTRAINTS);
+        this.yController = new ProfiledPIDController(driveYPIDs[0], driveYPIDs[1], driveYPIDs[2], TeleopConstants.Y_CONSTRAINTS);
+        this.omegaController = new ProfiledPIDController(driveOmegaPIDs[0], driveOmegaPIDs[1], driveOmegaPIDs[2], TeleopConstants.OMEGA_CONSTRAINTS);
+
+        this.xController.setTolerance(0.02);
+        this.yController.setTolerance(0.02);
+        this.omegaController.setTolerance(Units.degreesToRadians(1));
+        this.omegaController.enableContinuousInput(-Math.PI, Math.PI);
 
         this.timer = new Timer();
 
@@ -105,47 +118,44 @@ public class TuningCommand extends Command {
 
     @Override
     public void execute() {
-        // This command should only be used in tuning mode
-        if (RobotConstants.TUNING_MODE) {
-            if (this.armKp.hasChanged(hashCode()) || this.armKi.hasChanged(hashCode()) || this.armKd.hasChanged(hashCode())) {
-                this.armSubsystem.updatePID(this.armKp.get(), this.armKi.get(), this.armKd.get());
-            }
+        if (this.armKp.hasChanged(hashCode()) || this.armKi.hasChanged(hashCode()) || this.armKd.hasChanged(hashCode())) {
+            this.armSubsystem.updatePID(this.armKp.get(), this.armKi.get(), this.armKd.get());
+        }
 
-            if (this.driveKp.hasChanged(hashCode()) || this.driveKi.hasChanged(hashCode()) || this.driveKd.hasChanged(hashCode())) {
-                this.swerveDrive.updateDrivePID(this.driveKp.get(), this.driveKi.get(), this.driveKd.get());
-            }
-            
-            if (this.turnKp.hasChanged(hashCode()) || this.turnKi.hasChanged(hashCode()) || this.turnKd.hasChanged(hashCode())) {
-                this.swerveDrive.updateTurnPID(this.turnKp.get(), this.turnKi.get(), this.turnKd.get());
-            }
-            
-            if (this.xKp.hasChanged(hashCode()) || this.xKi.hasChanged(hashCode()) || this.xKd.hasChanged(hashCode())) {
-                this.xController.setPID(this.xKp.get(), this.xKi.get(), this.xKd.get());
-            }
-            
-            if (this.yKp.hasChanged(hashCode()) || this.yKi.hasChanged(hashCode()) || this.yKd.hasChanged(hashCode())) {
-                this.yController.setPID(this.yKp.get(), this.yKi.get(), this.yKd.get());
-            }
-            
-            if (this.omegaKp.hasChanged(hashCode()) || this.omegaKi.hasChanged(hashCode()) || this.omegaKd.hasChanged(hashCode())) {
-                this.omegaController.setPID(this.omegaKp.get(), this.omegaKi.get(), this.omegaKd.get());
-            }
-            
-            if (this.xPosition.hasChanged(hashCode())) {
-                this.xController.setGoal(this.xPosition.get());
-            }
-            
-            if (this.yPosition.hasChanged(hashCode())) {
-                this.yController.setGoal(this.yPosition.get());
-            }
-            
-            if (this.rAngle.hasChanged(hashCode())) {
-                this.omegaController.setGoal(Units.degreesToRadians(this.rAngle.get()));
-            }
-            
-            if (this.desiredAngle.hasChanged(hashCode())) {
-                this.armSubsystem.setDesiredAngle(this.desiredAngle.get());
-            }
+        if (this.driveKp.hasChanged(hashCode()) || this.driveKi.hasChanged(hashCode()) || this.driveKd.hasChanged(hashCode())) {
+            this.swerveDrive.updateDrivePID(this.driveKp.get(), this.driveKi.get(), this.driveKd.get());
+        }
+        
+        if (this.turnKp.hasChanged(hashCode()) || this.turnKi.hasChanged(hashCode()) || this.turnKd.hasChanged(hashCode())) {
+            this.swerveDrive.updateTurnPID(this.turnKp.get(), this.turnKi.get(), this.turnKd.get());
+        }
+        
+        if (this.xKp.hasChanged(hashCode()) || this.xKi.hasChanged(hashCode()) || this.xKd.hasChanged(hashCode())) {
+            this.xController.setPID(this.xKp.get(), this.xKi.get(), this.xKd.get());
+        }
+        
+        if (this.yKp.hasChanged(hashCode()) || this.yKi.hasChanged(hashCode()) || this.yKd.hasChanged(hashCode())) {
+            this.yController.setPID(this.yKp.get(), this.yKi.get(), this.yKd.get());
+        }
+        
+        if (this.omegaKp.hasChanged(hashCode()) || this.omegaKi.hasChanged(hashCode()) || this.omegaKd.hasChanged(hashCode())) {
+            this.omegaController.setPID(this.omegaKp.get(), this.omegaKi.get(), this.omegaKd.get());
+        }
+        
+        if (this.xPosition.hasChanged(hashCode())) {
+            this.xController.setGoal(this.xPosition.get());
+        }
+        
+        if (this.yPosition.hasChanged(hashCode())) {
+            this.yController.setGoal(this.yPosition.get());
+        }
+        
+        if (this.rAngle.hasChanged(hashCode())) {
+            this.omegaController.setGoal(Units.degreesToRadians(this.rAngle.get()));
+        }
+        
+        if (this.desiredAngle.hasChanged(hashCode())) {
+            this.armSubsystem.setDesiredAngle(this.desiredAngle.get());
         }
 
         double xVelocity = this.translateXRateLimiter.calculate(this.controller.translationX().getAsDouble());
@@ -177,13 +187,36 @@ public class TuningCommand extends Command {
 
     @Override
     public void initialize() {
+        double[] driveXPIDs = PIDConstants.getDriveXPIDs();
+        double[] driveYPIDs = PIDConstants.getDriveXPIDs();
+        double[] driveOmegaPIDs = PIDConstants.getDriveOmegaPIDs();
+
+        this.armKp = new LoggedTunableNumber("Arm/kp", PIDConstants.ARM_MODULE_KP);
+        this.armKi = new LoggedTunableNumber("Arm/ki", PIDConstants.ARM_MODULE_KI);
+        this.armKd = new LoggedTunableNumber("Arm/kd", PIDConstants.ARM_MODULE_KD);
+
+        this.driveKp = new LoggedTunableNumber("Drive/kp", PIDConstants.SWERVE_MODULE_DRIVE_KP);
+        this.driveKi = new LoggedTunableNumber("Drive/ki", PIDConstants.SWERVE_MODULE_DRIVE_KI);
+        this.driveKd = new LoggedTunableNumber("Drive/kd", PIDConstants.SWERVE_MODULE_DRIVE_KD);
+
+        this.turnKp = new LoggedTunableNumber("Turn/kp", PIDConstants.SWERVE_MODULE_TURN_KP);
+        this.turnKi = new LoggedTunableNumber("Turn/ki", PIDConstants.SWERVE_MODULE_TURN_KI);
+        this.turnKd = new LoggedTunableNumber("Turn/kd", PIDConstants.SWERVE_MODULE_TURN_KD);
+
+        this.xKp = new LoggedTunableNumber("Autonomous/xKp", driveXPIDs[0]);
+        this.xKi = new LoggedTunableNumber("Autonomous/xKi", driveXPIDs[1]);
+        this.xKd = new LoggedTunableNumber("Autonomous/xKd", driveXPIDs[2]);
+    
+        this.yKp = new LoggedTunableNumber("Autonomous/yKp", driveYPIDs[0]);
+        this.yKi = new LoggedTunableNumber("Autonomous/yKi", driveYPIDs[1]);
+        this.yKd = new LoggedTunableNumber("Autonomous/yKd", driveYPIDs[2]);
+    
+        this.omegaKp = new LoggedTunableNumber("Autonomous/omegaKp", driveOmegaPIDs[0]);
+        this.omegaKi = new LoggedTunableNumber("Autonomous/omegaKi", driveOmegaPIDs[1]);
+        this.omegaKd = new LoggedTunableNumber("Autonomous/omegaKd", driveOmegaPIDs[2]);
+
         resetPIDControllers();
         // this.poseEstimator.resetPose(new Pose2d(0, 0, new Rotation2d()));
-
-        this.xController.setTolerance(0.02);
-        this.yController.setTolerance(0.02);
-        this.omegaController.setTolerance(Units.degreesToRadians(1));
-        this.omegaController.enableContinuousInput(-Math.PI, Math.PI);
 
         this.xController.setGoal(this.poseEstimator.getCurrentPose().getX());
         this.yController.setGoal(this.poseEstimator.getCurrentPose().getY());

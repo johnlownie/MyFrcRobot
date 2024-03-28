@@ -34,7 +34,7 @@ public final class Constants {
     public static final class RobotConstants {
         public static final double ROBOT_LENGTH = Units.inchesToMeters(38.0);
         public static final double LOOP_PERIOD_SECS = 0.02;
-        public static final boolean TUNING_MODE = false;
+        public static final boolean TUNING_MODE = true;
         
         // FIXME: update for various robots
         public enum Mode { REAL, REPLAY, SIM }
@@ -194,35 +194,79 @@ public final class Constants {
         public static final double SHOOTER_MODULE_KF = 000172;
         
         // PID constants for swerve modules
-        public static final double SWERVE_MODULE_DRIVE_KP = 6.0;
+        public static final double SWERVE_MODULE_DRIVE_KP = 0.0;
         public static final double SWERVE_MODULE_DRIVE_KI = 0.0;
         public static final double SWERVE_MODULE_DRIVE_KD = 0.0;
         
-        public static final double SWERVE_MODULE_TURN_KP = 10.0;
+        public static final double SWERVE_MODULE_TURN_KP = 0.0;
         public static final double SWERVE_MODULE_TURN_KI = 0.0;
         public static final double SWERVE_MODULE_TURN_KD = 0.0;
         
-        // PID constants for simulated swerve modules
-        public static final double SIM_SWERVE_MODULE_DRIVE_KP = 1.0;
-        public static final double SIM_SWERVE_MODULE_DRIVE_KI = 0.0;
-        public static final double SIM_SWERVE_MODULE_DRIVE_KD = 0.0;
-        
-        public static final double SIM_SWERVE_MODULE_TURN_KP = 1.0;
-        public static final double SIM_SWERVE_MODULE_TURN_KI = 0.0;
-        public static final double SIM_SWERVE_MODULE_TURN_KD = 0.0;
-        
         // PID constants for autonomous/pathplanner mode
-        public static final double SWERVE_DRIVE_X_KP = 1.0;
+        public static final double SWERVE_DRIVE_X_KP = 0.0;
         public static final double SWERVE_DRIVE_X_KI = 0.0;
         public static final double SWERVE_DRIVE_X_KD = 0.0;
 
-        public static final double SWERVE_DRIVE_Y_KP = 1.0;
+        public static final double SWERVE_DRIVE_Y_KP = 0.0;
         public static final double SWERVE_DRIVE_Y_KI = 0.0;
         public static final double SWERVE_DRIVE_Y_KD = 0.0;
 
-        public static final double SWERVE_DRIVE_OMEGA_KP = 2.0;
+        public static final double SWERVE_DRIVE_OMEGA_KP = 0.0;
         public static final double SWERVE_DRIVE_OMEGA_KI = 0.0;
         public static final double SWERVE_DRIVE_OMEGA_KD = 0.0;
+        
+        // PID constants for simulated arm module
+        public static final double SIM_ARM_MODULE_KP = 15.0;
+        public static final double SIM_ARM_MODULE_KI = 0.0;
+        public static final double SIM_ARM_MODULE_KD = 0.0;
+
+        // PID constants for simulated swerve modules
+        public static final double SIM_SWERVE_MODULE_DRIVE_KP = 0.0;
+        public static final double SIM_SWERVE_MODULE_DRIVE_KI = 0.0;
+        public static final double SIM_SWERVE_MODULE_DRIVE_KD = 0.0;
+        
+        public static final double SIM_SWERVE_MODULE_TURN_KP = 0.0;
+        public static final double SIM_SWERVE_MODULE_TURN_KI = 0.0;
+        public static final double SIM_SWERVE_MODULE_TURN_KD = 0.0;
+        
+        // PID constants for simulated autonomous/pathplanner mode
+        public static final double SIM_SWERVE_DRIVE_X_KP = 1.0;
+        public static final double SIM_SWERVE_DRIVE_X_KI = 0.0;
+        public static final double SIM_SWERVE_DRIVE_X_KD = 0.0;
+
+        public static final double SIM_SWERVE_DRIVE_Y_KP = 1.0;
+        public static final double SIM_SWERVE_DRIVE_Y_KI = 0.0;
+        public static final double SIM_SWERVE_DRIVE_Y_KD = 0.0;
+
+        public static final double SIM_SWERVE_DRIVE_OMEGA_KP = 1.0;
+        public static final double SIM_SWERVE_DRIVE_OMEGA_KI = 0.0;
+        public static final double SIM_SWERVE_DRIVE_OMEGA_KD = 0.0;
+
+        /**
+         * 
+         */
+        public static final double[] getDriveXPIDs() {
+            return Robot.isReal() 
+                ? new double[] { SWERVE_DRIVE_X_KP, SWERVE_DRIVE_X_KI, SWERVE_DRIVE_X_KD }
+                : new double[] { SIM_SWERVE_DRIVE_X_KP, SIM_SWERVE_DRIVE_X_KI, SIM_SWERVE_DRIVE_X_KD };
+        }
+
+        /**
+         * 
+         */
+        public static final double[] getDriveYPIDs() {
+            return Robot.isReal() 
+                ? new double[] { SWERVE_DRIVE_Y_KP, SWERVE_DRIVE_Y_KI, SWERVE_DRIVE_Y_KD }
+                : new double[] { SIM_SWERVE_DRIVE_Y_KP, SIM_SWERVE_DRIVE_Y_KI, SIM_SWERVE_DRIVE_Y_KD };
+        }
+        /**
+         * 
+         */
+        public static final double[] getDriveOmegaPIDs() {
+            return Robot.isReal() 
+                ? new double[] { SWERVE_DRIVE_OMEGA_KP, SWERVE_DRIVE_OMEGA_KI, SWERVE_DRIVE_OMEGA_KD }
+                : new double[] { SIM_SWERVE_DRIVE_OMEGA_KP, SIM_SWERVE_DRIVE_OMEGA_KI, SIM_SWERVE_DRIVE_OMEGA_KD };
+        }
     }
 
     /**
@@ -320,9 +364,9 @@ public final class Constants {
         public static final double SPEED_MODIFIER_ONE_HUNDRED = 1.00;
         public static final double SPEED_MODIFIER_THIRTY = 0.30;
 
-        private static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(4.5, 4);
-        private static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(4.5, 4);
-        private static final TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(10, 10);
+        public static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(4.5, 4);
+        public static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(4.5, 4);
+        public static final TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(10, 10);
     
         public static final ProfiledPIDController xController = new ProfiledPIDController(PIDConstants.SWERVE_DRIVE_X_KP, PIDConstants.SWERVE_DRIVE_X_KI, PIDConstants.SWERVE_DRIVE_X_KD, X_CONSTRAINTS);
         public static final ProfiledPIDController yController = new ProfiledPIDController(PIDConstants.SWERVE_DRIVE_Y_KP, PIDConstants.SWERVE_DRIVE_Y_KI, PIDConstants.SWERVE_DRIVE_Y_KD, Y_CONSTRAINTS);

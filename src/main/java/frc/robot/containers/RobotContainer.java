@@ -129,8 +129,10 @@ abstract public class RobotContainer {
     /**
      * 
      */
-    public DriveModeType getDriveModeType() {
-        return this.driverBindings.getDriveModeType().get();
+    public String getDriveModeTypeAsString() {
+        if (this.driverBindings == null) return "";
+
+        return this.driverBindings.getDriveModeType().get() == DriveModeType.SPEAKER ? "SPEAKER" : "AMP";
     }
         
     /**

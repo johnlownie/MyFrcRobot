@@ -11,25 +11,6 @@
         "vgap": 16.0,
         "titleType": 0,
         "tiles": {
-          "0,4": {
-            "size": [
-              5,
-              3
-            ],
-            "content": {
-              "_type": "Field",
-              "_source0": "network_table:///SmartDashboard/VisionSystemSim-FrontArduCam/Sim Field",
-              "_title": "VisionSystemSim-FrontArduCam/Sim Field",
-              "_glyph": 148,
-              "_showGlyph": false,
-              "Game/Game": "k2024Crescendo",
-              "Visuals/Robot Icon Size": 50.0,
-              "Visuals/Show Outside Circles": false,
-              "Colors/cameras": "#FFFFFFFF",
-              "Colors/visibleTargetPoses": "#FFFFFFFF",
-              "Colors/apriltag": "#FFFFFFFF"
-            }
-          },
           "0,0": {
             "size": [
               4,
@@ -37,7 +18,7 @@
             ],
             "content": {
               "_type": "Grid Layout",
-              "_title": "Swerve Drive for Path Planner",
+              "_title": "Swerve Drive for PathPlanner",
               "_glyph": 149,
               "_showGlyph": false,
               "Layout/Number of columns": 3,
@@ -214,25 +195,6 @@
               }
             }
           },
-          "5,4": {
-            "size": [
-              5,
-              3
-            ],
-            "content": {
-              "_type": "Field",
-              "_source0": "network_table:///SmartDashboard/VisionSystemSim-RearArduCam/Sim Field",
-              "_title": "VisionSystemSim-RearArduCam/Sim Field",
-              "_glyph": 148,
-              "_showGlyph": false,
-              "Game/Game": "k2024Crescendo",
-              "Visuals/Robot Icon Size": 50.0,
-              "Visuals/Show Outside Circles": false,
-              "Colors/cameras": "#FFFFFFFF",
-              "Colors/visibleTargetPoses": "#FFFFFFFF",
-              "Colors/apriltag": "#FFFFFFFF"
-            }
-          },
           "4,1": {
             "size": [
               4,
@@ -304,6 +266,76 @@
               "_glyph": 148,
               "_showGlyph": false
             }
+          },
+          "0,4": {
+            "size": [
+              5,
+              3
+            ],
+            "content": {
+              "_type": "Field",
+              "_source0": "network_table:///SmartDashboard/VisionSystemSim-Arducam_OV9281-2/Sim Field",
+              "_title": "VisionSystemSim-Arducam_OV9281-2/Sim Field",
+              "_glyph": 148,
+              "_showGlyph": false,
+              "Game/Game": "k2024Crescendo",
+              "Visuals/Robot Icon Size": 50.0,
+              "Visuals/Show Outside Circles": false,
+              "Colors/cameras": "#FFFFFFFF",
+              "Colors/visibleTargetPoses": "#FFFFFFFF",
+              "Colors/apriltag": "#FFFFFFFF"
+            }
+          },
+          "5,4": {
+            "size": [
+              5,
+              3
+            ],
+            "content": {
+              "_type": "Field",
+              "_source0": "network_table:///SmartDashboard/VisionSystemSim-Arducam_OV9281-1/Sim Field",
+              "_title": "VisionSystemSim-Arducam_OV9281-1/Sim Field",
+              "_glyph": 148,
+              "_showGlyph": false,
+              "Game/Game": "k2024Crescendo",
+              "Visuals/Robot Icon Size": 50.0,
+              "Visuals/Show Outside Circles": false,
+              "Colors/cameras": "#FFFFFFFF",
+              "Colors/visibleTargetPoses": "#FFFFFFFF",
+              "Colors/apriltag": "#FFFFFFFF"
+            }
+          },
+          "10,4": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Field",
+              "_source0": "network_table:///SmartDashboard/VisionSystemSim-WebCam/Sim Field",
+              "_title": "VisionSystemSim-WebCam/Sim Field",
+              "_glyph": 148,
+              "_showGlyph": false,
+              "Game/Game": "k2024Crescendo",
+              "Visuals/Robot Icon Size": 50.0,
+              "Visuals/Show Outside Circles": false,
+              "Colors/cameras": "#FFFFFFFF",
+              "Colors/note": "#FFFFFFFF",
+              "Colors/visibleTargetPoses": "#FFFFFFFF"
+            }
+          },
+          "3,3": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///AdvantageKit/RealOutputs/Subsystems/SwerveDrive/DriveMode",
+              "_title": "/AdvantageKit/RealOutputs/Subsystems/SwerveDrive/DriveMode",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
           }
         }
       }
@@ -323,8 +355,8 @@
     }
   ],
   "windowGeometry": {
-    "x": 7.0,
-    "y": 7.0,
+    "x": 3.0,
+    "y": 0.0,
     "width": 1920.0,
     "height": 1160.0
   }

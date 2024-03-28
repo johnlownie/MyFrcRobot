@@ -12,6 +12,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,8 +24,10 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SwerveModuleConstants;
-import frc.robot.Constants.TeleopConstants;
+import frc.robot.commands.FeedForwardCharacterizationCommand;
+import frc.robot.commands.FeedForwardCharacterizationCommand.FeedForwardCharacterizationData;
 import frc.robot.commands.TargetAndGrabNoteCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -65,14 +68,17 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
      * 
      */
     public void configureAutonomous() {
+        double[] driveXPIDs = frc.robot.Constants.PIDConstants.getDriveXPIDs();
+        double[] driveOmegaPIDs = frc.robot.Constants.PIDConstants.getDriveOmegaPIDs();
+        
         AutoBuilder.configureHolonomic(
             this.poseEstimatorSubsystem::getCurrentPose,
             this.poseEstimatorSubsystem::resetPose,
             this.swerveDriveSubsystem::getChassisSpeeds,
             this.swerveDriveSubsystem::drive,
             new HolonomicPathFollowerConfig(
-                new PIDConstants(TeleopConstants.xController.getP(), TeleopConstants.xController.getI(), TeleopConstants.xController.getD()),
-                new PIDConstants(TeleopConstants.omegaController.getP(), TeleopConstants.omegaController.getI(), TeleopConstants.omegaController.getD()),
+                new PIDConstants(driveXPIDs[0], driveXPIDs[1], driveXPIDs[2]),
+                new PIDConstants(driveOmegaPIDs[0], driveOmegaPIDs[1], driveOmegaPIDs[2]),
                 SwerveModuleConstants.MAX_VELOCITY_METERS_PER_SECOND,
                 Math.hypot(DriveTrainConstants.TRACK_WIDTH_METERS / 2, DriveTrainConstants.WHEEL_BASE_METERS / 2),
                 new ReplanningConfig()
@@ -90,8 +96,31 @@ public class AutoBuilder extends com.pathplanner.lib.auto.AutoBuilder {
 
         // Setup the chooser
         this.autonomousChooser = new LoggedDashboardChooser<Command>("Auto Routine", AutoBuilder.buildAutoChooser());
-        this.autonomousChooser.addOption("Station 3 - Shoot and Move Away", getShootAndMoveAway());
+
+        if (RobotConstants.TUNING_MODE) {
+            this.autonomousChooser.addOption("Drive Velocity Tuning",
+                Commands.sequence(
+                    Commands.runOnce(this.swerveDriveSubsystem::disableFieldRelative, this.swerveDriveSubsystem),
+                    Commands.deadline(
+                        Commands.waitSeconds(5.0),
+                        Commands.run(() -> this.swerveDriveSubsystem.drive(1.5, 0.0, 0.0, new Rotation2d(), false), this.swerveDriveSubsystem)
+                    )
+                )
+            );
+
+            this.autonomousChooser.addOption("Drive Characterization",
+                new FeedForwardCharacterizationCommand(
+                    this.swerveDriveSubsystem,
+                    true,
+                    new FeedForwardCharacterizationData("drive"),
+                    this.swerveDriveSubsystem::runCharacterizationVolts,
+                    this.swerveDriveSubsystem::getCharacterizationVelocity
+                )
+            );
+        }
+
         this.autonomousChooser.addOption("Station 1 - Drive First", getBlue1DriveFirst());
+        this.autonomousChooser.addOption("Station 3 - Shoot and Move Away", getShootAndMoveAway());
         this.autonomousChooser.addOption("2056", get2056());
 
         // Add chooser to the shuffleboard
